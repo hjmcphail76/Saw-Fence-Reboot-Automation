@@ -1,15 +1,3 @@
-/*
-   Title: Simple Axis 1 Control
-
-   Description: This ClearCore code demonstrates controlling a single ClearPath-SD servo (Axis 1) with basic UI elements.
-
-   Requirements:
-    - A ClearPath motor connected to Connector M-0.
-    - The ClearPath motor configured for Step and Direction mode in MSP.
-    - HLFB mode "ASG-Position w/Measured Torque" (482 Hz PWM carrier frequency).
-    - Input Format "Step + Direction".
-*/
-
 #include "ClearCore.h"
 #include <genieArduinoDEV.h>
 
@@ -163,31 +151,6 @@ void loop() {
 
         if (motor->StatusReg().bit.StepsActive) {
           genie.WriteObject(GENIE_OBJ_VIDEO, AxisFormAnimationGenieNum, AxisAnimation);
-        }
-
-        if (AxisCurrentPos != AxisCurrentPosLast) {
-          genie.WriteObject(GENIE_OBJ_LED_DIGITS, AxisFormCurrentPositionGenieNum, AxisCurrentPos);
-          AxisCurrentPosLast = AxisCurrentPos;
-        }
-        if (AxisMoveDist != AxisMoveDistLast) {
-          genie.WriteObject(GENIE_OBJ_LED_DIGITS, AxisFormDistGenieNum, AxisMoveDist);
-          AxisMoveDistLast = AxisMoveDist;
-        }
-        if (AxisMoveVel != AxisMoveVelLast) {
-          genie.WriteObject(GENIE_OBJ_LED_DIGITS, AxisFormVelGenieNum, AxisMoveVel);
-          AxisMoveVelLast = AxisMoveVel;
-        }
-        if (AxisMoveAccel != AxisMoveAccelLast) {
-          genie.WriteObject(GENIE_OBJ_LED_DIGITS, AxisFormAccelGenieNum, AxisMoveAccel);
-          AxisMoveAccelLast = AxisMoveAccel;
-        }
-        if (AxisDwell != AxisDwellLast) {
-          genie.WriteObject(GENIE_OBJ_LED_DIGITS, AxisFormDwellGenieNum, AxisDwell);
-          AxisDwellLast = AxisDwell;
-        }
-        if (AxisTorque != AxisTorqueLast) {
-          genie.WriteObject(GENIE_OBJ_LED_DIGITS, AxisFormTorqueGenieNum, AxisTorque);
-          AxisTorqueLast = AxisTorque;
         }
         break;
 
