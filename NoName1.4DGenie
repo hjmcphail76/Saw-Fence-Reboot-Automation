@@ -1,0 +1,83 @@
+﻿Version     0.0
+Platform    Gen4-uLCD-43DCT-CLB-L
+PlatRes     272x480
+Depends
+end
+Options
+    Genie
+    Speed                        9600
+    Checksum                     No
+    ResponseSize                 2
+    Multidrop                    No
+    Destination                  1
+    DestBank                     0
+    MainForm                     0
+    SndBuf                       0
+    ButtonDisable                No
+    SignedDigits                 No
+    MaxString                    75
+    ComPort                      0
+    ComTX1pinIdx                 0
+    ComRX1pinIdx                 0
+    FileSystem                   FATfs
+    FlashEraseOption             Optimal
+    SPIenable                    0
+    SPIsdo                       3
+    SPIsdi                       2
+    SPIsck                       1
+    ForceProgramFlash            No
+    PixxiuSDSpeed                0
+    FlashForceLT16MB             No
+end
+Form
+    Name                         Form0
+    Alias                        Form0
+    Bgtype                       Color
+    Color                        BLACK
+    Image                        Neo7CNC-FinalLogoBlackBG2-crop.jpg
+    Source.Height                614
+    Source.Left                  0
+    Source.Top                   0
+    Source.Width                 1034
+    OnActivate                   ''
+    OnCreate                     ''
+    OnRepeat                     ''
+    OnTouchMoving                ''
+    OnTouchPressed               ''
+    OnTouchReleased              ''
+end
+Image
+    Name                         Image0
+    Alias                        Image0
+    Height                       263
+    Image                        Neo7CNC-FinalLogoBlackBG2-crop.jpg
+    Left                         0
+    Source.Height                614
+    Source.Left                  0
+    Source.Top                   0
+    Source.Width                 1034
+    Top                          0
+    Width                        471
+    OnTouchMoving                ''
+    OnTouchPressed               ''
+    OnTouchReleased              ''
+end
+StaticText
+    Name                         Statictext1
+    Alias                        loading_text
+    Alignment                    Center
+    AutoSize                     Yes
+    Caption                      ' LOADING...'
+    Color                        BLACK
+    Font.Color                   WHITE
+    Font.Effects                 []
+    Font.Name                    Tahoma
+    Font.Size                    12
+    Font.Style                   []
+    Height                       38
+    Left                         204
+    Top                          228
+    Transparent                  Yes
+    Width                        85
+    WordWrap                     Yes
+end
