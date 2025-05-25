@@ -48,7 +48,7 @@ Form
 end
 Image
     Name                         Image0
-    Alias                        Image0
+    Alias                        Logo-Splash-Screen
     Height                       248
     Image                        Neo7CNC-FinalLogoBlackBG2-crop.jpg
     Left                         2
