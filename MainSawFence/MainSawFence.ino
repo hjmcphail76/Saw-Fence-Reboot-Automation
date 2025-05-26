@@ -15,30 +15,7 @@ Genie genie;
 
 float ConversionFactor;
 int MotorProgInputRes = 200;  // Example: steps per revolution
-int SecondsInMinute = 60;
-int AxisMoveVel = 1000;   // Example: mm/second
-int AxisMoveAccel = 100;  // Example: mm/second^2
-long AxisDwell = 1000;    // Example: milliseconds
 
-
-long AxisMoveDist = 1000;           // Example: steps
-int AxisFormFaultLEDGenieNum = 10;  // Example: Genie object number for fault LED
-int AxisFormDistGenieNum = 11;      // Example: Genie object number for distance LED digit
-int AxisFormVelGenieNum = 12;       // Example: Genie object number for velocity LED digit
-int AxisFormAccelGenieNum = 13;     // Example: Genie object number for acceleration LED digit
-int AxisFormDwellGenieNum = 14;     // Example: Genie object number for dwell LED digit
-
-
-int DigitsToEdit = 5;  // Example: Number of digits to edit on the keypad
-int LEDDigitToEdit;
-int PreviousForm = 0;
-bool AxisStopRun = false;
-bool AxisFault = false;
-bool AxisStartedDwell = false;
-unsigned long AxisDwellTimeout = 0;
-long AxisMoveTarget = 0;
-bool AxisContinuous = false;
-int AxisTorque = 0;
 int CurrentForm = 0;
 
 // Declares user-defined helper functions.
@@ -54,8 +31,11 @@ int counter = 0;
 char temp;
 bool decimalEntered = false;
 
+String inches = "in";
+String millimeters = "mm";
 
-String f = "D";
+String CurrentUnits = inches;
+
 
 void setup() {
   // Sets the input clocking rate. This normal rate is ideal for ClearPath
@@ -106,52 +86,13 @@ void setup() {
   while (motor.HlfbState() != MotorDriver::HLFB_ASSERTED && !motor.StatusReg().bit.AlertsPresent) {
     continue;
   }
-  // Check if motor alert occurred during enabling
-  // Clear alert if configured to do so
-  if (motor.StatusReg().bit.AlertsPresent) {
-    Serial.println("Motor alert detected.");
-    PrintAlerts();
-    if (false) {  // HANDLE_ALERTS is set to 0
-      HandleAlerts();
-    } else {
-      Serial.println("Enable automatic alert handling by setting HANDLE_ALERTS to 1.");
-    }
-    Serial.println("Enabling may not have completed as expected. Proceed with caution.");
-    Serial.println();
-  } else {
-    Serial.println("Motor Ready");
-  }
+  
+  HandleAlerts();
 
   genie.SetForm(1);  // Change to Form 1
   CurrentForm = 1;
 
   genie.WriteContrast(15);  // Max Brightness
-
-  // Initialize user-defined parameters with example values
-  MotorProgInputRes = 200;
-  SecondsInMinute = 60;
-  AxisMoveVel = 1000;
-  AxisMoveAccel = 100;
-  AxisDwell = 1000;
-  AxisMoveDist = 1000;
-  AxisFormFaultLEDGenieNum = 10;
-  AxisFormDistGenieNum = 11;
-  AxisFormVelGenieNum = 12;
-  AxisFormAccelGenieNum = 13;
-  AxisFormDwellGenieNum = 14;
-  DigitsToEdit = 5;
-  PreviousForm = 0;
-  AxisStopRun = false;
-  AxisFault = false;
-  AxisStartedDwell = false;
-  AxisDwellTimeout = 0;
-  AxisMoveTarget = 0;
-  AxisContinuous = false;
-  AxisTorque = 0;
-  CurrentForm = 0;
-
-  // Converts Revs/minute (RPM) into Steps/second
-  ConversionFactor = (float)MotorProgInputRes / (float)SecondsInMinute;
 }
 
 // Genie event handler — dequeue and process keypad input immediately
@@ -159,52 +100,75 @@ void myGenieEventHandler(void) {
   genieFrame Event;
   genie.DequeueEvent(&Event);
 
-    // Process keypad input event on keypad index 0 (main keypad)
-    if (Event.reportObject.object == GENIE_OBJ_KEYBOARD && Event.reportObject.index == 0) {
-      int temp = genie.GetEventData(&Event);
+  // Process keypad input event on keypad index 0 (main control screen keypad)
+  if (Event.reportObject.object == GENIE_OBJ_KEYBOARD && Event.reportObject.index == 0) {
+    int temp = genie.GetEventData(&Event);
 
-      // Digit keys '0' to '9'
-      if (temp >= '0' && temp <= '9' && counter < sizeof(keyvalue) - 1) {
-        keyvalue[counter++] = (char)temp;
-        keyvalue[counter] = '\0';  // Null-terminate
+    // Digit keys '0' to '9', it converts to ASCII to compare.
+    if (temp >= '0' && temp <= '9' && counter < sizeof(keyvalue) - 1) {
+      keyvalue[counter++] = (char)temp;
+      keyvalue[counter] = '\0';  // Null-terminate
 
-        double val = atof(keyvalue);
-        genie.WriteStr(0, val, 3);  // Update display (String0) with 3 decimals
-      }
-      // Decimal point ('.' or ASCII 110)
-      else if ((temp == '.' || temp == 110) && !decimalEntered && counter < sizeof(keyvalue) - 2) {
-        keyvalue[counter++] = '.';
-        keyvalue[counter] = '\0';
-        decimalEntered = true;
-
-        double val = atof(keyvalue);
-        genie.WriteStr(0, val, 3);
-      }
-      // Backspace (ASCII 8)
-      else if (temp == 8 && counter > 0) {
-        counter--;
-        if (keyvalue[counter] == '.') decimalEntered = false;  // Reset decimal flag if '.' removed
-        keyvalue[counter] = '\0';
-
-        double val = atof(keyvalue);
-        genie.WriteStr(0, val, 3);
-      }
-      // Enter key (ASCII 13)
-      else if (temp == 13) {
-        double finalValue = atof(keyvalue);
-        Serial.print("Entered value: ");
-        Serial.println(finalValue, 3);
-
-        // Clear input buffer after enter
-        memset(keyvalue, 0, sizeof(keyvalue));
-        counter = 0;
-        decimalEntered = false;
-      }
+      double val = atof(keyvalue);
+      genie.WriteStr(0, val, 3);  // Update display (String0) with 3 decimals
     }
+    // Decimal point ('.' or ASCII 110)
+    else if ((temp == '.' || temp == 110) && !decimalEntered && counter < sizeof(keyvalue) - 2) {
+      keyvalue[counter++] = '.';
+      keyvalue[counter] = '\0';
+      decimalEntered = true;
+
+      double val = atof(keyvalue);
+      genie.WriteStr(0, val, 3);
+    }
+    // Backspace (ASCII 8)
+    else if (temp == 8 && counter > 0) {
+      counter--;
+      if (keyvalue[counter] == '.') decimalEntered = false;  // Reset decimal flag if '.' removed
+      keyvalue[counter] = '\0';
+
+      double val = atof(keyvalue);
+      genie.WriteStr(0, val, 3);
+    }
+    // Enter key (ASCII 13)
+    else if (temp == 13) {
+      double finalValue = atof(keyvalue);
+      Serial.print("Entered value: ");
+      Serial.println(finalValue, 3);
+
+      // Clear input buffer after enter
+      memset(keyvalue, 0, sizeof(keyvalue));
+      counter = 0;
+      decimalEntered = false;
+    }
+  }
+
+  //Servo Reset Button:
+
+  if (Event.reportObject.object == GENIE_OBJ_WINBUTTON) {
+    switch (Event.reportObject.index) {
+      case 0:
+        Serial.println("WinButton 0 pressed");
+        break;
+      case 1:
+        Serial.println("WinButton 1 pressed");
+        break;
+      case 2:
+        Serial.println("HOME BUTTON PRESSED");
+        PerformSensorlessHoming();
+        break;
+      case 3:
+        Serial.println("WinButton 3 pressed");
+        break;
+      case 4:
+        Serial.println("RESET SERVO BUTTON PRESSED");
+        HandleAlerts();
+        break;
+    }
+  }
 }
 void loop() {
   genie.DoEvents();  // Calls myGenieEventHandler internally, handling keypad input events
-  // Add other tasks you want to run continuously here
 }
 
 
@@ -267,20 +231,7 @@ bool MoveAbsolutePosition(int32_t position) {
     return true;
   }
 }
-//------------------------------------------------------------------------------
 
-
-/*------------------------------------------------------------------------------
- * PrintAlerts
- *
- * Prints active alerts.
- *
- * Parameters:
- * requires "motor" to be defined as a ClearCore motor connector
- *
- * Returns:
- * none
- */
 void PrintAlerts() {
   // report status of alerts
   Serial.println("Alerts present: ");
@@ -303,7 +254,6 @@ void PrintAlerts() {
     Serial.println("     MotorFaulted ");
   }
 }
-//------------------------------------------------------------------------------
 
 
 /*------------------------------------------------------------------------------
@@ -330,4 +280,34 @@ void HandleAlerts() {
   Serial.println("Clearing alerts.");
   motor.ClearAlerts();
 }
-//------------------------------------------------------------------------------
+
+void EStop() {
+  //Not sure the best and safest way to do this...
+  motor.EnableRequest(false);
+  motor.EStopConnector();
+}
+
+void PerformSensorlessHoming() {
+  Serial.println("Performing sensorless homing...");
+
+  // Ensure motor is disabled first
+  motor.EnableRequest(false);
+  Delay_ms(10);
+
+  // Enable motor, triggering homing (if configured in MSP)
+  motor.EnableRequest(true);
+
+  // Wait for HLFB to assert, indicating homing complete
+  Serial.println("Waiting for homing to complete (HLFB asserted)...");
+  while (motor.HlfbState() != MotorDriver::HLFB_ASSERTED && !motor.StatusReg().bit.AlertsPresent) {
+    continue;
+  }
+
+  if (motor.StatusReg().bit.AlertsPresent) {
+    Serial.println("Alert occurred during homing.");
+    PrintAlerts();
+    return;
+  }
+
+  Serial.println("Sensorless homing complete!");
+}
