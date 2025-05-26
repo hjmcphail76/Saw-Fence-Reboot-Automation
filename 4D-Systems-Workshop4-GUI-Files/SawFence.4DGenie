@@ -98,28 +98,9 @@ Form
     OnTouchPressed               ''
     OnTouchReleased              ''
 end
-LedDigits
-    Name                         Leddigits0
-    Alias                        CurrentSetLength
-    Color                        BLACK
-    Decimals                     3
-    Digits                       5
-    Height                       85
-    LeadingZero                  Yes
-    Left                         0
-    OutlineColor                 BLACK
-    Palette.High                 clLime
-    Palette.Low                  0x005100
-    Top                          0
-    Width                        248
-    OnChanged                    ''
-    OnTouchMoving                ''
-    OnTouchPressed               ''
-    OnTouchReleased              ''
-end
 Keyboard
     Name                         Keyboard1
-    Alias                        Keyboard1
+    Alias                        Main-Controls-Keyboard
     AutoCapsDisplay              Yes
     Fill                         (Default)
     Font.Color                   BLACK
@@ -127,18 +108,18 @@ Keyboard
     Font.Name                    Tahoma
     Font.Size                    8
     Font.Style                   []
-    Height                       272
+    Height                       270
     HighlightCaps                BLACK
     KeyboardType                 KB2
     KeyDistance                  0
-    Left                         334
+    Left                         328
     SmallFont.Color              BLACK
     SmallFont.Effects            []
     SmallFont.Name               Tahoma
     SmallFont.Size               7
     SmallFont.Style              []
     Top                          0
-    Width                        146
+    Width                        152
     OnChanged                    ''
 end
 WinButton
@@ -207,8 +188,8 @@ WinButton
     Font.Name                    Tahoma
     Font.Size                    8
     Font.Style                   []
-    Height                       104
-    Left                         230
+    Height                       113
+    Left                         228
     Matrix                       -1
     Momentary                    Yes
     Picture                      (None)
@@ -230,8 +211,8 @@ WinButton
     StatusWhenOn.Size            8
     StatusWhenOn.Style           []
     StatusWhenOn.Visible         Yes
-    Top                          164
-    Width                        103
+    Top                          159
+    Width                        98
     OnChanged                    ''
     OnTouchMoving                ''
     OnTouchPressed               ''
@@ -239,7 +220,7 @@ WinButton
 end
 WinButton
     Name                         Winbutton2
-    Alias                        Winbutton2
+    Alias                        Home-Button
     Appearance.Alignment         Center
     Appearance.Layout            Left
     Appearance.PictureAlignment  Right
@@ -255,8 +236,8 @@ WinButton
     Font.Name                    Tahoma
     Font.Size                    8
     Font.Style                   []
-    Height                       104
-    Left                         137
+    Height                       74
+    Left                         136
     Matrix                       -1
     Momentary                    Yes
     Picture                      (None)
@@ -278,7 +259,7 @@ WinButton
     StatusWhenOn.Size            8
     StatusWhenOn.Style           []
     StatusWhenOn.Visible         Yes
-    Top                          164
+    Top                          198
     Width                        88
     OnChanged                    ''
     OnTouchMoving                ''
@@ -287,7 +268,7 @@ WinButton
 end
 WinButton
     Name                         Winbutton3
-    Alias                        Winbutton3
+    Alias                        Settings-Button
     Appearance.Alignment         Center
     Appearance.Layout            Left
     Appearance.PictureAlignment  Right
@@ -333,24 +314,75 @@ WinButton
     OnTouchPressed               ''
     OnTouchReleased              ''
 end
-StaticText
-    Name                         Statictext2
-    Alias                        Current-Units
+Strings
+    Name                         Strings0
+    Alias                        Current-Measurement
     Alignment                    Left
-    AutoSize                     Yes
-    Caption                      In
-    Color                        clLime
-    Font.Color                   clLime
-    Font.Effects                 [Underline]
-    Font.Name                    Verdana
-    Font.Size                    36
-    Font.Style                   [Bold]
-    Height                       59
-    Left                         256
-    Top                          20
-    Transparent                  Yes
-    Width                        64
-    WordWrap                     Yes
+    BGcolor                      BLACK
+    Height                       91
+    FGcolor                      0x3AE32C
+    Font.Bold                    Yes
+    Font.CharSet                 ANSI
+    Font.Italic                  No
+    Font.Name                    Calibri
+    Font.Opaque                  Yes
+    Font.Size                    -45
+    Font.Strikethrough           No
+    Font.Underline               Yes
+    Left                         0
+    Strings                      '000.000 in\n'
+    StringsStyle                 Message
+    Top                          0
+    Width                        9224
+    OnChanged                    ''
+end
+WinButton
+    Name                         Winbutton4
+    Alias                        Winbutton4
+    Appearance.Alignment         Center
+    Appearance.Layout            Left
+    Appearance.PictureAlignment  Right
+    Appearance.SimpleLayout      No
+    Appearance.Spacing           3
+    AutoSizeToPicture            No
+    Bevel                        Yes
+    BevelColor                   BLACK
+    Caption                      'Reset Servo'
+    Color                        clYellow
+    Font.Color                   clWindowText
+    Font.Effects                 []
+    Font.Name                    Tahoma
+    Font.Size                    8
+    Font.Style                   []
+    Height                       35
+    Left                         136
+    Matrix                       -1
+    Momentary                    Yes
+    Picture                      (None)
+    StatusWhenOff.BGcolor        RED
+    StatusWhenOff.Caption        ''
+    StatusWhenOff.Glow           Yes
+    StatusWhenOff.Color          WHITE
+    StatusWhenOff.Effects        []
+    StatusWhenOff.Name           Tahoma
+    StatusWhenOff.Size           8
+    StatusWhenOff.Style          []
+    StatusWhenOff.Visible        Yes
+    StatusWhenOn.BGcolor         RED
+    StatusWhenOn.Caption         ''
+    StatusWhenOn.Glow            Yes
+    StatusWhenOn.Color           WHITE
+    StatusWhenOn.Effects         []
+    StatusWhenOn.Name            Tahoma
+    StatusWhenOn.Size            8
+    StatusWhenOn.Style           []
+    StatusWhenOn.Visible         Yes
+    Top                          160
+    Width                        88
+    OnChanged                    ''
+    OnTouchMoving                ''
+    OnTouchPressed               ''
+    OnTouchReleased              ''
 end
 Form
     Name                         Form2
