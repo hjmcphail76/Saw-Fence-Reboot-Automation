@@ -154,122 +154,59 @@ void setup() {
   ConversionFactor = (float)MotorProgInputRes / (float)SecondsInMinute;
 }
 
-void loop() {
-  static unsigned long waitPeriod = millis();
-
-  genie.DoEvents();
-
-  if (millis() >= waitPeriod) {
-    CurrentForm = genie.GetForm();
-
-    switch (CurrentForm) {
-      case 1:  // Main Screen
-        //Update elements on control screen
-        break;
-
-      case 2:  // Settings screen
-        //Update elements on settings screen
-        break;
-    }
-
-
-    // // Motor Control:
-    // if (AxisStopRun && !AxisFault) {
-    //   if (motor.StepsComplete() && motor.HlfbState() == MotorDriver::HLFB_ASSERTED) {
-    //     if (!AxisStartedDwell) {
-    //       AxisStartedDwell = 1;
-    //       AxisDwellTimeout = millis() + AxisDwell;
-    //       Serial.print("M-0");
-    //       Serial.print(" At Position ");
-    //       Serial.println(AxisMoveTarget);
-    //     }
-    //   }
-
-    //     if (AxisStartedDwell && millis() >= AxisDwellTimeout) {
-    //       AxisStartedDwell = 0;
-    //       AxisMoveTarget = (AxisMoveTarget == 0) ? AxisMoveDist : 0;
-    //       Serial.print("M-0");
-    //       Serial.print(" Starting move ");
-    //       Serial.println(AxisMoveTarget);
-    //     }
-    //     MoveAbsolutePosition(AxisMoveTarget);
-
-    // }
-
-    // if (!AxisStopRun) {
-    //   Serial.print("M-0");
-    //   Serial.println(" Stopped");
-    //   motor.MoveStopDecel(AxisMoveAccel * ConversionFactor); // Ensure units match
-    // }
-
-    // if (motor.HlfbState() == MotorDriver::HLFB_HAS_MEASUREMENT) {
-    //   AxisTorque = (int(abs(motor.HlfbPercent())));
-    // }
-
-    // if (motor.StatusReg().bit.AlertsPresent && !AxisFault) {
-    //   AxisFault = true;
-    //   Serial.print("M-0");
-    //   Serial.println(" status: 'In Alert'");
-    //   genie.WriteObject(GENIE_OBJ_USER_LED, AxisFormFaultLEDGenieNum, 1);
-    // } else if (!motor.StatusReg().bit.AlertsPresent && AxisFault) {
-    //   AxisFault = false;
-    //   genie.WriteObject(GENIE_OBJ_USER_LED, AxisFormFaultLEDGenieNum, 0);
-    // }
-
-    waitPeriod = millis() + 50;
-  }
-}
-
+// Genie event handler — dequeue and process keypad input immediately
 void myGenieEventHandler(void) {
   genieFrame Event;
   genie.DequeueEvent(&Event);
 
-  if (Event.reportObject.cmd == GENIE_REPORT_EVENT) {  //If there is a new report event from the screen
+    // Process keypad input event on keypad index 0 (main keypad)
+    if (Event.reportObject.object == GENIE_OBJ_KEYBOARD && Event.reportObject.index == 0) {
+      int temp = genie.GetEventData(&Event);
 
-    if (Event.reportObject.object == GENIE_OBJ_WINBUTTON) {  //If it is a WINBUTTON:
-      if (Event.reportObject.index == 0) {
+      // Digit keys '0' to '9'
+      if (temp >= '0' && temp <= '9' && counter < sizeof(keyvalue) - 1) {
+        keyvalue[counter++] = (char)temp;
+        keyvalue[counter] = '\0';  // Null-terminate
+
+        double val = atof(keyvalue);
+        genie.WriteStr(0, val, 3);  // Update display (String0) with 3 decimals
+      }
+      // Decimal point ('.' or ASCII 110)
+      else if ((temp == '.' || temp == 110) && !decimalEntered && counter < sizeof(keyvalue) - 2) {
+        keyvalue[counter++] = '.';
+        keyvalue[counter] = '\0';
+        decimalEntered = true;
+
+        double val = atof(keyvalue);
+        genie.WriteStr(0, val, 3);
+      }
+      // Backspace (ASCII 8)
+      else if (temp == 8 && counter > 0) {
+        counter--;
+        if (keyvalue[counter] == '.') decimalEntered = false;  // Reset decimal flag if '.' removed
+        keyvalue[counter] = '\0';
+
+        double val = atof(keyvalue);
+        genie.WriteStr(0, val, 3);
+      }
+      // Enter key (ASCII 13)
+      else if (temp == 13) {
+        double finalValue = atof(keyvalue);
+        Serial.print("Entered value: ");
+        Serial.println(finalValue, 3);
+
+        // Clear input buffer after enter
+        memset(keyvalue, 0, sizeof(keyvalue));
+        counter = 0;
+        decimalEntered = false;
       }
     }
-
-
-    if (Event.reportObject.object == GENIE_OBJ_KEYBOARD) {
-      if (Event.reportObject.index == 0) {
-        temp = genie.GetEventData(&Event);
-
-        if (temp >= '0' && temp <= '9' && counter < 10) {
-          keyvalue[counter++] = temp;
-          keyvalue[counter] = '\0';
-          double val = atof(keyvalue);
-          genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, (int)(val * 1000));  // Scaled for 3 decimals
-        }
-
-        else if (temp == 110 && !decimalEntered && counter < 9) {
-          keyvalue[counter++] = '.';
-          keyvalue[counter] = '\0';
-          decimalEntered = true;
-        }
-
-        else if (temp == 8 && counter > 0) {
-          counter--;
-          if (keyvalue[counter] == '.') decimalEntered = false;
-          keyvalue[counter] = '\0';
-          double val = atof(keyvalue);
-          genie.WriteObject(GENIE_OBJ_LED_DIGITS, 0, (int)(val * 1000));
-        }
-
-        else if (temp == 13) {
-          double finalValue = atof(keyvalue);
-          Serial.print("Entered value: ");
-          Serial.println(finalValue, 3);
-
-          memset(keyvalue, 0, sizeof(keyvalue));
-          counter = 0;
-          decimalEntered = false;
-        }
-      }
-    }
-  }
 }
+void loop() {
+  genie.DoEvents();  // Calls myGenieEventHandler internally, handling keypad input events
+  // Add other tasks you want to run continuously here
+}
+
 
 /*------------------------------------------------------------------------------
  * MoveAbsolutePosition
