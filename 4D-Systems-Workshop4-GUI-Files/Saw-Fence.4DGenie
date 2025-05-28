@@ -1,5 +1,5 @@
 ﻿Version     0.0
-Platform    Gen4-uLCD-43DCT-CLB-L
+Platform    Gen4-uLCD-43D-CLB-L
 PlatRes     272x480
 Depends
 end
@@ -9,7 +9,7 @@ Options
     Checksum                     No
     ResponseSize                 2
     Multidrop                    No
-    Destination                  1
+    Destination                  2
     DestBank                     0
     MainForm                     0
     SndBuf                       0
@@ -31,7 +31,7 @@ Options
 end
 Form
     Name                         Form0
-    Alias                        Loading-Page
+    Alias                        Form0
     Bgtype                       Color
     Color                        BLACK
     Image                        (None)
@@ -48,26 +48,26 @@ Form
 end
 Image
     Name                         Image0
-    Alias                        Logo-Splash-Screen
-    Height                       248
+    Alias                        Image0
+    Height                       253
     Image                        Neo7CNC-FinalLogoBlackBG2-crop.jpg
-    Left                         2
-    Source.Height                543
+    Left                         0
+    Source.Height                560
     Source.Left                  0
-    Source.Top                   0
+    Source.Top                   14
     Source.Width                 1034
     Top                          0
-    Width                        478
+    Width                        480
     OnTouchMoving                ''
     OnTouchPressed               ''
     OnTouchReleased              ''
 end
 StaticText
     Name                         Statictext0
-    Alias                        Statictext0
-    Alignment                    Center
+    Alias                        Splash-Screen
+    Alignment                    Left
     AutoSize                     Yes
-    Caption                      'Loading Application...'
+    Caption                      'Starting Application...'
     Color                        BLACK
     Font.Color                   WHITE
     Font.Effects                 []
@@ -76,14 +76,14 @@ StaticText
     Font.Style                   []
     Height                       14
     Left                         188
-    Top                          252
+    Top                          251
     Transparent                  Yes
-    Width                        117
+    Width                        118
     WordWrap                     Yes
 end
 Form
     Name                         Form1
-    Alias                        Main-Controls
+    Alias                        Main-Control
     Bgtype                       Color
     Color                        BLACK
     Image                        (None)
@@ -98,50 +98,26 @@ Form
     OnTouchPressed               ''
     OnTouchReleased              ''
 end
-Keyboard
-    Name                         Keyboard1
-    Alias                        Main-Controls-Keyboard
-    AutoCapsDisplay              Yes
-    Fill                         (Default)
-    Font.Color                   BLACK
-    Font.Effects                 []
-    Font.Name                    Tahoma
-    Font.Size                    8
-    Font.Style                   []
-    Height                       270
-    HighlightCaps                BLACK
-    KeyboardType                 KB2
-    KeyDistance                  0
-    Left                         328
-    SmallFont.Color              BLACK
-    SmallFont.Effects            []
-    SmallFont.Name               Tahoma
-    SmallFont.Size               7
-    SmallFont.Style              []
-    Top                          0
-    Width                        152
-    OnChanged                    ''
-end
 WinButton
     Name                         Winbutton0
-    Alias                        ESTOP
+    Alias                        Measure-Button
     Appearance.Alignment         Center
     Appearance.Layout            Left
     Appearance.PictureAlignment  Right
-    Appearance.SimpleLayout      No
+    Appearance.SimpleLayout      Yes
     Appearance.Spacing           3
     AutoSizeToPicture            No
     Bevel                        Yes
-    BevelColor                   BLACK
-    Caption                      E-STOP
-    Color                        clRed
+    BevelColor                   clWhite
+    Caption                      Measure!
+    Color                        0x00C000
     Font.Color                   clWindowText
     Font.Effects                 []
     Font.Name                    Tahoma
     Font.Size                    8
     Font.Style                   []
-    Height                       106
-    Left                         0
+    Height                       111
+    Left                         370
     Matrix                       -1
     Momentary                    Yes
     Picture                      (None)
@@ -163,33 +139,33 @@ WinButton
     StatusWhenOn.Size            8
     StatusWhenOn.Style           []
     StatusWhenOn.Visible         Yes
-    Top                          166
-    Width                        131
-    OnChanged                    ''
+    Top                          161
+    Width                        110
+    OnChanged                    'Report Message'
     OnTouchMoving                ''
     OnTouchPressed               ''
     OnTouchReleased              ''
 end
 WinButton
     Name                         Winbutton1
-    Alias                        Run-To-Position
+    Alias                        Edit-Target-Button
     Appearance.Alignment         Center
     Appearance.Layout            Left
     Appearance.PictureAlignment  Right
-    Appearance.SimpleLayout      No
+    Appearance.SimpleLayout      Yes
     Appearance.Spacing           3
     AutoSizeToPicture            No
     Bevel                        Yes
-    BevelColor                   BLACK
-    Caption                      Measure!
-    Color                        clLime
+    BevelColor                   clWhite
+    Caption                      'Edit Target'
+    Color                        GRAY
     Font.Color                   clWindowText
     Font.Effects                 []
     Font.Name                    Tahoma
     Font.Size                    8
     Font.Style                   []
-    Height                       113
-    Left                         228
+    Height                       157
+    Left                         368
     Matrix                       -1
     Momentary                    Yes
     Picture                      (None)
@@ -211,9 +187,9 @@ WinButton
     StatusWhenOn.Size            8
     StatusWhenOn.Style           []
     StatusWhenOn.Visible         Yes
-    Top                          159
-    Width                        98
-    OnChanged                    ''
+    Top                          0
+    Width                        112
+    OnChanged                    'Report Message'
     OnTouchMoving                ''
     OnTouchPressed               ''
     OnTouchReleased              ''
@@ -224,20 +200,20 @@ WinButton
     Appearance.Alignment         Center
     Appearance.Layout            Left
     Appearance.PictureAlignment  Right
-    Appearance.SimpleLayout      No
+    Appearance.SimpleLayout      Yes
     Appearance.Spacing           3
     AutoSizeToPicture            No
     Bevel                        Yes
-    BevelColor                   BLACK
-    Caption                      Home
-    Color                        clLime
+    BevelColor                   clWhite
+    Caption                      'Home Axis'
+    Color                        SILVER
     Font.Color                   clWindowText
     Font.Effects                 []
     Font.Name                    Tahoma
     Font.Size                    8
     Font.Style                   []
-    Height                       74
-    Left                         136
+    Height                       111
+    Left                         245
     Matrix                       -1
     Momentary                    Yes
     Picture                      (None)
@@ -259,32 +235,80 @@ WinButton
     StatusWhenOn.Size            8
     StatusWhenOn.Style           []
     StatusWhenOn.Visible         Yes
-    Top                          198
-    Width                        88
-    OnChanged                    ''
+    Top                          161
+    Width                        120
+    OnChanged                    'Report Message'
     OnTouchMoving                ''
     OnTouchPressed               ''
     OnTouchReleased              ''
 end
 WinButton
     Name                         Winbutton3
+    Alias                        Reset-Servo-Button
+    Appearance.Alignment         Center
+    Appearance.Layout            Left
+    Appearance.PictureAlignment  Right
+    Appearance.SimpleLayout      Yes
+    Appearance.Spacing           3
+    AutoSizeToPicture            No
+    Bevel                        Yes
+    BevelColor                   clWhite
+    Caption                      'Reset Servo'
+    Color                        SILVER
+    Font.Color                   clWindowText
+    Font.Effects                 []
+    Font.Name                    Tahoma
+    Font.Size                    8
+    Font.Style                   []
+    Height                       111
+    Left                         124
+    Matrix                       -1
+    Momentary                    Yes
+    Picture                      (None)
+    StatusWhenOff.BGcolor        RED
+    StatusWhenOff.Caption        ''
+    StatusWhenOff.Glow           Yes
+    StatusWhenOff.Color          WHITE
+    StatusWhenOff.Effects        []
+    StatusWhenOff.Name           Tahoma
+    StatusWhenOff.Size           8
+    StatusWhenOff.Style          []
+    StatusWhenOff.Visible        Yes
+    StatusWhenOn.BGcolor         RED
+    StatusWhenOn.Caption         ''
+    StatusWhenOn.Glow            Yes
+    StatusWhenOn.Color           WHITE
+    StatusWhenOn.Effects         []
+    StatusWhenOn.Name            Tahoma
+    StatusWhenOn.Size            8
+    StatusWhenOn.Style           []
+    StatusWhenOn.Visible         Yes
+    Top                          161
+    Width                        116
+    OnChanged                    'Report Message'
+    OnTouchMoving                ''
+    OnTouchPressed               ''
+    OnTouchReleased              ''
+end
+WinButton
+    Name                         Winbutton4
     Alias                        Settings-Button
     Appearance.Alignment         Center
     Appearance.Layout            Left
     Appearance.PictureAlignment  Right
-    Appearance.SimpleLayout      No
+    Appearance.SimpleLayout      Yes
     Appearance.Spacing           3
     AutoSizeToPicture            No
     Bevel                        Yes
-    BevelColor                   BLACK
+    BevelColor                   clWhite
     Caption                      Settings
-    Color                        'Office 2003 Classic'
+    Color                        SILVER
     Font.Color                   clWindowText
     Font.Effects                 []
     Font.Name                    Tahoma
     Font.Size                    8
     Font.Style                   []
-    Height                       64
+    Height                       111
     Left                         0
     Matrix                       -1
     Momentary                    Yes
@@ -307,86 +331,35 @@ WinButton
     StatusWhenOn.Size            8
     StatusWhenOn.Style           []
     StatusWhenOn.Visible         Yes
-    Top                          96
-    Width                        131
-    OnChanged                    Form2Activate
+    Top                          161
+    Width                        120
+    OnChanged                    'Report Message'
     OnTouchMoving                ''
     OnTouchPressed               ''
     OnTouchReleased              ''
 end
-Strings
-    Name                         Strings0
-    Alias                        Current-Measurement
+StaticText
+    Name                         Statictext1
+    Alias                        Measurement-Display
     Alignment                    Left
-    BGcolor                      BLACK
-    Height                       91
-    FGcolor                      0x3AE32C
-    Font.Bold                    Yes
-    Font.CharSet                 ANSI
-    Font.Italic                  No
-    Font.Name                    Calibri
-    Font.Opaque                  Yes
-    Font.Size                    -45
-    Font.Strikethrough           No
-    Font.Underline               Yes
-    Left                         0
-    Strings                      '000.000 in\n'
-    StringsStyle                 Message
-    Top                          0
-    Width                        9224
-    OnChanged                    ''
-end
-WinButton
-    Name                         Winbutton4
-    Alias                        Winbutton4
-    Appearance.Alignment         Center
-    Appearance.Layout            Left
-    Appearance.PictureAlignment  Right
-    Appearance.SimpleLayout      No
-    Appearance.Spacing           3
-    AutoSizeToPicture            No
-    Bevel                        Yes
-    BevelColor                   BLACK
-    Caption                      'Reset Servo'
-    Color                        clYellow
-    Font.Color                   clWindowText
+    AutoSize                     No
+    Caption                      '000.000 in'
+    Color                        BLACK
+    Font.Color                   clLime
     Font.Effects                 []
-    Font.Name                    Tahoma
-    Font.Size                    8
-    Font.Style                   []
-    Height                       35
-    Left                         136
-    Matrix                       -1
-    Momentary                    Yes
-    Picture                      (None)
-    StatusWhenOff.BGcolor        RED
-    StatusWhenOff.Caption        ''
-    StatusWhenOff.Glow           Yes
-    StatusWhenOff.Color          WHITE
-    StatusWhenOff.Effects        []
-    StatusWhenOff.Name           Tahoma
-    StatusWhenOff.Size           8
-    StatusWhenOff.Style          []
-    StatusWhenOff.Visible        Yes
-    StatusWhenOn.BGcolor         RED
-    StatusWhenOn.Caption         ''
-    StatusWhenOn.Glow            Yes
-    StatusWhenOn.Color           WHITE
-    StatusWhenOn.Effects         []
-    StatusWhenOn.Name            Tahoma
-    StatusWhenOn.Size            8
-    StatusWhenOn.Style           []
-    StatusWhenOn.Visible         Yes
-    Top                          160
-    Width                        88
-    OnChanged                    ''
-    OnTouchMoving                ''
-    OnTouchPressed               ''
-    OnTouchReleased              ''
+    Font.Name                    'Yu Gothic UI'
+    Font.Size                    48
+    Font.Style                   [Italic]
+    Height                       77
+    Left                         0
+    Top                          0
+    Transparent                  Yes
+    Width                        367
+    WordWrap                     Yes
 end
 Form
     Name                         Form2
-    Alias                        Settings-Screen
+    Alias                        Parameter-Edit
     Bgtype                       Color
     Color                        BLACK
     Image                        (None)
@@ -394,29 +367,34 @@ Form
     Source.Left                  0
     Source.Top                   0
     Source.Width                 0
-    OnActivate                   ''
+    OnActivate                   'Report Message'
     OnCreate                     ''
     OnRepeat                     ''
     OnTouchMoving                ''
     OnTouchPressed               ''
     OnTouchReleased              ''
 end
-StaticText
-    Name                         Statictext1
-    Alias                        Statictext1
-    Alignment                    Left
-    AutoSize                     Yes
-    Caption                      Settings
-    Color                        BLACK
-    Font.Color                   WHITE
+Keyboard
+    Name                         Keyboard0
+    Alias                        Parameter-Input
+    AutoCapsDisplay              Yes
+    Fill                         (Default)
+    Font.Color                   BLACK
     Font.Effects                 []
     Font.Name                    Tahoma
-    Font.Size                    24
-    Font.Style                   [Bold]
-    Height                       39
-    Left                         184
-    Top                          8
-    Transparent                  Yes
-    Width                        131
-    WordWrap                     Yes
+    Font.Size                    8
+    Font.Style                   []
+    Height                       272
+    HighlightCaps                BLACK
+    KeyboardType                 KB2
+    KeyDistance                  0
+    Left                         72
+    SmallFont.Color              BLACK
+    SmallFont.Effects            []
+    SmallFont.Name               Tahoma
+    SmallFont.Size               7
+    SmallFont.Style              []
+    Top                          0
+    Width                        339
+    OnChanged                    ''
 end
