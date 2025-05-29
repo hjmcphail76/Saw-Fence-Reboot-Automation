@@ -338,24 +338,21 @@ WinButton
     OnTouchPressed               ''
     OnTouchReleased              ''
 end
-StaticText
-    Name                         Statictext1
-    Alias                        Measurement-Display
-    Alignment                    Left
-    AutoSize                     No
+iLabelB
+    Name                         ILabelB0
+    Alias                        ILabelB0
+    Alignment                    Center
+    BGcolor                      BLACK
+    Buffer                       80
     Caption                      '000.000 in'
-    Color                        BLACK
-    Font.Color                   clLime
-    Font.Effects                 []
-    Font.Name                    'Yu Gothic UI'
-    Font.Size                    48
-    Font.Style                   [Italic]
-    Height                       77
+    Font                         FONT2
+    FontColor                    clLime
+    FontSize                     3
+    Height                       101
     Left                         0
-    Top                          0
-    Transparent                  Yes
-    Width                        367
-    WordWrap                     Yes
+    Margin                       2
+    Top                          8
+    Width                        302
 end
 Form
     Name                         Form2
@@ -388,13 +385,32 @@ Keyboard
     HighlightCaps                BLACK
     KeyboardType                 KB2
     KeyDistance                  0
-    Left                         72
+    Left                         194
     SmallFont.Color              BLACK
     SmallFont.Effects            []
     SmallFont.Name               Tahoma
     SmallFont.Size               7
     SmallFont.Style              []
     Top                          0
-    Width                        339
+    Width                        286
     OnChanged                    ''
+end
+LedDigits
+    Name                         Leddigits0
+    Alias                        Leddigits0
+    Color                        BLACK
+    Decimals                     3
+    Digits                       6
+    Height                       63
+    LeadingZero                  Yes
+    Left                         4
+    OutlineColor                 BLACK
+    Palette.High                 clLime
+    Palette.Low                  0x005100
+    Top                          104
+    Width                        191
+    OnChanged                    ''
+    OnTouchMoving                ''
+    OnTouchPressed               ''
+    OnTouchReleased              ''
 end

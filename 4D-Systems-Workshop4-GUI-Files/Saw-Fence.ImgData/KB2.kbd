@@ -1,5 +1,5 @@
 ﻿[Keys]
-Count=12
+Count=13
 
 [Key0]
 Caption=7
@@ -165,9 +165,9 @@ ColorDown=32768
 TextColor=0
 TextColorDown=0
 Width=40
-Height=40
-X=81
-Y=121
+Height=80
+X=121
+Y=81
 ImageIndex=-1
 ShowBackGround=1
 
@@ -189,13 +189,13 @@ ImageIndex=-1
 ShowBackGround=1
 
 [Key11]
-Caption=Cancel
+Caption=Delete
 ShiftCaption=
 KeyValue=8
 ShiftKeyValue=-1
 SpecialKey=0
-Color=248
-ColorDown=136
+Color=12632256
+ColorDown=8421504
 TextColor=0
 TextColorDown=0
 Width=40
@@ -205,7 +205,24 @@ Y=121
 ImageIndex=-1
 ShowBackGround=1
 
+[Key12]
+Caption=.
+ShiftCaption=
+KeyValue=110
+ShiftKeyValue=-1
+SpecialKey=0
+Color=12632256
+ColorDown=8421504
+TextColor=0
+TextColorDown=0
+Width=40
+Height=40
+X=81
+Y=121
+ImageIndex=-1
+ShowBackGround=1
+
 [KeyBoard]
-Width=122
+Width=162
 Height=162
 

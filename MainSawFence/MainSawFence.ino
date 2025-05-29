@@ -20,6 +20,8 @@ void ConfigureSDMotor();  //Step-Direction type
 void ConfigureMCMotor();  // PWM type
 void PerformSensorlessHoming();
 void SetMeasurementUIDisplay();
+void ParameterInput();
+String GetParameterInputValue();
 //---------------------------------------------------
 
 //Motor predefined constants:
@@ -32,11 +34,17 @@ int MaxVel = 2000;
 // -------------------------------------------------
 
 //Misc:
-String inches = "in";
-String millimeters = "mm";
+String inches = " in";
+String millimeters = " mm";
 String currentUnits = inches;
-
 bool hasHomed = false;
+
+char keyvalue[10];  // Array to hold keyboard character values
+int counter = 0;    // Keyboard number of characters
+int temp, sumTemp;  // Keyboard Temp values
+int newValue;
+
+double currentMainMeasurement = 0.0;
 //---------------------------------------------------
 
 void setup() {
@@ -74,22 +82,16 @@ void loop() {
 // You can add your myGenieEventHandler function here if needed in the future
 void myGenieEventHandler(void) {
   genieFrame Event;
-  genie.DequeueEvent(&Event);
-  Serial.print("Genie Event Received: Object=");
-  Serial.print(Event.reportObject.object);
-  Serial.print(", Index=");
-  Serial.println(Event.reportObject.index);
-
   // Handle events here
-
   if (Event.reportObject.object == GENIE_OBJ_WINBUTTON) {
     switch (Event.reportObject.index) {
       case 0:
         Serial.println("Measure pressed");
-        SetMeasurementUIDisplay(); //temp
         break;
       case 1:
         Serial.println("Edit Measurement pressed");
+        genie.SetForm(2);
+        //From here on out, the events will get sent to the  keyboard object
         break;
       case 2:
         Serial.println("HOME BUTTON PRESSED");
@@ -101,18 +103,82 @@ void myGenieEventHandler(void) {
         break;
       case 4:
         Serial.println("Settings Button Pressed");
-
         break;
+    }
+  }
+  if (Event.reportObject.object == GENIE_OBJ_KEYBOARD){
+    if (ParameterInput(Event)){//If it returns true, we set the main screen label.
+      SetMeasurementUIDisplay();
     }
   }
 }
 
 //UI Functions: --------------------------------------------
 void SetMeasurementUIDisplay() {
-  Serial.println("HURRRR");
-  genie.WriteStr(0, "001.123");
+  genie.SetForm(1);
+  String combinedString = GetParameterInputValue() + currentUnits;
+  genie.WriteInhLabel(0, combinedString.c_str());
 }
 
+/*
+Returns true when user is done entering info, or cancels. When done, retrive the value at the keyvalue array.
+Some of this code is from the clearcore/HMI example project. TODO: figure out how to attribute it.
+*/
+/*
+Returns true when user presses Enter. Updates the global 'newValue'.
+Some of this code is from the clearcore/HMI example project. TODO: figure out how to attribute it.
+*/
+bool ParameterInput(genieFrame Event) {
+  temp = genie.GetEventData(&Event);             // Store the value of the key pressed
+  if (temp >= 48 && temp <= 57 && counter < 9)   // Convert value of key into Decimal, limit to 9 digits
+  {
+    keyvalue[counter] = temp;                   // Append the decimal value of the key pressed
+    keyvalue[counter + 1] = '\0';               // Null-terminate the string
+    sumTemp = atoi(keyvalue);                   // Convert the array into a number
+    counter++;
+  }
+  else if (temp == 110){ // '.' pressed
+    keyvalue[counter] = temp;                   // Append the decimal value of the key pressed
+    keyvalue[counter + 1] = '\0';               // Null-terminate the string
+    sumTemp = atoi(keyvalue);                   // Convert the array into a number
+    counter++;
+  }
+  else if (temp == 8)                           // Check if Backspace/delete Key
+  {
+    if (counter > 0) {
+      counter--;                                // Decrement the counter
+      keyvalue[counter] = 0;                    // Overwrite the last position with null
+      genie.WriteObject(GENIE_OBJ_LED_DIGITS, 18, atoi(keyvalue)); // Update display
+    }
+  }
+  else if (temp == 13)                          // Check if 'Enter' Key
+  {
+    
+    // Reset for the next input
+    counter = 0;
+    newValue = sumTemp;
+    sumTemp = 0;
+    Serial.println(String(keyvalue));
+    return true; // Indicate that Enter was pressed
+  }
+  return false; // Indicate that Enter was not pressed
+}
+
+/*
+We have a function to get the value as a String object, then discard keyvalue's contents for the next time it gets used.
+*/
+String GetParameterInputValue(){
+  String stringKeyValue = String(keyvalue);
+  for (int f = 0; f < 10; f++) {
+    keyvalue[f] = 0;
+  }
+  counter = 0;
+
+  //Set the double type of the string to the current set parameter. TODO:
+  currentMainMeasurement = 0.0;
+
+  return stringKeyValue;
+}
 
 //Configure Motors Functions: ------------------------------
 
@@ -144,8 +210,8 @@ void ConfigureMCMotor() {
 bool MoveAbsolutePosition(int32_t position) {
   motor.EnableRequest(true);
   hasHomed = true;
-  
-  
+
+
   // Check if a motor alert is currently preventing motion
   // Clear alert if configured to do so
   if (motor.StatusReg().bit.AlertsPresent) {
@@ -190,7 +256,6 @@ bool MoveAbsolutePosition(int32_t position) {
     return true;
   }
 }
-
 
 void PerformSensorlessHoming() {
   hasHomed = true;
