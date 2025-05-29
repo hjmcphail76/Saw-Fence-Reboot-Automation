@@ -1,58 +1,18 @@
 #include "ClearCore.h"
 #include <genieArduinoDEV.h>
-#include "MechanismClasses.h"  // Include the new header file for mechanism classes
 
 Genie genie;
 #define motor ConnectorM0
 
-/*
-------------------------------------------------------
-Neo7CNC Automated Chop Saw fence
+//Serial Monitor Settings: -------------------------
+int serialMoniterBaudRate = 115200;
+//--------------------------------------------------
 
-Hardware used:
-  -Clearcore controller
-  -4D Systems 'Gen4 uLCD 43D CLB' Screen with the 'Clearcore to 4D' adapter.
-  -Clearpath MC or SD servo
-    -Both are supported
-    -Plug MC type servo into ports 2 or 3 on the Clearcore
-    -Plug SD type servo into ports 0 or 1 on the Clearcore
+//4D UART settings: --------------------------------
+int genieBaudRate = 9600;
+//--------------------------------------------------
 
---------------------------------------------------------------------------
-*/
-//User Configuration:
-
-// IMPORTANT: Uncomment ONLY ONE of the 'Mechanism* currentMechanism = new ...' lines below
-// to select the mechanism you are currently configuring.
-// Fill in the parameters (motorProgInputRes, maxAccel, maxVel, mechanism_specific_parameter, UnitType)
-
-// Example: Belt Mechanism with 1.0 inch pulley diameter
-Mechanism* currentMechanism = new BeltMechanism(200, 10000, 2000, 1.0, UNIT_INCHES);
-
-// Example: Leadscrew Mechanism with 0.2 inches per revolution pitch
-// Mechanism* currentMechanism = new LeadscrewMechanism(2000, 5000, 500, 0.2, UNIT_INCHES);
-
-// Example: Rack and Pinion Mechanism with 0.5 inch pinion diameter
-// Mechanism* currentMechanism = new RackAndPinionMechanism(100, 15000, 3000, 0.5, UNIT_INCHES);
-
-
-float gearBoxReduction = 1;  // If none is used, leave the default of 1 (1:1)
-
-//Serial Monitor Settings:
-const int serialMoniterBaudRate = 115200;
-
-//4D UART settings:
-const int genieBaudRate = 9600;
-
-// Global variables to hold the currently selected configuration values
-// These will be set in setup() based on the selected mechanism object
-int MotorProgInputRes;
-int MaxAccel;
-int MaxVel;
-double currentStepsPerUnit;  // This will store the calculated steps per inch/mm
-
-// -------------------------------------------------------------------------
-
-// Declare our user-defined helper functions: ------------------------------
+// Declare our user-defined helper functions: -----
 bool MoveAbsolutePosition(int32_t position);
 void PrintAlerts();
 void HandleAlerts();
@@ -60,71 +20,47 @@ void ConfigureSDMotor();  //Step-Direction type
 void ConfigureMCMotor();  // PWM type
 void PerformSensorlessHoming();
 void SetMeasurementUIDisplay();
-bool ParameterInput(genieFrame Event);  // Updated function signature
+void ParameterInput();
 String GetParameterInputValue();
-void myGenieEventHandler(void);       // Declare event handler
-String getUnitString(UnitType unit);  // Declare the helper function
 //---------------------------------------------------
+
+//Motor predefined constants:
+
+float ConversionFactor;
+int MotorProgInputRes = 200;  // Example: steps per revolution
+int MaxAccel = 10000;
+int MaxVel = 2000;
+
+// -------------------------------------------------
 
 //Misc:
 String inches = " in";
 String millimeters = " mm";
-String currentUnits = inches;  // Default units
+String currentUnits = inches;
 bool hasHomed = false;
 
 char keyvalue[10];  // Array to hold keyboard character values
 int counter = 0;    // Keyboard number of characters
-int temp, sumTemp;  // Keyboard Temp values (sumTemp is not actively used for current value display)
-int newValue;       // Not actively used for current value display
+int temp, sumTemp;  // Keyboard Temp values
+int newValue;
 
-double currentMainMeasurement = 0.0;  // The target measurement value entered by the user
-
+double currentMainMeasurement = 0.0;
 //---------------------------------------------------
-
-// Helper function to get unit string for printing
-String getUnitString(UnitType unit) {
-  if (unit == UNIT_INCHES) {
-    return "in";
-  } else if (unit == UNIT_MILLIMETERS) {
-    return "mm";
-  }
-  return "";
-}
 
 void setup() {
   Serial.begin(serialMoniterBaudRate);
-  delay(5000);  // Give time for serial monitor to connect
+  delay(5000);
   Serial.println("Serial Monitor init");
 
   // Initialize Serial1 for the 4D Display
   ConnectorCOM1.RtsMode(SerialBase::LINE_OFF);
-  Serial1.begin(genieBaudRate);  // Use genieBaudRate for consistency
+  Serial1.begin(9600);
   Serial1.ttl(true);
 
-  // Retrieve configuration values from the selected mechanism object
-  // currentMechanism is now initialized at global scope.
-  if (currentMechanism) {
-    MotorProgInputRes = currentMechanism->getMotorProgInputRes();
-    MaxAccel = currentMechanism->getMaxAccel();
-    MaxVel = currentMechanism->getMaxVel();
-    currentStepsPerUnit = currentMechanism->calculateStepsPerUnit(gearBoxReduction);
-  }
-
-  Serial.print("Applied MotorProgInputRes: ");
-  Serial.println(MotorProgInputRes);
-  Serial.print("Applied MaxAccel: ");
-  Serial.println(MaxAccel);
-  Serial.print("Applied MaxVel: ");
-  Serial.println(MaxVel);
-  Serial.print("Calculated Steps Per Unit (per inch): ");
-  Serial.println(currentStepsPerUnit, 4);
-
-
-  ConfigureSDMotor();  // Configure the motor with the selected values
-  HandleAlerts();      // Handle any initial motor alerts
+  ConfigureSDMotor();
+  HandleAlerts();
 
   Serial.println("Attempting to initialize Genie...");
-  // Loop until Genie display is online
   while (!genie.Begin(Serial1)) {
     Serial.println("waiting for Genie...");
     delay(250);
@@ -132,112 +68,106 @@ void setup() {
 
   if (genie.IsOnline()) {
     Serial.println("Genie initialization successful. Display is online!");
-    genie.AttachEventHandler(myGenieEventHandler);  // Attach the event handler
-    genie.SetForm(1);                               // Set the initial form to 1
+    genie.AttachEventHandler(myGenieEventHandler);
+    genie.SetForm(1);
   } else {
     Serial.println("Genie initialization failed.");
   }
 }
 
 void loop() {
-  genie.DoEvents();  // Keep the Genie library processing events
+  genie.DoEvents();  // Keep the Genie library processing events (even if we're not handling any yet)
 }
 
-// Genie event handler function
+// You can add your myGenieEventHandler function here if needed in the future
 void myGenieEventHandler(void) {
   genieFrame Event;
-  // The Event object is passed as a parameter by genie.DoEvents(),
-  // so no need to call genie.ReadEvent(&Event) here.
-
-  // Handle events based on object type and index
+  // Handle events here
   if (Event.reportObject.object == GENIE_OBJ_WINBUTTON) {
     switch (Event.reportObject.index) {
-      case 0:  // Measure button
+      case 0:
         Serial.println("Measure pressed");
-        // Convert the currentMainMeasurement (e.g., inches/mm) to motor steps
-        // using the calculated stepsPerUnit
-        MoveAbsolutePosition(static_cast<int32_t>(currentMainMeasurement * currentStepsPerUnit));
         break;
-      case 1:  // Edit Measurement button
+      case 1:
         Serial.println("Edit Measurement pressed");
-        genie.SetForm(2);  // Switch to the keyboard input form
+        genie.SetForm(2);
+        //From here on out, the events will get sent to the  keyboard object
         break;
-      case 2:  // HOME BUTTON
+      case 2:
         Serial.println("HOME BUTTON PRESSED");
         PerformSensorlessHoming();
         break;
-      case 3:  // Reset Servo button
+      case 3:
         Serial.println("Reset Servo pressed");
-        HandleAlerts();  // Clear any motor alerts
+        HandleAlerts();
         break;
-      case 4:  // Settings Button
+      case 4:
         Serial.println("Settings Button Pressed");
-        genie.SetForm(3);  // Switch to the settings form
         break;
     }
   }
-  // Handle keyboard input events
-  if (Event.reportObject.object == GENIE_OBJ_KEYBOARD) {
-    // If ParameterInput returns true, it means 'Enter' was pressed
-    if (ParameterInput(Event)) {
-      SetMeasurementUIDisplay();  // Update the main screen label with the new value
+  if (Event.reportObject.object == GENIE_OBJ_KEYBOARD){
+    if (ParameterInput(Event)){//If it returns true, we set the main screen label.
+      SetMeasurementUIDisplay();
     }
   }
 }
 
 //UI Functions: --------------------------------------------
 void SetMeasurementUIDisplay() {
-  genie.SetForm(1);  // Go back to the main form
-  // Combine the entered value string with the current units
+  genie.SetForm(1);
   String combinedString = GetParameterInputValue() + currentUnits;
-  // Write the combined string to the label on the display (label index 0)
   genie.WriteInhLabel(0, combinedString.c_str());
 }
 
 /*
-Returns true when user presses Enter. Updates the global 'currentMainMeasurement'.
-Some of this code is adapted from the ClearCore/HMI example project.
+Returns true when user is done entering info, or cancels. When done, retrive the value at the keyvalue array.
+Some of this code is from the clearcore/HMI example project. TODO: figure out how to attribute it.
+*/
+/*
+Returns true when user presses Enter. Updates the global 'newValue'.
+Some of this code is from the clearcore/HMI example project. TODO: figure out how to attribute it.
 */
 bool ParameterInput(genieFrame Event) {
-  // Get the value of the key pressed
-  temp = genie.GetEventData(&Event);
-
-  // Check if the key is a digit (0-9) and if we have space in the array
-  if (temp >= 48 && temp <= 57 && counter < 9) {
-    keyvalue[counter] = temp;      // Append the decimal value of the key pressed
-    keyvalue[counter + 1] = '\0';  // Null-terminate the string
+  temp = genie.GetEventData(&Event);             // Store the value of the key pressed
+  if (temp >= 48 && temp <= 57 && counter < 9)   // Convert value of key into Decimal, limit to 9 digits
+  {
+    keyvalue[counter] = temp;                   // Append the decimal value of the key pressed
+    keyvalue[counter + 1] = '\0';               // Null-terminate the string
+    sumTemp = atoi(keyvalue);                   // Convert the array into a number
     counter++;
-  } else if (temp == 110) {  // '.' pressed (ASCII for '.')
-    // Allow only one decimal point
-    bool hasDecimal = false;
-    for (int i = 0; i < counter; i++) {
-      if (keyvalue[i] == '.') {
-        hasDecimal = true;
-        break;
-      }
-    }
-    if (!hasDecimal && counter < 9) {
-      keyvalue[counter] = '.';       // Append the decimal character
-      keyvalue[counter + 1] = '\0';  // Null-terminate the string
-      counter++;
-    }
-  } else if (temp == 8) {  // Check if Backspace/delete Key (ASCII for Backspace)
-    if (counter > 0) {
-      counter--;              // Decrement the counter
-      keyvalue[counter] = 0;  // Overwrite the last position with null
-                              // TODO: Update the LED_DIGITS object on the display if you have one
-                              // genie.WriteObject(GENIE_OBJ_LED_DIGITS, 18, atoi(keyvalue)); // Update display
-    }
-  } else if (temp == 13) {  // Check if 'Enter' Key (ASCII for Enter)
-    return true;            // Indicate that Enter was pressed
   }
-  return false;  // Indicate that Enter was not pressed
+  else if (temp == 110){ // '.' pressed
+    keyvalue[counter] = temp;                   // Append the decimal value of the key pressed
+    keyvalue[counter + 1] = '\0';               // Null-terminate the string
+    sumTemp = atoi(keyvalue);                   // Convert the array into a number
+    counter++;
+  }
+  else if (temp == 8)                           // Check if Backspace/delete Key
+  {
+    if (counter > 0) {
+      counter--;                                // Decrement the counter
+      keyvalue[counter] = 0;                    // Overwrite the last position with null
+      genie.WriteObject(GENIE_OBJ_LED_DIGITS, 18, atoi(keyvalue)); // Update display
+    }
+  }
+  else if (temp == 13)                          // Check if 'Enter' Key
+  {
+    
+    // Reset for the next input
+    counter = 0;
+    newValue = sumTemp;
+    sumTemp = 0;
+    Serial.println(String(keyvalue));
+    return true; // Indicate that Enter was pressed
+  }
+  return false; // Indicate that Enter was not pressed
 }
 
 /*
 We have a function to get the value as a String object, then discard keyvalue's contents for the next time it gets used.
 */
-String GetParameterInputValue() {
+String GetParameterInputValue(){
   String stringKeyValue = String(keyvalue);
   for (int f = 0; f < 10; f++) {
     keyvalue[f] = 0;
