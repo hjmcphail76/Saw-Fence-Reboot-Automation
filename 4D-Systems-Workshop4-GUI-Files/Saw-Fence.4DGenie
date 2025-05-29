@@ -345,14 +345,14 @@ iLabelB
     BGcolor                      BLACK
     Buffer                       80
     Caption                      '000.000 in'
-    Font                         FONT2
+    Font                         FONT1
     FontColor                    clLime
-    FontSize                     3
+    FontSize                     4
     Height                       101
     Left                         0
     Margin                       2
-    Top                          8
-    Width                        302
+    Top                          12
+    Width                        311
 end
 Form
     Name                         Form2
@@ -385,32 +385,29 @@ Keyboard
     HighlightCaps                BLACK
     KeyboardType                 KB2
     KeyDistance                  0
-    Left                         194
+    Left                         198
     SmallFont.Color              BLACK
     SmallFont.Effects            []
     SmallFont.Name               Tahoma
     SmallFont.Size               7
     SmallFont.Style              []
     Top                          0
-    Width                        286
+    Width                        282
     OnChanged                    ''
 end
-LedDigits
-    Name                         Leddigits0
-    Alias                        Leddigits0
-    Color                        BLACK
-    Decimals                     3
-    Digits                       6
-    Height                       63
-    LeadingZero                  Yes
-    Left                         4
-    OutlineColor                 BLACK
-    Palette.High                 clLime
-    Palette.Low                  0x005100
-    Top                          104
-    Width                        191
-    OnChanged                    ''
-    OnTouchMoving                ''
-    OnTouchPressed               ''
-    OnTouchReleased              ''
+iLabelB
+    Name                         ILabelB1
+    Alias                        ILabelB1
+    Alignment                    Center
+    BGcolor                      BLACK
+    Buffer                       80
+    Caption                      000.000
+    Font                         FONT1
+    FontColor                    clLime
+    FontSize                     4
+    Height                       35
+    Left                         0
+    Margin                       2
+    Top                          8
+    Width                        195
 end
