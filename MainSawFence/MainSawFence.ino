@@ -22,11 +22,10 @@ Hardware used:
 //User Configuration:
 
 // IMPORTANT: Uncomment ONLY ONE of the 'Mechanism* currentMechanism = new ...' lines below
-// to select the mechanism you are currently configuring.
-// Fill in the parameters (motorProgInputRes, maxAccel, maxVel, mechanism_specific_parameter, UnitType)
+// to select the mechanism you are currently configuring. Fill in the parameters (motorProgInputRes, maxAccel, maxVel, mechanism_specific_parameter, UnitType)
 
 // Example: Belt Mechanism with 1.0 inch pulley diameter
-Mechanism* currentMechanism = new BeltMechanism(200, 10000, 2000, 1.0, UNIT_INCHES);
+Mechanism* currentMechanism = new BeltMechanism(200, 5000, 500, 0.236, UNIT_INCHES);
 
 // Example: Leadscrew Mechanism with 0.2 inches per revolution pitch
 // Mechanism* currentMechanism = new LeadscrewMechanism(2000, 5000, 500, 0.2, UNIT_INCHES);
@@ -34,8 +33,11 @@ Mechanism* currentMechanism = new BeltMechanism(200, 10000, 2000, 1.0, UNIT_INCH
 // Example: Rack and Pinion Mechanism with 0.5 inch pinion diameter
 // Mechanism* currentMechanism = new RackAndPinionMechanism(100, 15000, 3000, 0.5, UNIT_INCHES);
 
+Value maxTravel = Value(47.0, UnitType::UNIT_INCHES);  //This 'Value' structure is defined in mechanismClasses.h and holds our value + whatever units ;)
 
 float gearBoxReduction = 1;  // If none is used, leave the default of 1 (1:1)
+
+float sawBladeThickness = 0.125;
 
 //Serial Monitor Settings:
 const int serialMoniterBaudRate = 115200;
@@ -48,7 +50,7 @@ const int genieBaudRate = 9600;
 int MotorProgInputRes;
 int MaxAccel;
 int MaxVel;
-double currentStepsPerUnit;  // This will store the calculated steps per inch/mm
+double currentStepsPerUnit = 0;  // This will store the calculated steps per inch/mm. If no mechanism class is created it stays at zero resulting in no movement.
 
 // -------------------------------------------------------------------------
 
@@ -60,36 +62,37 @@ void ConfigureSDMotor();  //Step-Direction type
 void ConfigureMCMotor();  // PWM type
 void PerformSensorlessHoming();
 void SetMeasurementUIDisplay();
-bool ParameterInput(genieFrame Event);  // Updated function signature
+bool ParameterInput(genieFrame Event);
 String GetParameterInputValue();
-void myGenieEventHandler(void);       // Declare event handler
-String getUnitString(UnitType unit);  // Declare the helper function
+void myGenieEventHandler(void);
+String getUnitString(UnitType unit);
+double convertFromInches(float valueInInches, UnitType targetUnit);
+double convertToInches(double value, UnitType unit);
+double convertUnits(double value, UnitType from, UnitType to);
+void OpenParameterOutsideRangeError();
+float GetParameterEnteredAsFloat();
+
 //---------------------------------------------------
 
 //Misc:
-String inches = " in";
-String millimeters = " mm";
-String currentUnits = inches;  // Default units
+UnitType currentUnits = UnitType::UNIT_INCHES;  // Default units
 bool hasHomed = false;
-
 char keyvalue[10];  // Array to hold keyboard character values
 int counter = 0;    // Keyboard number of characters
 int temp, sumTemp;  // Keyboard Temp values (sumTemp is not actively used for current value display)
 int newValue;       // Not actively used for current value display
 
-double currentMainMeasurement = 0.0;  // The target measurement value entered by the user
+float currentMainMeasurement = 0.0;  // The target measurement value entered by the user
 
 //---------------------------------------------------
 
-// Helper function to get unit string for printing
-String getUnitString(UnitType unit) {
-  if (unit == UNIT_INCHES) {
-    return "in";
-  } else if (unit == UNIT_MILLIMETERS) {
-    return "mm";
-  }
-  return "";
-}
+//Keep track of the state of what parameter the user is editing and what should the keyboard edit.
+enum InputMode {
+  INPUT_MEASUREMENT,
+  INPUT_BLADE_THICKNESS,
+  // Add more as needed
+};
+InputMode currentInputMode = INPUT_MEASUREMENT;
 
 void setup() {
   Serial.begin(serialMoniterBaudRate);
@@ -109,15 +112,6 @@ void setup() {
     MaxVel = currentMechanism->getMaxVel();
     currentStepsPerUnit = currentMechanism->calculateStepsPerUnit(gearBoxReduction);
   }
-
-  Serial.print("Applied MotorProgInputRes: ");
-  Serial.println(MotorProgInputRes);
-  Serial.print("Applied MaxAccel: ");
-  Serial.println(MaxAccel);
-  Serial.print("Applied MaxVel: ");
-  Serial.println(MaxVel);
-  Serial.print("Calculated Steps Per Unit (per inch): ");
-  Serial.println(currentStepsPerUnit, 4);
 
 
   ConfigureSDMotor();  // Configure the motor with the selected values
@@ -140,12 +134,13 @@ void setup() {
 }
 
 void loop() {
-  genie.DoEvents();  // Keep the Genie library processing events
+  genie.DoEvents();  // Keep the Genie library processing
 }
 
 // Genie event handler function
 void myGenieEventHandler(void) {
   genieFrame Event;
+  genie.DequeueEvent(&Event);  // Remove the next queued event from the buffer, and process it below
   // The Event object is passed as a parameter by genie.DoEvents(),
   // so no need to call genie.ReadEvent(&Event) here.
 
@@ -154,12 +149,14 @@ void myGenieEventHandler(void) {
     switch (Event.reportObject.index) {
       case 0:  // Measure button
         Serial.println("Measure pressed");
-        // Convert the currentMainMeasurement (e.g., inches/mm) to motor steps
-        // using the calculated stepsPerUnit
+        // Convert the currentMainMeasurement (inches or mm) to motor steps
+        // using the calculated stepsPerUnit IF
+        //if (currentMainMeasurement < )
         MoveAbsolutePosition(static_cast<int32_t>(currentMainMeasurement * currentStepsPerUnit));
         break;
       case 1:  // Edit Measurement button
         Serial.println("Edit Measurement pressed");
+        currentInputMode = InputMode::INPUT_MEASUREMENT;
         genie.SetForm(2);  // Switch to the keyboard input form
         break;
       case 2:  // HOME BUTTON
@@ -168,31 +165,81 @@ void myGenieEventHandler(void) {
         break;
       case 3:  // Reset Servo button
         Serial.println("Reset Servo pressed");
+        hasHomed = false;
         HandleAlerts();  // Clear any motor alerts
         break;
       case 4:  // Settings Button
         Serial.println("Settings Button Pressed");
         genie.SetForm(3);  // Switch to the settings form
         break;
+      case 5:  //Edit blade thickness
+        Serial.println("Edit blade thickness Button Pressed");
+        genie.SetForm(2);  // Switch to the keyboard input form
+        currentInputMode = InputMode::INPUT_BLADE_THICKNESS;
+        break;
     }
   }
-  // Handle keyboard input events
+  // Handle keyboard input events. Based on the current parameter being entered, that value gets changed/updated
   if (Event.reportObject.object == GENIE_OBJ_KEYBOARD) {
-    // If ParameterInput returns true, it means 'Enter' was pressed
+
     if (ParameterInput(Event)) {
-      SetMeasurementUIDisplay();  // Update the main screen label with the new value
+      //updates to happen when user is done are here:
+
+      switch (currentInputMode) {
+        case INPUT_MEASUREMENT:
+          SetMeasurementUIDisplay();  // Update the main screen label with the new value
+          break;
+        case INPUT_BLADE_THICKNESS:
+          sawBladeThickness = GetParameterEnteredAsFloat();
+          break;
+      }
     }
+
+    //Updates to happen each key entered here. This is the label on the keyboard form, and is universal
+    genie.WriteInhLabel(1, String(keyvalue));
   }
 }
 
 //UI Functions: --------------------------------------------
+
+
 void SetMeasurementUIDisplay() {
   genie.SetForm(1);  // Go back to the main form
-  // Combine the entered value string with the current units
-  String combinedString = GetParameterInputValue() + currentUnits;
-  // Write the combined string to the label on the display (label index 0)
+
+  String paramValue = GetParameterInputValue();  // Only call this ONCE
+  String combinedString = paramValue + getUnitString(currentUnits);
   genie.WriteInhLabel(0, combinedString.c_str());
+
+  float val = paramValue.toFloat();  // Use the already obtained value here instead
+
+  double maxTravelInCurrentUnits = convertUnits(maxTravel.myNum, maxTravel.unit, currentUnits);
+
+  if (val < maxTravelInCurrentUnits) {
+    if (currentUnits == UnitType::UNIT_MILLIMETERS) {
+      val = convertFromInches(val, UnitType::UNIT_MILLIMETERS);
+    }
+    currentMainMeasurement = val;
+    Serial.println(currentMainMeasurement);
+  } else {
+    OpenParameterOutsideRangeError();
+  }
 }
+
+/*Returns 0 if an error occurs with the operation.*/
+float GetParameterEnteredAsFloat() {
+  String rawString = GetParameterInputValue();
+  float val = rawString.toFloat();
+
+  // Basic check for invalid conversion
+  if (val == 0.0 && !rawString.startsWith("0")) {
+    Serial.println("Error converting input to float: ");
+    Serial.println(rawString);
+    return 0.0;
+  } else {
+    return val;
+  }
+}
+
 
 /*
 Returns true when user presses Enter. Updates the global 'currentMainMeasurement'.
@@ -207,7 +254,7 @@ bool ParameterInput(genieFrame Event) {
     keyvalue[counter] = temp;      // Append the decimal value of the key pressed
     keyvalue[counter + 1] = '\0';  // Null-terminate the string
     counter++;
-  } else if (temp == 110) {  // '.' pressed (ASCII for '.')
+  } else if (temp == 110 && counter < 9) {  // '.' pressed (ASCII for '.')
     // Allow only one decimal point
     bool hasDecimal = false;
     for (int i = 0; i < counter; i++) {
@@ -243,11 +290,13 @@ String GetParameterInputValue() {
     keyvalue[f] = 0;
   }
   counter = 0;
-
-  //Set the double type of the string to the current set parameter. TODO:
-  currentMainMeasurement = 0.0;
-
   return stringKeyValue;
+}
+
+void OpenParameterOutsideRangeError() {
+  genie.SetForm(4);
+  delay(1500);
+  genie.SetForm(2);
 }
 
 //Configure Motors Functions: ------------------------------
@@ -263,10 +312,10 @@ void ConfigureSDMotor() {
   motor.HlfbCarrier(MotorDriver::HLFB_CARRIER_482_HZ);
 
   // Sets the maximum velocity for each move
-  motor.VelMax(10000);  // Example value, adjust as needed
+  motor.VelMax(MaxVel);  // Example value, adjust as needed
 
   // Set the maximum acceleration for each move
-  motor.AccelMax(100000);  // Example value, adjust as needed
+  motor.AccelMax(MaxAccel);  // Example value, adjust as needed
 }
 
 void ConfigureMCMotor() {
@@ -278,8 +327,11 @@ void ConfigureMCMotor() {
 //Motor Control Functions: ----------------------------------
 
 bool MoveAbsolutePosition(int32_t position) {
-  motor.EnableRequest(true);
-  hasHomed = true;
+  if (!hasHomed) {
+    motor.EnableRequest(true);
+
+    hasHomed = true;
+  }
 
 
   // Check if a motor alert is currently preventing motion
@@ -328,7 +380,6 @@ bool MoveAbsolutePosition(int32_t position) {
 }
 
 void PerformSensorlessHoming() {
-  hasHomed = true;
   Serial.println("Performing sensorless homing...");
 
   // Ensure motor is disabled first
@@ -351,6 +402,7 @@ void PerformSensorlessHoming() {
   }
 
   Serial.println("Sensorless homing complete!");
+  hasHomed = true;
 }
 
 void PrintAlerts() {

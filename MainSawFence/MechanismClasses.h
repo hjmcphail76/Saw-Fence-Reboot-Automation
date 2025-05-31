@@ -14,6 +14,14 @@ enum UnitType {
     UNIT_MILLIMETERS
 };
 
+struct Value {
+    float myNum;
+    UnitType unit;
+
+    Value(float num, UnitType u) : myNum(num), unit(u) {}
+};
+
+
 // --- Abstract Base Class (Interface) for Mechanism Configuration ---
 class Mechanism {
 public:
@@ -21,7 +29,6 @@ public:
     virtual int getMotorProgInputRes() const = 0;
     virtual int getMaxAccel() const = 0;
     virtual int getMaxVel() const = 0;
-    // calculateStepsPerUnit now takes gearbox reduction as a parameter
     virtual double calculateStepsPerUnit(float gearboxRed) const = 0;
 
     // Virtual getters for mechanism-specific parameters and their units.

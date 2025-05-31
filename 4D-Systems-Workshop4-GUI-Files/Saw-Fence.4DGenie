@@ -397,17 +397,170 @@ Keyboard
 end
 iLabelB
     Name                         ILabelB1
-    Alias                        ILabelB1
+    Alias                        Live-Parameter-Input
     Alignment                    Center
     BGcolor                      BLACK
     Buffer                       80
     Caption                      000.000
     Font                         FONT1
     FontColor                    clLime
-    FontSize                     4
+    FontSize                     3
     Height                       35
     Left                         0
     Margin                       2
     Top                          8
     Width                        195
+end
+Form
+    Name                         Form3
+    Alias                        Settings
+    Bgtype                       Color
+    Color                        BLACK
+    Image                        (None)
+    Source.Height                0
+    Source.Left                  0
+    Source.Top                   0
+    Source.Width                 0
+    OnActivate                   ''
+    OnCreate                     ''
+    OnRepeat                     ''
+    OnTouchMoving                ''
+    OnTouchPressed               ''
+    OnTouchReleased              ''
+end
+4Dbutton
+    Name                         4Dbutton0
+    Alias                        Units_Toggle
+    Height                       64
+    Left                         75
+    Matrix                       6
+    Momentary                    Yes
+    Size                         64x64
+    Style                        Green
+    Top                          208
+    Type                         Slider01
+    Width                        64
+    OnChanged                    ''
+end
+StaticText
+    Name                         Statictext1
+    Alias                        Statictext1
+    Alignment                    Left
+    AutoSize                     Yes
+    Caption                      in
+    Color                        BLACK
+    Font.Color                   WHITE
+    Font.Effects                 []
+    Font.Name                    Tahoma
+    Font.Size                    24
+    Font.Style                   [Bold]
+    Height                       39
+    Left                         147
+    Top                          216
+    Transparent                  Yes
+    Width                        30
+    WordWrap                     Yes
+end
+StaticText
+    Name                         Statictext2
+    Alias                        Statictext2
+    Alignment                    Left
+    AutoSize                     Yes
+    Caption                      mm
+    Color                        BLACK
+    Font.Color                   WHITE
+    Font.Effects                 []
+    Font.Name                    Tahoma
+    Font.Size                    24
+    Font.Style                   [Bold]
+    Height                       39
+    Left                         11
+    Top                          216
+    Transparent                  Yes
+    Width                        62
+    WordWrap                     Yes
+end
+WinButton
+    Name                         Winbutton5
+    Alias                        Edit-Blade-Thickness
+    Appearance.Alignment         Center
+    Appearance.Layout            Left
+    Appearance.PictureAlignment  Right
+    Appearance.SimpleLayout      No
+    Appearance.Spacing           3
+    AutoSizeToPicture            No
+    Bevel                        Yes
+    BevelColor                   clWhite
+    Caption                      'Edit Blade Thickness'
+    Color                        clGray
+    Font.Color                   clWindowText
+    Font.Effects                 []
+    Font.Name                    'Yu Gothic UI'
+    Font.Size                    12
+    Font.Style                   [Bold]
+    Height                       39
+    Left                         8
+    Matrix                       -1
+    Momentary                    Yes
+    Picture                      (None)
+    StatusWhenOff.BGcolor        RED
+    StatusWhenOff.Caption        ''
+    StatusWhenOff.Glow           Yes
+    StatusWhenOff.Color          WHITE
+    StatusWhenOff.Effects        []
+    StatusWhenOff.Name           Tahoma
+    StatusWhenOff.Size           8
+    StatusWhenOff.Style          []
+    StatusWhenOff.Visible        Yes
+    StatusWhenOn.BGcolor         RED
+    StatusWhenOn.Caption         ''
+    StatusWhenOn.Glow            Yes
+    StatusWhenOn.Color           WHITE
+    StatusWhenOn.Effects         []
+    StatusWhenOn.Name            Tahoma
+    StatusWhenOn.Size            8
+    StatusWhenOn.Style           []
+    StatusWhenOn.Visible         Yes
+    Top                          168
+    Width                        174
+    OnChanged                    ''
+    OnTouchMoving                ''
+    OnTouchPressed               ''
+    OnTouchReleased              ''
+end
+Form
+    Name                         Form4
+    Alias                        Outside-Range-Error
+    Bgtype                       Color
+    Color                        BLACK
+    Image                        (None)
+    Source.Height                0
+    Source.Left                  0
+    Source.Top                   0
+    Source.Width                 0
+    OnActivate                   ''
+    OnCreate                     ''
+    OnRepeat                     ''
+    OnTouchMoving                ''
+    OnTouchPressed               ''
+    OnTouchReleased              ''
+end
+StaticText
+    Name                         Statictext3
+    Alias                        Statictext3
+    Alignment                    Center
+    AutoSize                     Yes
+    Caption                      'ERROR: \n Parameter is outside the acceptable range.'
+    Color                        BLACK
+    Font.Color                   WHITE
+    Font.Effects                 []
+    Font.Name                    'Yu Gothic UI'
+    Font.Size                    28
+    Font.Style                   []
+    Height                       200
+    Left                         68
+    Top                          16
+    Transparent                  Yes
+    Width                        360
+    WordWrap                     Yes
 end
