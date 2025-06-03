@@ -1,4 +1,4 @@
-// File generated 5/30/2025 8:38:40 PM
+// File generated 6/2/2025 10:54:08 PM
 // Warning! This is a generated file, any manual changes will be
 // lost during the next generation.
 
@@ -54,11 +54,15 @@
     iKeyboard0_10   // offset 0xD8C00
     iKeyboard0_11   // offset 0xDD600
     iKeyboard0_12   // offset 0xE2000
-    i4Dbutton0      // offset 0xE6A00
-    iStatictext1    // offset 0xEAC00
-    iStatictext2    // offset 0xEB600
-    iWinbutton5     // offset 0xECA00
-    iStatictext3    // offset 0xF3600
+    iStatictext1    // offset 0xE6A00
+    iStatictext2    // offset 0xE7400
+    iWinbutton5     // offset 0xE8800
+    i4Dbutton0      // offset 0xF0000
+    iWinbutton6     // offset 0xF4200
+    iStatictext5    // offset 0xFD200
+    iStatictext3    // offset 0x100400
+    iStatictext4    // offset 0x123800
+    iStatictext6    // offset 0x131E00
 #END
 
 

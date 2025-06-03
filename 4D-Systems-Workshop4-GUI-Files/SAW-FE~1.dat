@@ -19,8 +19,12 @@
 "Keyboard0_10" 8C00 000D 10D CB
 "Keyboard0_11" D600 000D C8 CB
 "Keyboard0_12" 2000 000E 153 CB
-"4Dbutton0" 6A00 000E 4B D0
-"Statictext1" AC00 000E 93 D8
-"Statictext2" B600 000E 0B D8
-"Winbutton5" CA00 000E 08 A8
-"Statictext3" 3600 000F 44 10
+"Statictext1" 6A00 000E 1B1 DA
+"Statictext2" 7400 000E 11C DA
+"Winbutton5" 8800 000E 124 9C
+"4Dbutton0" 0000 000F 164 D0
+"Winbutton6" 4200 000F 00 CA
+"Statictext5" D200 000F B4 04
+"Statictext3" 0400 0010 44 10
+"Statictext4" 3800 0012 70 30
+"Statictext6" 1E00 0013 50 34

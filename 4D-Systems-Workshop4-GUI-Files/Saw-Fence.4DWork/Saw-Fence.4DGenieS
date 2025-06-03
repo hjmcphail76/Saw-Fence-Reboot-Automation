@@ -3,7 +3,7 @@
 //#constant OLDCOMPILE
 
 
-// generated 5/30/2025 8:38:45 PM
+// generated 6/2/2025 10:54:12 PM
 // uSDRequired:- 1   InternalRequired:- 1
 
 #MODE FLASHBANK_1
@@ -167,8 +167,8 @@
     WRITE_LABEL     12
 
 // End P1.inc
-    nObjects        26
-    nInputs         12
+    nObjects        30
+    nInputs         15
     nAniTimers      0
     nKeyboards      1
 #END
@@ -300,13 +300,13 @@ endfunc
     byte CILabelB0 "000.000 in",0 
     word IILabelB1 0, 8, 195, 35, 2, 0x07E0, BLACK, 1, 3, 0x3, 80, CILabelB1
     byte CILabelB1 "000.000",0 
-    word FormStartIndex 0, 2, 7, 21, 25
-    word FormEndIndex 2, 7, 21, 25, 26
-    word iFormStartIndex 0, 0, 1, 2, 2
-    word iFormEndIndex 0, 1, 2, 2, 2
-    word iiFormStartIndex 0, 0, 0, 0, 0
-    word iiFormEndIndex 0, 0, 0, 0, 0
-    word InputControls -1, -1, 0, 44, 88, 132, 176, 220, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 220, -1, -1, 242
+    word FormStartIndex 0, 2, 7, 21, 27, 28, 29
+    word FormEndIndex 2, 7, 21, 27, 28, 29, 30
+    word iFormStartIndex 0, 0, 1, 2, 2, 2, 2
+    word iFormEndIndex 0, 1, 2, 2, 2, 2, 2
+    word iiFormStartIndex 0, 0, 0, 0, 0, 0, 0
+    word iiFormEndIndex 0, 0, 0, 0, 0, 0, 0
+    word InputControls -1, -1, 0, 44, 88, 132, 176, 220, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 220, 264, 286
     word InternalInputControls -1, -1
     word InputData tWinButton, 1, -1, -1, -1, -1, -1, -1, 0, 22, 2,
                 OT_REPORT, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -318,17 +318,20 @@ endfunc
                 OT_REPORT, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3,
                 tWinButton, 1, -1, -1, -1, -1, -1, -1, 0, 198, 10,
                 OT_REPORT, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4,
-                t4Dbutton, 1, 6, -1, -1, -1, -1, -1, 0, 0, 2,
-                tWinButton, 1, -1, -1, -1, -1, -1, -1, 0, 0, 12
+                tWinButton, 1, -1, -1, -1, -1, -1, -1, 0, 242, 12,
+                OT_REPORT, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5,
+                t4Dbutton, 1, -1, -1, -1, -1, -1, -1, 0, 0, 2,
+                tWinButton, 1, -1, -1, -1, -1, -1, -1, 0, 308, 14,
+                OT_ACTIVATE, 10, 1, 0, 18, 0, 0, 0, 0, 0, 0
     word oDipSwitchs 0
-    word oWinButtons 6, iWinbutton0, iWinbutton1, iWinbutton2, iWinbutton3, iWinbutton4, iWinbutton5
-    word oForms 5, -1, -1, -1, -1, -1
+    word oWinButtons 7, iWinbutton0, iWinbutton1, iWinbutton2, iWinbutton3, iWinbutton4, iWinbutton5, iWinbutton6
+    word oForms 7, -1, -1, -1, -1, -1, -1, -1
     word oImages 1, iImage0
     word oKeyboards 1, iKeyboard0
-    word oStaticTexts 4, iStatictext0, iStatictext1, iStatictext2, iStatictext3
+    word oStaticTexts 7, iStatictext0, iStatictext1, iStatictext2, iStatictext3, iStatictext4, iStatictext5, iStatictext6
     word o4Dbuttons 1, i4Dbutton0
     word oiLabelBs 2, IILabelB0, IILabelB1
-    word FormBGcolors 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
+    word FormBGcolors 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
     word kKeyboardKeystrokes iKeyboard0keystrokes
     word rKeyboardRoutines SendReport
 #END

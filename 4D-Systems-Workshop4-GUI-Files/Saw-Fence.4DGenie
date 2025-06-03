@@ -428,20 +428,6 @@ Form
     OnTouchPressed               ''
     OnTouchReleased              ''
 end
-4Dbutton
-    Name                         4Dbutton0
-    Alias                        Units_Toggle
-    Height                       64
-    Left                         75
-    Matrix                       6
-    Momentary                    Yes
-    Size                         64x64
-    Style                        Green
-    Top                          208
-    Type                         Slider01
-    Width                        64
-    OnChanged                    ''
-end
 StaticText
     Name                         Statictext1
     Alias                        Statictext1
@@ -455,8 +441,8 @@ StaticText
     Font.Size                    24
     Font.Style                   [Bold]
     Height                       39
-    Left                         147
-    Top                          216
+    Left                         433
+    Top                          218
     Transparent                  Yes
     Width                        30
     WordWrap                     Yes
@@ -474,8 +460,8 @@ StaticText
     Font.Size                    24
     Font.Style                   [Bold]
     Height                       39
-    Left                         11
-    Top                          216
+    Left                         284
+    Top                          218
     Transparent                  Yes
     Width                        62
     WordWrap                     Yes
@@ -496,10 +482,10 @@ WinButton
     Font.Color                   clWindowText
     Font.Effects                 []
     Font.Name                    'Yu Gothic UI'
-    Font.Size                    12
-    Font.Style                   [Bold]
-    Height                       39
-    Left                         8
+    Font.Size                    11
+    Font.Style                   []
+    Height                       46
+    Left                         292
     Matrix                       -1
     Momentary                    Yes
     Picture                      (None)
@@ -521,12 +507,93 @@ WinButton
     StatusWhenOn.Size            8
     StatusWhenOn.Style           []
     StatusWhenOn.Visible         Yes
-    Top                          168
-    Width                        174
-    OnChanged                    ''
+    Top                          156
+    Width                        166
+    OnChanged                    'Report Message'
     OnTouchMoving                ''
     OnTouchPressed               ''
     OnTouchReleased              ''
+end
+4Dbutton
+    Name                         4Dbutton0
+    Alias                        4Dbutton0
+    Height                       64
+    Left                         356
+    Matrix                       -1
+    Momentary                    Both
+    Size                         64x64
+    Style                        Red
+    Top                          208
+    Type                         Slider01
+    Width                        64
+    OnChanged                    ''
+end
+WinButton
+    Name                         Winbutton6
+    Alias                        Exit-Settings
+    Appearance.Alignment         Center
+    Appearance.Layout            Left
+    Appearance.PictureAlignment  Right
+    Appearance.SimpleLayout      Yes
+    Appearance.Spacing           3
+    AutoSizeToPicture            No
+    Bevel                        Yes
+    BevelColor                   clWhite
+    Caption                      Exit
+    Color                        0xE0E0E0
+    Font.Color                   clWindowText
+    Font.Effects                 []
+    Font.Name                    'Yu Gothic UI'
+    Font.Size                    16
+    Font.Style                   []
+    Height                       70
+    Left                         0
+    Matrix                       -1
+    Momentary                    Yes
+    Picture                      (None)
+    StatusWhenOff.BGcolor        RED
+    StatusWhenOff.Caption        ''
+    StatusWhenOff.Glow           Yes
+    StatusWhenOff.Color          WHITE
+    StatusWhenOff.Effects        []
+    StatusWhenOff.Name           Tahoma
+    StatusWhenOff.Size           8
+    StatusWhenOff.Style          []
+    StatusWhenOff.Visible        Yes
+    StatusWhenOn.BGcolor         RED
+    StatusWhenOn.Caption         ''
+    StatusWhenOn.Glow            Yes
+    StatusWhenOn.Color           WHITE
+    StatusWhenOn.Effects         []
+    StatusWhenOn.Name            Tahoma
+    StatusWhenOn.Size            8
+    StatusWhenOn.Style           []
+    StatusWhenOn.Visible         Yes
+    Top                          202
+    Width                        130
+    OnChanged                    Form1Activate
+    OnTouchMoving                ''
+    OnTouchPressed               ''
+    OnTouchReleased              ''
+end
+StaticText
+    Name                         Statictext5
+    Alias                        Statictext5
+    Alignment                    Center
+    AutoSize                     Yes
+    Caption                      Settings
+    Color                        BLACK
+    Font.Color                   WHITE
+    Font.Effects                 []
+    Font.Name                    'Yu Gothic UI'
+    Font.Size                    22
+    Font.Style                   [Bold]
+    Height                       50
+    Left                         180
+    Top                          4
+    Transparent                  Yes
+    Width                        124
+    WordWrap                     Yes
 end
 Form
     Name                         Form4
@@ -562,5 +629,77 @@ StaticText
     Top                          16
     Transparent                  Yes
     Width                        360
+    WordWrap                     Yes
+end
+Form
+    Name                         Form5
+    Alias                        Homing-Alert
+    Bgtype                       Color
+    Color                        BLACK
+    Image                        (None)
+    Source.Height                0
+    Source.Left                  0
+    Source.Top                   0
+    Source.Width                 0
+    OnActivate                   ''
+    OnCreate                     ''
+    OnRepeat                     ''
+    OnTouchMoving                ''
+    OnTouchPressed               ''
+    OnTouchReleased              ''
+end
+StaticText
+    Name                         Statictext4
+    Alias                        Statictext4
+    Alignment                    Left
+    AutoSize                     Yes
+    Caption                      'Motor Homing...'
+    Color                        BLACK
+    Font.Color                   WHITE
+    Font.Effects                 []
+    Font.Name                    'Yu Gothic UI'
+    Font.Size                    28
+    Font.Style                   []
+    Height                       100
+    Left                         112
+    Top                          48
+    Transparent                  Yes
+    Width                        294
+    WordWrap                     Yes
+end
+Form
+    Name                         Form6
+    Alias                        Please-Home-Error
+    Bgtype                       Color
+    Color                        BLACK
+    Image                        (None)
+    Source.Height                0
+    Source.Left                  0
+    Source.Top                   0
+    Source.Width                 0
+    OnActivate                   ''
+    OnCreate                     ''
+    OnRepeat                     ''
+    OnTouchMoving                ''
+    OnTouchPressed               ''
+    OnTouchReleased              ''
+end
+StaticText
+    Name                         Statictext6
+    Alias                        Statictext6
+    Alignment                    Center
+    AutoSize                     Yes
+    Caption                      'Error:\nPlease home the system first'
+    Color                        BLACK
+    Font.Color                   WHITE
+    Font.Effects                 []
+    Font.Name                    'Yu Gothic UI'
+    Font.Size                    28
+    Font.Style                   []
+    Height                       150
+    Left                         80
+    Top                          52
+    Transparent                  Yes
+    Width                        328
     WordWrap                     Yes
 end

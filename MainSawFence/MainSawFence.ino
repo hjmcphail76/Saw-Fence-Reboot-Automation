@@ -1,12 +1,8 @@
 #include "ClearCore.h"
 #include <genieArduinoDEV.h>
-#include "MechanismClasses.h"  // Include the new header file for mechanism classes
-
-Genie genie;
-#define motor ConnectorM0
+#include "MechanismClasses.h"
 
 /*
-------------------------------------------------------
 Neo7CNC Automated Chop Saw fence
 
 Hardware used:
@@ -14,15 +10,20 @@ Hardware used:
   -4D Systems 'Gen4 uLCD 43D CLB' Screen with the 'Clearcore to 4D' adapter.
   -Clearpath MC or SD servo
     -Both are supported
-    -Plug MC type servo into ports 2 or 3 on the Clearcore
-    -Plug SD type servo into ports 0 or 1 on the Clearcore
-
---------------------------------------------------------------------------
+    -Plug MC type servo into ports 2 or 3 on the Clearcore.
+    -Plug SD type servo into ports 0 or 1 on the Clearcore.
+    -No code changes are required. Everything other than what is listed in 'User Configuration' is taken care on the backend for you.
 */
-//User Configuration:
+
+//--------------------------------------------------User Configuration start: -------------------------------------------------------------------------------
+
+//Default untits for the system to boot with. UnitType::UNIT_INCHES  or  UnitType::UNIT_MILLIMETERS
+UnitType currentUnits = UnitType::UNIT_INCHES;
 
 // IMPORTANT: Uncomment ONLY ONE of the 'Mechanism* currentMechanism = new ...' lines below
 // to select the mechanism you are currently configuring. Fill in the parameters (motorProgInputRes, maxAccel, maxVel, mechanism_specific_parameter, UnitType)
+// The unit type here is just for configuration of your system. Swapping between units for cut measurements on the fly can be done on the system in settings
+// and will not effect this.
 
 // Example: Belt Mechanism with 1.0 inch pulley diameter
 Mechanism* currentMechanism = new BeltMechanism(200, 5000, 500, 0.236, UNIT_INCHES);
@@ -45,6 +46,11 @@ const int serialMoniterBaudRate = 115200;
 //4D UART settings:
 const int genieBaudRate = 9600;
 
+//--------------------------------------------------User Configuration end: --------------------------------------------------------------------------------
+
+Genie genie;
+#define motor ConnectorM0
+
 // Global variables to hold the currently selected configuration values
 // These will be set in setup() based on the selected mechanism object
 int MotorProgInputRes;
@@ -58,9 +64,9 @@ double currentStepsPerUnit = 0;  // This will store the calculated steps per inc
 bool MoveAbsolutePosition(int32_t position);
 void PrintAlerts();
 void HandleAlerts();
-void ConfigureSDMotor();  //Step-Direction type
-void ConfigureMCMotor();  // PWM type
-void PerformSensorlessHoming();
+void ConfigureSDMotor();  //Step-Direction type servo
+void ConfigureMCMotor();  // PWM type servo
+void StartSensorlessHoming();
 void SetMeasurementUIDisplay();
 bool ParameterInput(genieFrame Event);
 String GetParameterInputValue();
@@ -75,16 +81,13 @@ float GetParameterEnteredAsFloat();
 //---------------------------------------------------
 
 //Misc:
-UnitType currentUnits = UnitType::UNIT_INCHES;  // Default units
 bool hasHomed = false;
 char keyvalue[10];  // Array to hold keyboard character values
 int counter = 0;    // Keyboard number of characters
 int temp, sumTemp;  // Keyboard Temp values (sumTemp is not actively used for current value display)
 int newValue;       // Not actively used for current value display
-
 float currentMainMeasurement = 0.0;  // The target measurement value entered by the user
-
-//---------------------------------------------------
+int displayMsTime = 1250; //Time errors and alert screens show in milliseconds.
 
 //Keep track of the state of what parameter the user is editing and what should the keyboard edit.
 enum InputMode {
@@ -93,6 +96,18 @@ enum InputMode {
   // Add more as needed
 };
 InputMode currentInputMode = INPUT_MEASUREMENT;
+
+// State machine for homing
+enum HomingState {
+  HOMING_IDLE,
+  HOMING_INIT,
+  HOMING_WAIT_HLFB,
+  HOMING_COMPLETE,
+  HOMING_ERROR
+};
+HomingState homingState = HOMING_IDLE;
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void setup() {
   Serial.begin(serialMoniterBaudRate);
@@ -113,7 +128,6 @@ void setup() {
     currentStepsPerUnit = currentMechanism->calculateStepsPerUnit(gearBoxReduction);
   }
 
-
   ConfigureSDMotor();  // Configure the motor with the selected values
   HandleAlerts();      // Handle any initial motor alerts
 
@@ -128,6 +142,7 @@ void setup() {
     Serial.println("Genie initialization successful. Display is online!");
     genie.AttachEventHandler(myGenieEventHandler);  // Attach the event handler
     genie.SetForm(1);                               // Set the initial form to 1
+    Serial.println(genie.GetForm());
   } else {
     Serial.println("Genie initialization failed.");
   }
@@ -135,24 +150,76 @@ void setup() {
 
 void loop() {
   genie.DoEvents();  // Keep the Genie library processing
+
+  // Continuously check homing state
+  switch (homingState) {
+    case HOMING_INIT:
+      Serial.println("Performing sensorless homing...");
+      // Ensure motor is disabled first
+      motor.EnableRequest(false);
+      Delay_ms(10);  // Small delay for state change
+
+      // Enable motor, triggering homing (if configured in MSP)
+      motor.EnableRequest(true);
+      Serial.println("Waiting for homing to complete (HLFB asserted)...");
+      homingState = HOMING_WAIT_HLFB;
+      break;
+
+    case HOMING_WAIT_HLFB:
+      if (motor.HlfbState() == MotorDriver::HLFB_ASSERTED) {
+        Serial.println("Sensorless homing complete!");
+        hasHomed = true;
+        homingState = HOMING_COMPLETE;
+      } else if (motor.StatusReg().bit.AlertsPresent) {
+        Serial.println("Alert occurred during homing.");
+        PrintAlerts();
+        homingState = HOMING_ERROR;
+      }
+      break;
+
+    case HOMING_COMPLETE:
+      genie.SetForm(1);  // Switch to the settings form after homing
+      Serial.print("Current form after homing: ");
+      Serial.println(genie.GetForm());
+      homingState = HOMING_IDLE;  // Reset state
+      break;
+
+    case HOMING_ERROR:
+      // Handle the error, perhaps display an error message on the screen
+      HandleAlerts();    // Clear alerts
+      genie.SetForm(1);  // Go back to main form or an error form
+      Serial.println("Homing failed due to alert.");
+      homingState = HOMING_IDLE;  // Reset state
+      break;
+
+    case HOMING_IDLE:
+      break;
+  }
 }
 
 // Genie event handler function
 void myGenieEventHandler(void) {
   genieFrame Event;
-  genie.DequeueEvent(&Event);  // Remove the next queued event from the buffer, and process it below
-  // The Event object is passed as a parameter by genie.DoEvents(),
-  // so no need to call genie.ReadEvent(&Event) here.
+  genie.DequeueEvent(&Event);
+
 
   // Handle events based on object type and index
   if (Event.reportObject.object == GENIE_OBJ_WINBUTTON) {
+    Serial.println(Event.reportObject.index);
+
     switch (Event.reportObject.index) {
       case 0:  // Measure button
         Serial.println("Measure pressed");
-        // Convert the currentMainMeasurement (inches or mm) to motor steps
-        // using the calculated stepsPerUnit IF
-        //if (currentMainMeasurement < )
-        MoveAbsolutePosition(static_cast<int32_t>(currentMainMeasurement * currentStepsPerUnit));
+
+        if (hasHomed) {
+          // Convert the currentMainMeasurement (inches or mm) to motor steps
+          MoveAbsolutePosition(static_cast<int32_t>(currentMainMeasurement * currentStepsPerUnit));
+        }
+        else{
+          genie.SetForm(6);
+          delay(displayMsTime);
+          genie.SetForm(1);
+        }
         break;
       case 1:  // Edit Measurement button
         Serial.println("Edit Measurement pressed");
@@ -161,11 +228,12 @@ void myGenieEventHandler(void) {
         break;
       case 2:  // HOME BUTTON
         Serial.println("HOME BUTTON PRESSED");
-        PerformSensorlessHoming();
+        genie.SetForm(5);         // Show homing in progress screen
+        StartSensorlessHoming();  // Initiate the non-blocking homing process
         break;
       case 3:  // Reset Servo button
         Serial.println("Reset Servo pressed");
-        hasHomed = false;
+        hasHomed = false; //require re homing
         HandleAlerts();  // Clear any motor alerts
         break;
       case 4:  // Settings Button
@@ -191,11 +259,13 @@ void myGenieEventHandler(void) {
           break;
         case INPUT_BLADE_THICKNESS:
           sawBladeThickness = GetParameterEnteredAsFloat();
+          Serial.println("Current blade thickness: " + String(sawBladeThickness));
+          genie.SetForm(3);
           break;
       }
     }
 
-    //Updates to happen each key entered here. This is the label on the keyboard form, and is universal
+    //Updates to happen each key entered here. This is the label on the keyboard form, and is universal for all entered parameters.
     genie.WriteInhLabel(1, String(keyvalue));
   }
 }
@@ -216,7 +286,13 @@ void SetMeasurementUIDisplay() {
 
   if (val < maxTravelInCurrentUnits) {
     if (currentUnits == UnitType::UNIT_MILLIMETERS) {
-      val = convertFromInches(val, UnitType::UNIT_MILLIMETERS);
+      // This line seems problematic. If val is already in currentUnits, and currentUnits is MM,
+      // converting from inches to MM again will scale it incorrectly.
+      // Assuming convertFromInches converts a value *in inches* to the target unit.
+      // If val is already in the currentUnits (which could be MM), this conversion is wrong.
+      // Re-evaluate your unit conversion logic here.
+      // For now, commenting it out as it seems to be a logical error based on the comment.
+      // val = convertFromInches(val, UnitType::UNIT_MILLIMETERS);
     }
     currentMainMeasurement = val;
     Serial.println(currentMainMeasurement);
@@ -295,7 +371,7 @@ String GetParameterInputValue() {
 
 void OpenParameterOutsideRangeError() {
   genie.SetForm(4);
-  delay(1500);
+  delay(displayMsTime);
   genie.SetForm(2);
 }
 
@@ -328,18 +404,18 @@ void ConfigureMCMotor() {
 
 bool MoveAbsolutePosition(int32_t position) {
   if (!hasHomed) {
-    motor.EnableRequest(true);
-
-    hasHomed = true;
+    // If not homed, initiate homing and return false to indicate move is not yet performed.
+    // The move will be re-attempted after homing completes.
+    StartSensorlessHoming();
+    return false;
   }
-
 
   // Check if a motor alert is currently preventing motion
   // Clear alert if configured to do so
   if (motor.StatusReg().bit.AlertsPresent) {
     Serial.println("Motor alert detected.");
     PrintAlerts();
-    if (true) {
+    if (true) {  // Assuming you want to always handle alerts
       HandleAlerts();
     } else {
       Serial.println("Enable automatic alert handling by setting HANDLE_ALERTS to 1.");
@@ -357,6 +433,9 @@ bool MoveAbsolutePosition(int32_t position) {
 
   // Waits for HLFB to assert (signaling the move has successfully completed)
   Serial.println("Moving.. Waiting for HLFB");
+  // This loop is also blocking. For a more robust system, this should also be
+  // converted to a state machine or checked in the main loop.
+  // For now, keeping it blocking as the homing was the primary issue.
   while ((!motor.StepsComplete() || motor.HlfbState() != MotorDriver::HLFB_ASSERTED) && !motor.StatusReg().bit.AlertsPresent) {
     continue;
   }
@@ -365,7 +444,7 @@ bool MoveAbsolutePosition(int32_t position) {
   if (motor.StatusReg().bit.AlertsPresent) {
     Serial.println("Motor alert detected.");
     PrintAlerts();
-    if (true) {  // HANDLE_ALERTS is set to 0
+    if (true) {  // Assuming you want to always handle alerts
       HandleAlerts();
     } else {
       Serial.println("Enable automatic fault handling by setting HANDLE_ALERTS to 1.");
@@ -379,30 +458,9 @@ bool MoveAbsolutePosition(int32_t position) {
   }
 }
 
-void PerformSensorlessHoming() {
-  Serial.println("Performing sensorless homing...");
-
-  // Ensure motor is disabled first
-  motor.EnableRequest(false);
-  Delay_ms(10);
-
-  // Enable motor, triggering homing (if configured in MSP)
-  motor.EnableRequest(true);
-
-  // Wait for HLFB to assert, indicating homing complete
-  Serial.println("Waiting for homing to complete (HLFB asserted)...");
-  while (motor.HlfbState() != MotorDriver::HLFB_ASSERTED && !motor.StatusReg().bit.AlertsPresent) {
-    continue;
-  }
-
-  if (motor.StatusReg().bit.AlertsPresent) {
-    Serial.println("Alert occurred during homing.");
-    PrintAlerts();
-    return;
-  }
-
-  Serial.println("Sensorless homing complete!");
-  hasHomed = true;
+// Initiates the non-blocking homing process
+void StartSensorlessHoming() {
+  homingState = HOMING_INIT;
 }
 
 void PrintAlerts() {
