@@ -18,7 +18,9 @@ int SDMotor::getMotorProgInputRes() const {
 
 // --- MCMotor ---
 MCMotor::MCMotor(int maxAccel, int maxVel)
-  : maxAccel(maxAccel), maxVel(maxVel) {}
+  : maxAccel(maxAccel), maxVel(maxVel) {
+    
+  }
 
 int MCMotor::getMaxAccel() const {
   return maxAccel;
