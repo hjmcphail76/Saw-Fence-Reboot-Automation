@@ -1,6 +1,7 @@
 #pragma once
 #include <genieArduinoDEV.h>
 #include <ClearCore.h>
+#include "MechanismClasses.h"
 
 class Motor {
 public:
@@ -19,22 +20,25 @@ public:
   virtual void StartSensorlessHoming();
   virtual void HandleAlerts() const = 0;
 
+  virtual void StateMachinePeriodic(Genie& genie) { }//do nothing by default
+
+  bool hasHomed = false;
+
 protected:
   HomingState homingState = HomingState::HOMING_IDLE;
-  bool hasHomed = false;
 };
 
 
 // SDMotor class
 class SDMotor : public Motor {
 private:
-  int motorProgInputRes;
   int maxAccel;
   int maxVel;
+  int motorProgInputRes;
   MotorDriver &motor = ConnectorM0;
 
 public:
-  SDMotor(int maxAccel, int maxVel, int motorProgInputRes);
+  SDMotor(Mechanism *mech);//int maxAccel, int maxVel, int motorProgInputRes);
 
   int GetMaxAccel() const override;
   int GetMaxVel() const override;
@@ -55,7 +59,7 @@ private:
   MotorDriver &motor = ConnectorM3;
 
 public:
-  MCMotor(int maxAccel, int maxVel);
+  MCMotor(Mechanism *mech);
 
   int GetMaxAccel() const override;
   int GetMaxVel() const override;

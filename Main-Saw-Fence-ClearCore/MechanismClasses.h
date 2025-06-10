@@ -11,10 +11,10 @@ enum UnitType {
 };
 
 struct Value {
-    float myNum;
+    float val;
     UnitType unit;
 
-    Value(float num, UnitType u) : myNum(num), unit(u) {}
+    Value(float num, UnitType u) : val(num), unit(u) {}
 };
 
 
@@ -22,17 +22,17 @@ struct Value {
 class Mechanism {
 public:
     // Pure virtual functions that derived classes must implement
-    virtual int getMotorProgInputRes() const = 0;
-    virtual int getMaxAccel() const = 0;
-    virtual int getMaxVel() const = 0;
-    virtual double calculateStepsPerUnit(float gearboxRed) const = 0;
+    virtual int GetMotorProgInputRes() const = 0;
+    virtual int GetMaxAccel() const = 0;
+    virtual int GetMaxVel() const = 0;
+    virtual double CalculateStepsPerUnit() const = 0;
 
     // Virtual getters for mechanism-specific parameters and their units.
     // Return 0.0 by default for types where the parameter is not applicable.
-    virtual double getPulleyDiameter() const { return 0.0; }
-    virtual double getLeadscrewPitch() const { return 0.0; }
-    virtual double getPinionDiameter() const { return 0.0; }
-    virtual UnitType getParamUnit() const = 0; // Pure virtual getter for unit type
+    virtual double GetPulleyDiameter() const { return 0.0; }
+    virtual double GetLeadscrewPitch() const { return 0.0; }
+    virtual double GetPinionDiameter() const { return 0.0; }
+    virtual UnitType GetParamUnit() const = 0; // Pure virtual getter for unit type
 
     // Virtual destructor for proper polymorphic deletion
     virtual ~Mechanism() {}
@@ -44,22 +44,23 @@ private:
     int motorProgInputRes;
     int maxAccel;
     int maxVel;
+    double gearboxReduction;
     double pulleyDiameter; // Specific parameter for belt drive
     UnitType pulleyDiameterUnit; // Unit for pulleyDiameter
 
 public:
     // Constructor declaration
-    BeltMechanism(int res, int accel, int vel, double diameter, UnitType unit);
+    BeltMechanism(int res, int accel, int vel, double diameter, double gearboxReduction, UnitType unit);
 
     // Implementations of the pure virtual functions
-    int getMotorProgInputRes() const override;
-    int getMaxAccel() const override;
-    int getMaxVel() const override;
-    double calculateStepsPerUnit(float gearboxRed) const override;
+    int GetMotorProgInputRes() const override;
+    int GetMaxAccel() const override;
+    int GetMaxVel() const override;
+    double CalculateStepsPerUnit() const override;
 
     // Override specific getter for pulley diameter and its unit
-    double getPulleyDiameter() const override;
-    UnitType getParamUnit() const override;
+    double GetPulleyDiameter() const override;
+    UnitType GetParamUnit() const override;
 };
 
 // --- Concrete Class for Leadscrew Mechanism ---
@@ -68,22 +69,23 @@ private:
     int motorProgInputRes;
     int maxAccel;
     int maxVel;
+    double gearboxReduction;
     double leadscrewPitch; // Specific parameter for leadscrew
     UnitType leadscrewPitchUnit; // Unit for leadscrewPitch
 
 public:
     // Constructor declaration
-    LeadscrewMechanism(int res, int accel, int vel, double pitch, UnitType unit);
+    LeadscrewMechanism(int res, int accel, int vel, double pitch, double gearboxReduction, UnitType unit);
 
     // Implementations of the pure virtual functions
-    int getMotorProgInputRes() const override;
-    int getMaxAccel() const override;
-    int getMaxVel() const override;
-    double calculateStepsPerUnit(float gearboxRed) const override;
+    int GetMotorProgInputRes() const override;
+    int GetMaxAccel() const override;
+    int GetMaxVel() const override;
+    double CalculateStepsPerUnit() const override;
 
     // Override specific getter for leadscrew pitch and its unit
-    double getLeadscrewPitch() const override;
-    UnitType getParamUnit() const override;
+    double GetLeadscrewPitch() const override;
+    UnitType GetParamUnit() const override;
 };
 
 // --- Concrete Class for Rack and Pinion Mechanism ---
@@ -92,22 +94,23 @@ private:
     int motorProgInputRes;
     int maxAccel;
     int maxVel;
+    double gearboxReduction;
     double pinionDiameter; // Specific parameter for rack and pinion
     UnitType pinionDiameterUnit; // Unit for pinionDiameter
 
 public:
     // Constructor declaration
-    RackAndPinionMechanism(int res, int accel, int vel, double diameter, UnitType unit);
+    RackAndPinionMechanism(int res, int accel, int vel, double diameter, double gearboxReduction, UnitType unit);
 
     // Implementations of the pure virtual functions
-    int getMotorProgInputRes() const override;
-    int getMaxAccel() const override;
-    int getMaxVel() const override;
-    double calculateStepsPerUnit(float gearboxRed) const override;
+    int GetMotorProgInputRes() const override;
+    int GetMaxAccel() const override;
+    int GetMaxVel() const override;
+    double CalculateStepsPerUnit() const override;
 
     // Override specific getter for pinion diameter and its unit
-    double getPinionDiameter() const override;
-    UnitType getParamUnit() const override;
+    double GetPinionDiameter() const override;
+    UnitType GetParamUnit() const override;
 };
 
 #endif // MECHANISM_CLASSES_H

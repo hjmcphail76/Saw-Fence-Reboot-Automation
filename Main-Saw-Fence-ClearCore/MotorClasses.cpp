@@ -1,10 +1,14 @@
 #include <ClearCore.h>
 #include <genieArduinoDEV.h>
 #include "MotorClasses.h"
+#include "MechanismClasses.h"
 
 // --- SDMotor ---
-SDMotor::SDMotor(int maxAccel, int maxVel, int motorProgInputRes)
-  : maxAccel(maxAccel), maxVel(maxVel), motorProgInputRes(motorProgInputRes) {
+SDMotor::SDMotor(Mechanism *mech)
+  : maxAccel(mech->GetMaxAccel()),
+    maxVel(mech->GetMaxVel()),
+    motorProgInputRes(mech->GetMotorProgInputRes()) {
+
   MotorMgr.MotorInputClocking(MotorManager::CLOCK_RATE_NORMAL);
   MotorMgr.MotorModeSet(MotorManager::MOTOR_M0M1,
                         Connector::CPM_MODE_STEP_AND_DIR);
@@ -14,6 +18,7 @@ SDMotor::SDMotor(int maxAccel, int maxVel, int motorProgInputRes)
   motor.VelMax(maxVel);
   motor.AccelMax(maxAccel);
 }
+
 
 int SDMotor::GetMaxAccel() const {
   return maxAccel;
@@ -122,7 +127,8 @@ void SDMotor::StateMachinePeriodic(Genie &genie) {
       }
       break;
 
-    case HOMING_COMPLETE: 
+    case HOMING_COMPLETE:
+      motor.PositionRefSet(0);
       hasHomed = true;
       genie.SetForm(1);
       homingState = HOMING_IDLE;
@@ -140,7 +146,7 @@ void SDMotor::StateMachinePeriodic(Genie &genie) {
 }
 
 // --- MCMotor ---
-MCMotor::MCMotor(int maxAccel, int maxVel)
+MCMotor::MCMotor(Mechanism *mech)
   : maxAccel(maxAccel), maxVel(maxVel) {}
 
 int MCMotor::GetMaxAccel() const {
