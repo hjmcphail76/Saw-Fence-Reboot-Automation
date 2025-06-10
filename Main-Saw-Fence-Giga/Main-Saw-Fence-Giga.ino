@@ -37,3 +37,30 @@ void loop() {
   /* Feed LVGL engine */
   lv_timer_handler();
 }
+
+
+
+
+// void setup() {
+//   Serial.begin(115200);      // Debug output via USB
+//   Serial1.begin(9600);       // TX1/RX1 communication with ClearCore
+
+//   while (!Serial);           // Wait for Serial Monitor to open
+//   Serial.println("GIGA READY - Waiting for ClearCore...");
+// }
+
+// void loop() {
+//   // Check if ClearCore sent something
+//   if (Serial1.available()) {
+//     String received = Serial1.readStringUntil('\n');  // Read line
+//     Serial.print("GIGA received: ");
+//     Serial.println(received);
+
+//     // Echo it back to ClearCore
+//     Serial1.print("Echo from GIGA: ");
+//     Serial1.println(received);
+//   }
+// }
+
+
+

@@ -3,10 +3,6 @@
 
 #include <Arduino.h> // Required for String and other Arduino types
 
-// Define PI for calculations
-#ifndef PI
-#define PI 3.14159265358979323846
-#endif
 
 // Enum for unit types
 enum UnitType {

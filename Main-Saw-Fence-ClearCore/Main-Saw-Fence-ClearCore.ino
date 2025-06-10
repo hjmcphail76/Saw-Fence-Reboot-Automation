@@ -1,4 +1,4 @@
-#include "ClearCore.h"
+#include <ClearCore.h>
 #include <genieArduinoDEV.h>
 #include "MechanismClasses.h"
 
@@ -6,12 +6,14 @@
 Neo7CNC Automated Chop Saw fence
 
 Hardware used:
-  -Clearcore controller
-  -4D Systems 'Gen4 uLCD 43D CLB' Screen with the 'Clearcore to 4D' adapter.
+  -Teknic ClearCore controller
+
+  -Arduino Giga+Giga Shield Screen  OR  4D Systems 'Gen4 uLCD 43D CLB' Screen with the 'Clearcore to 4D' adapter.
+
   -Clearpath MC or SD servo
     -Both are supported
-    -Plug MC type servo into ports 2 or 3 on the Clearcore.
-    -Plug SD type servo into ports 0 or 1 on the Clearcore.
+    -Plug MC type servo into port 0 on the Clearcore.
+    -Plug SD type servo into ports 3 on the Clearcore.
     -No code changes are required. Everything other than what is listed in 'User Configuration' is taken care on the backend for you.
 */
 
@@ -46,6 +48,9 @@ const int serialMoniterBaudRate = 115200;
 //4D UART settings:
 const int genieBaudRate = 9600;
 
+//Arduino Giga UART settings:
+const int gigaBaudRate = 9600;
+
 //--------------------------------------------------User Configuration end: --------------------------------------------------------------------------------
 
 Genie genie;
@@ -62,7 +67,6 @@ double currentStepsPerUnit = 0;  // This will store the calculated steps per inc
 
 // Declare our user-defined helper functions: ------------------------------
 bool MoveAbsolutePosition(int32_t position);
-void PrintAlerts();
 void HandleAlerts();
 void ConfigureSDMotor();  //Step-Direction type servo
 void ConfigureMCMotor();  // PWM type servo
@@ -82,12 +86,12 @@ float GetParameterEnteredAsFloat();
 
 //Misc:
 bool hasHomed = false;
-char keyvalue[10];  // Array to hold keyboard character values
-int counter = 0;    // Keyboard number of characters
-int temp, sumTemp;  // Keyboard Temp values (sumTemp is not actively used for current value display)
-int newValue;       // Not actively used for current value display
+char keyvalue[10];                   // Array to hold keyboard character values
+int counter = 0;                     // Keyboard number of characters
+int temp, sumTemp;                   // Keyboard Temp values (sumTemp is not actively used for current value display)
+int newValue;                        // Not actively used for current value display
 float currentMainMeasurement = 0.0;  // The target measurement value entered by the user
-int displayMsTime = 1250; //Time errors and alert screens show in milliseconds.
+int displayMsTime = 1250;            //Time errors and alert screens show in milliseconds.
 
 //Keep track of the state of what parameter the user is editing and what should the keyboard edit.
 enum InputMode {
@@ -118,6 +122,13 @@ void setup() {
   ConnectorCOM1.RtsMode(SerialBase::LINE_OFF);
   Serial1.begin(genieBaudRate);  // Use genieBaudRate for consistency
   Serial1.ttl(true);
+
+  // Initialize Serial0 for the Giga display
+  ConnectorCOM0.RtsMode(SerialBase::LINE_OFF);
+  Serial0.begin(gigaBaudRate);
+  Serial0.ttl(true);
+
+  delay(3000);
 
   // Retrieve configuration values from the selected mechanism object
   // currentMechanism is now initialized at global scope.
@@ -172,7 +183,6 @@ void loop() {
         homingState = HOMING_COMPLETE;
       } else if (motor.StatusReg().bit.AlertsPresent) {
         Serial.println("Alert occurred during homing.");
-        PrintAlerts();
         homingState = HOMING_ERROR;
       }
       break;
@@ -214,8 +224,7 @@ void myGenieEventHandler(void) {
         if (hasHomed) {
           // Convert the currentMainMeasurement (inches or mm) to motor steps
           MoveAbsolutePosition(static_cast<int32_t>(currentMainMeasurement * currentStepsPerUnit));
-        }
-        else{
+        } else {
           genie.SetForm(6);
           delay(displayMsTime);
           genie.SetForm(1);
@@ -233,8 +242,8 @@ void myGenieEventHandler(void) {
         break;
       case 3:  // Reset Servo button
         Serial.println("Reset Servo pressed");
-        hasHomed = false; //require re homing
-        HandleAlerts();  // Clear any motor alerts
+        hasHomed = false;  //require re homing
+        HandleAlerts();    // Clear any motor alerts
         break;
       case 4:  // Settings Button
         Serial.println("Settings Button Pressed");
@@ -414,7 +423,6 @@ bool MoveAbsolutePosition(int32_t position) {
   // Clear alert if configured to do so
   if (motor.StatusReg().bit.AlertsPresent) {
     Serial.println("Motor alert detected.");
-    PrintAlerts();
     if (true) {  // Assuming you want to always handle alerts
       HandleAlerts();
     } else {
@@ -443,7 +451,6 @@ bool MoveAbsolutePosition(int32_t position) {
   // Clear alert if configured to do so
   if (motor.StatusReg().bit.AlertsPresent) {
     Serial.println("Motor alert detected.");
-    PrintAlerts();
     if (true) {  // Assuming you want to always handle alerts
       HandleAlerts();
     } else {
@@ -463,28 +470,7 @@ void StartSensorlessHoming() {
   homingState = HOMING_INIT;
 }
 
-void PrintAlerts() {
-  // report status of alerts
-  Serial.println("Alerts present: ");
-  if (motor.AlertReg().bit.MotionCanceledInAlert) {
-    Serial.println("     MotionCanceledInAlert ");
-  }
-  if (motor.AlertReg().bit.MotionCanceledPositiveLimit) {
-    Serial.println("     MotionCanceledPositiveLimit ");
-  }
-  if (motor.AlertReg().bit.MotionCanceledNegativeLimit) {
-    Serial.println("     MotionCanceledNegativeLimit ");
-  }
-  if (motor.AlertReg().bit.MotionCanceledSensorEStop) {
-    Serial.println("     MotionCanceledSensorEStop ");
-  }
-  if (motor.AlertReg().bit.MotionCanceledMotorDisabled) {
-    Serial.println("     MotionCanceledMotorDisabled ");
-  }
-  if (motor.AlertReg().bit.MotorFaulted) {
-    Serial.println("     MotorFaulted ");
-  }
-}
+
 
 void HandleAlerts() {
   if (motor.AlertReg().bit.MotorFaulted) {
@@ -498,3 +484,21 @@ void HandleAlerts() {
   Serial.println("Clearing alerts.");
   motor.ClearAlerts();
 }
+
+// #include "ClearCore.h"
+
+// void setup() {
+//   Serial0.begin(9600);  // COM0 UART at 9600 baud
+//   Serial.begin(115200); // USB Serial for debug
+
+//   Serial.println("ClearCore Serial0 started");
+// }
+
+// void loop() {
+//   Serial0.println("Hello from ClearCore COM0");
+//   Serial.println("Sent message on Serial0");
+
+//   delay(1000);
+// }
+
+
