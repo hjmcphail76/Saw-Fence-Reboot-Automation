@@ -345,14 +345,14 @@ iLabelB
     BGcolor                      BLACK
     Buffer                       80
     Caption                      '000.000 in'
-    Font                         FONT2
+    Font                         FONT1
     FontColor                    clLime
-    FontSize                     3
+    FontSize                     4
     Height                       101
     Left                         0
     Margin                       2
-    Top                          8
-    Width                        302
+    Top                          12
+    Width                        311
 end
 Form
     Name                         Form2
@@ -385,32 +385,321 @@ Keyboard
     HighlightCaps                BLACK
     KeyboardType                 KB2
     KeyDistance                  0
-    Left                         194
+    Left                         198
     SmallFont.Color              BLACK
     SmallFont.Effects            []
     SmallFont.Name               Tahoma
     SmallFont.Size               7
     SmallFont.Style              []
     Top                          0
-    Width                        286
+    Width                        282
     OnChanged                    ''
 end
-LedDigits
-    Name                         Leddigits0
-    Alias                        Leddigits0
+iLabelB
+    Name                         ILabelB1
+    Alias                        Live-Parameter-Input
+    Alignment                    Center
+    BGcolor                      BLACK
+    Buffer                       80
+    Caption                      000.000
+    Font                         FONT1
+    FontColor                    clLime
+    FontSize                     3
+    Height                       35
+    Left                         0
+    Margin                       2
+    Top                          8
+    Width                        195
+end
+Form
+    Name                         Form3
+    Alias                        Settings
+    Bgtype                       Color
     Color                        BLACK
-    Decimals                     3
-    Digits                       6
-    Height                       63
-    LeadingZero                  Yes
-    Left                         4
-    OutlineColor                 BLACK
-    Palette.High                 clLime
-    Palette.Low                  0x005100
-    Top                          104
-    Width                        191
-    OnChanged                    ''
+    Image                        (None)
+    Source.Height                0
+    Source.Left                  0
+    Source.Top                   0
+    Source.Width                 0
+    OnActivate                   ''
+    OnCreate                     ''
+    OnRepeat                     ''
     OnTouchMoving                ''
     OnTouchPressed               ''
     OnTouchReleased              ''
+end
+StaticText
+    Name                         Statictext1
+    Alias                        Statictext1
+    Alignment                    Left
+    AutoSize                     Yes
+    Caption                      in
+    Color                        BLACK
+    Font.Color                   WHITE
+    Font.Effects                 []
+    Font.Name                    Tahoma
+    Font.Size                    24
+    Font.Style                   [Bold]
+    Height                       39
+    Left                         433
+    Top                          218
+    Transparent                  Yes
+    Width                        30
+    WordWrap                     Yes
+end
+StaticText
+    Name                         Statictext2
+    Alias                        Statictext2
+    Alignment                    Left
+    AutoSize                     Yes
+    Caption                      mm
+    Color                        BLACK
+    Font.Color                   WHITE
+    Font.Effects                 []
+    Font.Name                    Tahoma
+    Font.Size                    24
+    Font.Style                   [Bold]
+    Height                       39
+    Left                         284
+    Top                          218
+    Transparent                  Yes
+    Width                        62
+    WordWrap                     Yes
+end
+WinButton
+    Name                         Winbutton5
+    Alias                        Edit-Blade-Thickness
+    Appearance.Alignment         Center
+    Appearance.Layout            Left
+    Appearance.PictureAlignment  Right
+    Appearance.SimpleLayout      No
+    Appearance.Spacing           3
+    AutoSizeToPicture            No
+    Bevel                        Yes
+    BevelColor                   clWhite
+    Caption                      'Edit Blade Thickness'
+    Color                        clGray
+    Font.Color                   clWindowText
+    Font.Effects                 []
+    Font.Name                    'Yu Gothic UI'
+    Font.Size                    11
+    Font.Style                   []
+    Height                       46
+    Left                         292
+    Matrix                       -1
+    Momentary                    Yes
+    Picture                      (None)
+    StatusWhenOff.BGcolor        RED
+    StatusWhenOff.Caption        ''
+    StatusWhenOff.Glow           Yes
+    StatusWhenOff.Color          WHITE
+    StatusWhenOff.Effects        []
+    StatusWhenOff.Name           Tahoma
+    StatusWhenOff.Size           8
+    StatusWhenOff.Style          []
+    StatusWhenOff.Visible        Yes
+    StatusWhenOn.BGcolor         RED
+    StatusWhenOn.Caption         ''
+    StatusWhenOn.Glow            Yes
+    StatusWhenOn.Color           WHITE
+    StatusWhenOn.Effects         []
+    StatusWhenOn.Name            Tahoma
+    StatusWhenOn.Size            8
+    StatusWhenOn.Style           []
+    StatusWhenOn.Visible         Yes
+    Top                          156
+    Width                        166
+    OnChanged                    'Report Message'
+    OnTouchMoving                ''
+    OnTouchPressed               ''
+    OnTouchReleased              ''
+end
+4Dbutton
+    Name                         4Dbutton0
+    Alias                        4Dbutton0
+    Height                       64
+    Left                         356
+    Matrix                       -1
+    Momentary                    Both
+    Size                         64x64
+    Style                        Red
+    Top                          208
+    Type                         Slider01
+    Width                        64
+    OnChanged                    ''
+end
+WinButton
+    Name                         Winbutton6
+    Alias                        Exit-Settings
+    Appearance.Alignment         Center
+    Appearance.Layout            Left
+    Appearance.PictureAlignment  Right
+    Appearance.SimpleLayout      Yes
+    Appearance.Spacing           3
+    AutoSizeToPicture            No
+    Bevel                        Yes
+    BevelColor                   clWhite
+    Caption                      Exit
+    Color                        0xE0E0E0
+    Font.Color                   clWindowText
+    Font.Effects                 []
+    Font.Name                    'Yu Gothic UI'
+    Font.Size                    16
+    Font.Style                   []
+    Height                       70
+    Left                         0
+    Matrix                       -1
+    Momentary                    Yes
+    Picture                      (None)
+    StatusWhenOff.BGcolor        RED
+    StatusWhenOff.Caption        ''
+    StatusWhenOff.Glow           Yes
+    StatusWhenOff.Color          WHITE
+    StatusWhenOff.Effects        []
+    StatusWhenOff.Name           Tahoma
+    StatusWhenOff.Size           8
+    StatusWhenOff.Style          []
+    StatusWhenOff.Visible        Yes
+    StatusWhenOn.BGcolor         RED
+    StatusWhenOn.Caption         ''
+    StatusWhenOn.Glow            Yes
+    StatusWhenOn.Color           WHITE
+    StatusWhenOn.Effects         []
+    StatusWhenOn.Name            Tahoma
+    StatusWhenOn.Size            8
+    StatusWhenOn.Style           []
+    StatusWhenOn.Visible         Yes
+    Top                          202
+    Width                        130
+    OnChanged                    Form1Activate
+    OnTouchMoving                ''
+    OnTouchPressed               ''
+    OnTouchReleased              ''
+end
+StaticText
+    Name                         Statictext5
+    Alias                        Statictext5
+    Alignment                    Center
+    AutoSize                     Yes
+    Caption                      Settings
+    Color                        BLACK
+    Font.Color                   WHITE
+    Font.Effects                 []
+    Font.Name                    'Yu Gothic UI'
+    Font.Size                    22
+    Font.Style                   [Bold]
+    Height                       50
+    Left                         180
+    Top                          4
+    Transparent                  Yes
+    Width                        124
+    WordWrap                     Yes
+end
+Form
+    Name                         Form4
+    Alias                        Outside-Range-Error
+    Bgtype                       Color
+    Color                        BLACK
+    Image                        (None)
+    Source.Height                0
+    Source.Left                  0
+    Source.Top                   0
+    Source.Width                 0
+    OnActivate                   ''
+    OnCreate                     ''
+    OnRepeat                     ''
+    OnTouchMoving                ''
+    OnTouchPressed               ''
+    OnTouchReleased              ''
+end
+StaticText
+    Name                         Statictext3
+    Alias                        Statictext3
+    Alignment                    Center
+    AutoSize                     Yes
+    Caption                      'ERROR: \n Parameter is outside the acceptable range.'
+    Color                        BLACK
+    Font.Color                   WHITE
+    Font.Effects                 []
+    Font.Name                    'Yu Gothic UI'
+    Font.Size                    28
+    Font.Style                   []
+    Height                       200
+    Left                         68
+    Top                          16
+    Transparent                  Yes
+    Width                        360
+    WordWrap                     Yes
+end
+Form
+    Name                         Form5
+    Alias                        Homing-Alert
+    Bgtype                       Color
+    Color                        BLACK
+    Image                        (None)
+    Source.Height                0
+    Source.Left                  0
+    Source.Top                   0
+    Source.Width                 0
+    OnActivate                   ''
+    OnCreate                     ''
+    OnRepeat                     ''
+    OnTouchMoving                ''
+    OnTouchPressed               ''
+    OnTouchReleased              ''
+end
+StaticText
+    Name                         Statictext4
+    Alias                        Statictext4
+    Alignment                    Left
+    AutoSize                     Yes
+    Caption                      'Motor Homing...'
+    Color                        BLACK
+    Font.Color                   WHITE
+    Font.Effects                 []
+    Font.Name                    'Yu Gothic UI'
+    Font.Size                    28
+    Font.Style                   []
+    Height                       100
+    Left                         112
+    Top                          48
+    Transparent                  Yes
+    Width                        294
+    WordWrap                     Yes
+end
+Form
+    Name                         Form6
+    Alias                        Please-Home-Error
+    Bgtype                       Color
+    Color                        BLACK
+    Image                        (None)
+    Source.Height                0
+    Source.Left                  0
+    Source.Top                   0
+    Source.Width                 0
+    OnActivate                   ''
+    OnCreate                     ''
+    OnRepeat                     ''
+    OnTouchMoving                ''
+    OnTouchPressed               ''
+    OnTouchReleased              ''
+end
+StaticText
+    Name                         Statictext6
+    Alias                        Statictext6
+    Alignment                    Center
+    AutoSize                     Yes
+    Caption                      'Error:\nPlease home the system first'
+    Color                        BLACK
+    Font.Color                   WHITE
+    Font.Effects                 []
+    Font.Name                    'Yu Gothic UI'
+    Font.Size                    28
+    Font.Style                   []
+    Height                       150
+    Left                         80
+    Top                          52
+    Transparent                  Yes
+    Width                        328
+    WordWrap                     Yes
 end
