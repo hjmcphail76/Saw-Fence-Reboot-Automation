@@ -340,7 +340,7 @@ WinButton
 end
 iLabelB
     Name                         ILabelB0
-    Alias                        ILabelB0
+    Alias                        Main-Measurement-Label
     Alignment                    Center
     BGcolor                      BLACK
     Buffer                       80
@@ -397,7 +397,7 @@ Keyboard
 end
 iLabelB
     Name                         ILabelB1
-    Alias                        Live-Parameter-Input
+    Alias                        Live-Parameter-Input-Label
     Alignment                    Center
     BGcolor                      BLACK
     Buffer                       80
