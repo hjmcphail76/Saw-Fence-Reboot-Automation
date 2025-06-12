@@ -1,7 +1,7 @@
 #include <ClearCore.h>
-#include <genieArduinoDEV.h>
 #include "MotorClasses.h"
 #include "MechanismClasses.h"
+#include "ScreenClasses.h"
 
 // --- SDMotor ---
 SDMotor::SDMotor(Mechanism *mech)
@@ -103,7 +103,7 @@ void SDMotor::HandleAlerts() const {
   motor.ClearAlerts();
 }
 
-void SDMotor::StateMachinePeriodic(Genie &genie) {
+void SDMotor::StateMachinePeriodic(Screen *screen) {
   switch (homingState) {
     case HOMING_INIT:
       hasHomed = false;
@@ -130,12 +130,12 @@ void SDMotor::StateMachinePeriodic(Genie &genie) {
     case HOMING_COMPLETE:
       motor.PositionRefSet(0);
       hasHomed = true;
-      genie.SetForm(1);
+      screen->SetScreen(MAIN_CONTROL_SCREEN);
       homingState = HOMING_IDLE;
       break;
 
     case HOMING_ERROR:
-      genie.SetForm(1);
+      screen->SetScreen(MAIN_CONTROL_SCREEN);
       homingState = HOMING_IDLE;
       hasHomed = false;
       break;

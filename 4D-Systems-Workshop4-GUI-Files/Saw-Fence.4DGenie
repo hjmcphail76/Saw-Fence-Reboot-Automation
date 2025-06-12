@@ -468,7 +468,7 @@ StaticText
 end
 WinButton
     Name                         Winbutton5
-    Alias                        Edit-Blade-Thickness
+    Alias                        Edit-Home-To-Blade-Offset
     Appearance.Alignment         Center
     Appearance.Layout            Left
     Appearance.PictureAlignment  Right
@@ -477,7 +477,7 @@ WinButton
     AutoSizeToPicture            No
     Bevel                        Yes
     BevelColor                   clWhite
-    Caption                      'Edit Blade Thickness'
+    Caption                      'Edit Home to Blade Offset'
     Color                        clGray
     Font.Color                   clWindowText
     Font.Effects                 []
@@ -520,7 +520,7 @@ end
     Height                       64
     Left                         356
     Matrix                       -1
-    Momentary                    Both
+    Momentary                    Yes
     Size                         64x64
     Style                        Red
     Top                          208

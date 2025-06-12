@@ -2,6 +2,7 @@
 #include <genieArduinoDEV.h>
 #include <ClearCore.h>
 #include "MechanismClasses.h"
+#include "ScreenClasses.h"
 
 class Motor {
 public:
@@ -20,7 +21,7 @@ public:
   virtual void StartSensorlessHoming();
   virtual void HandleAlerts() const = 0;
 
-  virtual void StateMachinePeriodic(Genie& genie) { }//do nothing by default
+  virtual void StateMachinePeriodic(Screen *screen) { }//do nothing by default
 
   bool hasHomed = false;
 
@@ -47,7 +48,7 @@ public:
   bool MoveAbsolutePosition(int32_t position) override;
   void StartSensorlessHoming() override;
   void HandleAlerts() const override;
-  void StateMachinePeriodic(Genie &genie);
+  void StateMachinePeriodic(Screen *screen);
 };
 
 
