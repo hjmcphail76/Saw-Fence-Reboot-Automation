@@ -42,6 +42,8 @@ public:
   virtual String GetParameterInputValue();     // Gets current input and clears buffer
   virtual float GetParameterEnteredAsFloat();  // Converts buffer to float
 
+  virtual void InitAndConnect();
+
   bool GetIsConnected(){
     return isConnected;
   }
@@ -62,9 +64,9 @@ protected:
 class Screen4D : public Screen {
 private:
   Genie genie;
-  double baudRate;
+  float baudRate;
 public:
-  Screen4D(double baud);
+  Screen4D(float baud);
   void SetStringLabel(SCREEN_OBJECT label, String str) override;
   void SetScreen(SCREEN screen) override;
   void ScreenPeriodic() override;
@@ -74,6 +76,8 @@ public:
   // Input handling interface
   String GetParameterInputValue() override;     // Gets current input and clears buffer
   float GetParameterEnteredAsFloat() override;  // Converts buffer to float
+
+  void InitAndConnect() override;
 };
 
 
@@ -92,4 +96,6 @@ public:
   float GetParameterEnteredAsFloat() override;  // Converts buffer to float
 
   void RegisterEventCallback(ScreenEventCallback callback) override;
+
+  void InitAndConnect() override;
 };

@@ -2,9 +2,12 @@
 #include <genieArduinoDEV.h>
 #include "ScreenClasses.h"
 
-Screen4D::Screen4D(double baud)
+Screen4D::Screen4D(float baud)
   : baudRate(baud) {
+  //We dont do any setup here since the constructor is not called in setup(). Use InitAndConnect before any other screen method calls.
+}
 
+void Screen4D::InitAndConnect() {
   enterPressed = false;
 
   Serial1.begin(baudRate);
@@ -97,7 +100,9 @@ void Screen4D::ScreenPeriodic() {
       keyvalue[--counter] = '\0';
     } else if (temp == 13) {  // Enter key
       enterPressed = true;
+      eventCallback(KEYBOARD_VALUE_ENTER);
     }
+    genie.WriteInhLabel(1, String(keyvalue));
   } else if (Event.reportObject.object == GENIE_OBJ_WINBUTTON) {
     SCREEN_OBJECT btn;
 
@@ -152,6 +157,10 @@ String Screen4D::GetParameterInputValue() {
 
 //constructer
 ScreenGiga::ScreenGiga() {
+  //We dont do any setup here since the constructor is not called in setup(). Use InitAndConnect before any other screen method calls.
+}
+
+void ScreenGiga::InitAndConnect() {
   Serial1.begin(9600);  // COM1 UART at 9600 baud
 
   memset(keyvalue, 0, sizeof(keyvalue));
