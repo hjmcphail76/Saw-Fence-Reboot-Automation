@@ -14,17 +14,18 @@ enum SCREEN_OBJECT {
   RESET_SERVO_BUTTON,
   SETTINGS_BUTTON,
   EDIT_HOME_TO_BLADE_OFFSET,
-  LIVE_PARAMETER_INPUT_LABEL
+  LIVE_PARAMETER_INPUT_LABEL,
+  KEYBOARD_VALUE_ENTER //flag to detect when the user has entered a value and to store the buffer that has been saved until the value is safly retrieved ONCE!
 };
 
 enum SCREEN {
-  SPLASH_SCREEN,
-  MAIN_CONTROL_SCREEN,
-  PARAMETER_EDIT_SCREEN,
-  SETTINGS_SCREEN,
-  OUTSIDE_RANGE_ERROR_SCREEN,
-  HOMING_ALERT_SCREEN,
-  PLEASE_HOME_ERROR_SCREEN
+  SPLASH_SCREEN,// 0
+  MAIN_CONTROL_SCREEN,// 1
+  PARAMETER_EDIT_SCREEN,// 2
+  SETTINGS_SCREEN,// 3
+  OUTSIDE_RANGE_ERROR_SCREEN,// 4
+  HOMING_ALERT_SCREEN,// 5
+  PLEASE_HOME_ERROR_SCREEN// 6
 };
 
 class Screen {
@@ -32,14 +33,28 @@ public:
   virtual void SetStringLabel(SCREEN_OBJECT label, String str);
   virtual void SetScreen(SCREEN screen);
 
-  virtual SCREEN_OBJECT ScreenPeriodic() {}
+  virtual void ScreenPeriodic() {}
 
   typedef void (*ScreenEventCallback)(SCREEN_OBJECT object);
   virtual void RegisterEventCallback(ScreenEventCallback callback);
 
-  bool isConnected = false;
+  // Input handling interface
+  virtual String GetParameterInputValue();     // Gets current input and clears buffer
+  virtual float GetParameterEnteredAsFloat();  // Converts buffer to float
+
+  bool GetIsConnected(){
+    return isConnected;
+  }
+
+  bool GetKeyboardEnterPressed(){
+    return enterPressed;
+  }
 protected:
   ScreenEventCallback eventCallback = nullptr;
+    char keyvalue[10] = { 0 };
+  int counter = 0;
+  bool enterPressed = false;
+  bool isConnected = false;
 };
 
 
@@ -48,20 +63,33 @@ class Screen4D : public Screen {
 private:
   Genie genie;
   double baudRate;
-
-  static Screen4D *instance;  // Static pointer to the current instance
-
 public:
   Screen4D(double baud);
   void SetStringLabel(SCREEN_OBJECT label, String str) override;
   void SetScreen(SCREEN screen) override;
-  SCREEN_OBJECT ScreenPeriodic() override;
+  void ScreenPeriodic() override;
 
-  // This handles the Genie event and must be static
-  static void StaticGenieEventHandler();
+  void RegisterEventCallback(ScreenEventCallback callback) override;
 
-  // Instance method to handle the event
-  void GenieEventHandler();
+  // Input handling interface
+  String GetParameterInputValue() override;     // Gets current input and clears buffer
+  float GetParameterEnteredAsFloat() override;  // Converts buffer to float
+};
+
+
+
+class ScreenGiga : public Screen {
+public:
+  ScreenGiga();
+
+  // Screen interface overrides
+  void SetStringLabel(SCREEN_OBJECT label, String str) override;
+  void SetScreen(SCREEN screen) override;
+  void ScreenPeriodic() override;
+
+  // Input handling interface
+  String GetParameterInputValue() override;     // Gets current input and clears buffer
+  float GetParameterEnteredAsFloat() override;  // Converts buffer to float
 
   void RegisterEventCallback(ScreenEventCallback callback) override;
 };

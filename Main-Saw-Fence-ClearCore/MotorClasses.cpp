@@ -4,10 +4,10 @@
 #include "ScreenClasses.h"
 
 // --- SDMotor ---
-SDMotor::SDMotor(Mechanism *mech)
-  : maxAccel(mech->GetMaxAccel()),
-    maxVel(mech->GetMaxVel()),
-    motorProgInputRes(mech->GetMotorProgInputRes()) {
+SDMotor::SDMotor(Mechanism &mech)
+  : maxAccel(mech.GetMaxAccel()),
+    maxVel(mech.GetMaxVel()),
+    motorProgInputRes(mech.GetMotorProgInputRes()) {
 
   MotorMgr.MotorInputClocking(MotorManager::CLOCK_RATE_NORMAL);
   MotorMgr.MotorModeSet(MotorManager::MOTOR_M0M1,
@@ -103,7 +103,7 @@ void SDMotor::HandleAlerts() const {
   motor.ClearAlerts();
 }
 
-void SDMotor::StateMachinePeriodic(Screen *screen) {
+void SDMotor::StateMachinePeriodic(Screen &screen) {
   switch (homingState) {
     case HOMING_INIT:
       hasHomed = false;
@@ -130,12 +130,12 @@ void SDMotor::StateMachinePeriodic(Screen *screen) {
     case HOMING_COMPLETE:
       motor.PositionRefSet(0);
       hasHomed = true;
-      screen->SetScreen(MAIN_CONTROL_SCREEN);
+      screen.SetScreen(MAIN_CONTROL_SCREEN);
       homingState = HOMING_IDLE;
       break;
 
     case HOMING_ERROR:
-      screen->SetScreen(MAIN_CONTROL_SCREEN);
+      screen.SetScreen(MAIN_CONTROL_SCREEN);
       homingState = HOMING_IDLE;
       hasHomed = false;
       break;
@@ -146,7 +146,7 @@ void SDMotor::StateMachinePeriodic(Screen *screen) {
 }
 
 // --- MCMotor ---
-MCMotor::MCMotor(Mechanism *mech)
+MCMotor::MCMotor(Mechanism &mech)
   : maxAccel(maxAccel), maxVel(maxVel) {}
 
 int MCMotor::GetMaxAccel() const {

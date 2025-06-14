@@ -39,7 +39,7 @@ private:
   MotorDriver &motor = ConnectorM0;
 
 public:
-  SDMotor(Mechanism *mech);//int maxAccel, int maxVel, int motorProgInputRes);
+  SDMotor(Mechanism &mech);//int maxAccel, int maxVel, int motorProgInputRes);
 
   int GetMaxAccel() const override;
   int GetMaxVel() const override;
@@ -48,7 +48,7 @@ public:
   bool MoveAbsolutePosition(int32_t position) override;
   void StartSensorlessHoming() override;
   void HandleAlerts() const override;
-  void StateMachinePeriodic(Screen *screen);
+  void StateMachinePeriodic(Screen &screen);
 };
 
 
@@ -60,7 +60,7 @@ private:
   MotorDriver &motor = ConnectorM3;
 
 public:
-  MCMotor(Mechanism *mech);
+  MCMotor(Mechanism &mech);
 
   int GetMaxAccel() const override;
   int GetMaxVel() const override;

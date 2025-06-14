@@ -1,46 +1,3 @@
-// #include <ClearCore.h>
-// #include <genieArduinoDEV.h>
-// #include "ScreenClasses.h"
-
-// Screen* screen;  // <-- Move this outside setup()
-
-// void setup() {
-//   Serial.begin(115200);
-//   delay(5000);  // Give time for serial monitor to connect
-//   Serial.println("Serial Monitor init");
-//   screen = new Screen4D(9600);
-//   screen->RegisterEventCallback(ButtonHandler);
-//   screen->SetStringLabel(SCREEN_OBJECT::MAIN_MEASUREMENT_LABEL, "yay");
-// }
-
-// void loop() {
-//   screen->ScreenPeriodic();
-// }
-
-// void ButtonHandler(SCREEN_OBJECT obj) {
-//   switch (obj) {
-//     case MEASURE_BUTTON:
-//       Serial.println("Handling measure button in main!");
-//       break;
-//     case EDIT_TARGET_BUTTON:
-//       Serial.println("Edit target button pressed.");
-//       break;
-//     case HOME_BUTTON:
-//       Serial.println("Home pressed!");
-//       break;
-//     case RESET_SERVO_BUTTON:
-//       Serial.println("Reset servo pressed!");
-//       break;
-//     case SETTINGS_BUTTON:
-//       Serial.println("Settings pressed!");
-//       break;
-//     case EDIT_HOME_TO_BLADE_OFFSET:
-//       Serial.println("EDIT_HOME_TO_BLADE_OFFSET pressed!");
-//       break;
-//   }
-// }
-
-
 #include <ClearCore.h>
 #include <genieArduinoDEV.h>
 #include "MechanismClasses.h"
@@ -65,51 +22,51 @@ Hardware used:
 
 //--------------------------------------------------User Configuration start: -------------------------------------------------------------------------------
 
-
-//Default units for the system to boot with. UnitType::UNIT_INCHES  or  UnitType::UNIT_MILLIMETERS
-UnitType currentUnits = UnitType::UNIT_INCHES;
-// currentUnits = UnitType::UNIT_MILLIMETERS;
-
-
-// IMPORTANT: Uncomment ONLY ONE of the 'Mechanism* currentMechanism = new ...' lines below
-// to select the mechanism you are currently configuring. Fill in the parameters (motorProgInputRes, maxAccel, maxVel, mechanism_specific_parameter, UnitType)
-// The unit type here is just for configuration of your system. Swapping between units for cut measurements on the fly can be done on the system in settings
-// and will not effect this.
-
-// Example: Belt Mechanism with 1.0 inch pulley diameter and a 1:1 motor gearbox reduction (none)
-Mechanism* currentMechanism = new BeltMechanism(200, 5000, 500, 0.236, 1.0, UNIT_INCHES);
-
-// Example: Leadscrew Mechanism with 0.2 inches per revolution pitch and a 1:1 motor gearbox reduction (none)
-// Mechanism* currentMechanism = new LeadscrewMechanism(2000, 5000, 500, 0.2, 1, UNIT_INCHES);
-
-// Example: Rack and Pinion Mechanism with 0.5 inch pinion diameter and a 1:1 motor gearbox reduction (none)
-// Mechanism* currentMechanism = new RackAndPinionMechanism(100, 15000, 3000, 0.5, 1, UNIT_INCHES);
-
-Value maxTravel = Value(47.0, UnitType::UNIT_INCHES);  //This 'Value' structure is defined in mechanismClasses.h and holds our value + whatever units
-
-Value homeToBladeOffset = Value(35, UnitType::UNIT_INCHES);  //Before changing this value, leave it default and deploy everything. Then when running, home the system and measure from blade to saw stop at home position.
-
-
 //Serial Monitor Settings:
 const int serialMoniterBaudRate = 115200;
 
 //HMI Screen UART settings, applies to both giga and 4D screen.
 const int screenBaudRate = 9600;
 
+//Default units for the system to boot with. UnitType::UNIT_INCHES  or  UnitType::UNIT_MILLIMETERS
+UnitType currentUnits = UnitType::UNIT_INCHES;
+// UnitType currentUnits = UnitType::UNIT_MILLIMETERS;
+
+
+// Example: Belt Mechanism with 1.0 inch pulley diameter and a 1:1 motor gearbox reduction (none)
+BeltMechanism currentMechanism = BeltMechanism(200, 5000, 500, 0.236, 1.0, UNIT_INCHES);
+
+// Example: Leadscrew Mechanism with 0.2 inches per revolution pitch and a 1:1 motor gearbox reduction (none)
+// LeadscrewMechanism currentMechanism = new LeadscrewMechanism(2000, 5000, 500, 0.2, 1, UNIT_INCHES);
+
+// Example: Rack and Pinion Mechanism with 0.5 inch pinion diameter and a 1:1 motor gearbox reduction (none)
+// RackAndPinionMechanism currentMechanism = new RackAndPinionMechanism(100, 15000, 3000, 0.5, 1, UNIT_INCHES);
+
+
+//Uncomment the respective screen type
+Screen4D screen = Screen4D(screenBaudRate);
+// ScreenGiga screen = ScreenGiga();
+
+
+SDMotor motor = SDMotor(currentMechanism);
+//MCMotor motor = new MCMotor(currentMechanism);
+
+Value maxTravel = Value(47.0, UnitType::UNIT_INCHES);  //This 'Value' structure is defined in mechanismClasses.h and holds our value + whatever units
+
+Value homeToBladeOffset = Value(35, UnitType::UNIT_INCHES);  //Before changing this value, leave it default and deploy everything. Then when running, home the system and measure from blade to saw stop at home position.
+
+
+
+
 
 //--------------------------------------------------User Configuration end: --------------------------------------------------------------------------------
 
-
-// Genie genie;
-Screen* screen;
-Motor* motor;
 
 // -------------------------------------------------------------------------
 
 // Declare our user-defined helper functions: ------------------------------
 void SetMeasurementUIDisplay();
 bool ParameterInput(genieFrame Event);
-String GetParameterInputValue();
 String getUnitString(UnitType unit);
 double convertFromInches(float valueInInches, UnitType targetUnit);
 double convertToInches(double value, UnitType unit);
@@ -139,24 +96,22 @@ void setup() {
   Serial.begin(115200);
   delay(5000);  // Give time for serial monitor to connect
   Serial.println("Serial Monitor init");
-  screen = new Screen4D(screenBaudRate);
-  screen->RegisterEventCallback(ButtonHandler);
-  screen->SetStringLabel(SCREEN_OBJECT::MAIN_MEASUREMENT_LABEL, "yay");
 
-  motor = new SDMotor(currentMechanism);
-  //motor = new MCMotor(currentMechanism);
+  screen.RegisterEventCallback(ButtonHandler);
+  screen.SetStringLabel(SCREEN_OBJECT::MAIN_MEASUREMENT_LABEL, "yay");
 
-  motor->HandleAlerts();  // Handle any initial motor alerts
+
+
+  motor.HandleAlerts();  // Handle any initial motor alerts
 
   delay(1000);
-  screen->SetScreen(MAIN_CONTROL_SCREEN);
+  screen.SetScreen(MAIN_CONTROL_SCREEN);
 }
 
 void loop() {
-  screen->ScreenPeriodic();
-
+  screen.ScreenPeriodic();
   // Continuously call motor homing state machine updates
-  motor->StateMachinePeriodic(screen);
+  motor.StateMachinePeriodic(screen);
 }
 
 //gets called from the screen class for both 4D screen as well as giga screen
@@ -166,44 +121,58 @@ void ButtonHandler(SCREEN_OBJECT obj) {
   switch (obj) {
     case MEASURE_BUTTON:
       Serial.println("Measure pressed");
-      if (motor->hasHomed) {
+      if (motor.hasHomed) {
 
         double position = convertToInches(homeToBladeOffset.val, homeToBladeOffset.unit) - convertToInches(currentMainMeasurement, currentUnits);
         if (position > 0) {
           // Convert the position to motor steps
-          motor->MoveAbsolutePosition(static_cast<int32_t>(position * currentMechanism->CalculateStepsPerUnit()));
+          motor.MoveAbsolutePosition(static_cast<int32_t>(position * currentMechanism.CalculateStepsPerUnit()));
         } else {
         }
       } else {
-        screen->SetScreen(PLEASE_HOME_ERROR_SCREEN);
+        screen.SetScreen(PLEASE_HOME_ERROR_SCREEN);
         delay(displayMsTime);
-        screen->SetScreen(MAIN_CONTROL_SCREEN);
+        screen.SetScreen(MAIN_CONTROL_SCREEN);
       }
       break;
     case EDIT_TARGET_BUTTON:
       Serial.println("Edit Measurement pressed");
       currentInputMode = InputMode::INPUT_MEASUREMENT;
-      screen->SetScreen(PARAMETER_EDIT_SCREEN); // Switch to the keyboard input form
+      screen.SetScreen(PARAMETER_EDIT_SCREEN);  // Switch to the keyboard input form
       break;
     case HOME_BUTTON:
       Serial.println("HOME BUTTON PRESSED");
-      screen->SetScreen(HOMING_ALERT_SCREEN); // Show homing in progress screen
-      motor->StartSensorlessHoming();
+      screen.SetScreen(HOMING_ALERT_SCREEN);  // Show homing in progress screen
+      motor.StartSensorlessHoming();
       break;
     case RESET_SERVO_BUTTON:
       Serial.println("Reset Servo pressed");
-      motor->hasHomed = false;  //require re homing
-      motor->HandleAlerts();
+      motor.hasHomed = false;  //require re homing
+      motor.HandleAlerts();
       break;
     case SETTINGS_BUTTON:
       Serial.println("Settings Button Pressed");
-      screen->SetScreen(SETTINGS_SCREEN); // Switch to the settings form
+      screen.SetScreen(SETTINGS_SCREEN);  // Switch to the settings screen
       break;
     case EDIT_HOME_TO_BLADE_OFFSET:
       Serial.println("Edit home to blade offset Button Pressed");
-      screen->SetScreen(PARAMETER_EDIT_SCREEN); // Switch to the keyboard input form
+      screen.SetScreen(PARAMETER_EDIT_SCREEN);  // Switch to the keyboard input screen
       currentInputMode = InputMode::INPUT_HOME_TO_BLADE_OFFSET;
       break;
+
+    case KEYBOARD_VALUE_ENTER:
+      // now that the user has entered a value we can safely acsess and use it
+      // Using either the float or String acsess methods will result in the buffer of that value being cleared for next time, so only use ONCE!!
+      Serial.println("Enter key pressed!!");
+      switch (currentInputMode) {
+        case INPUT_MEASUREMENT:
+          SetMeasurementUIDisplay();  // Update the main screen label with the new value
+          break;
+        case INPUT_HOME_TO_BLADE_OFFSET:
+          homeToBladeOffset.val = screen.GetParameterEnteredAsFloat();
+          screen.SetScreen(SETTINGS_SCREEN);//go back to the settings screen
+          break;
+      }
   }
 }
 
@@ -224,18 +193,18 @@ void ButtonHandler(SCREEN_OBJECT obj) {
 //       case 0:  // Measure button
 //         Serial.println("Measure pressed");
 
-//         if (motor->hasHomed) {
+//         if (motor.hasHomed) {
 
 //           double position = convertToInches(homeToBladeOffset.val, homeToBladeOffset.unit) - convertToInches(currentMainMeasurement, currentUnits);
 //           if (position > 0) {
 //             // Convert the position to motor steps
-//             motor->MoveAbsolutePosition(static_cast<int32_t>(position * currentMechanism->CalculateStepsPerUnit()));
+//             motor.MoveAbsolutePosition(static_cast<int32_t>(position * currentMechanism.CalculateStepsPerUnit()));
 //           } else {
 //           }
 //         } else {
-//           screen->SetScreen(PLEASE_HOME_ERROR_SCREEN);
+//           screen.SetScreen(PLEASE_HOME_ERROR_SCREEN);
 //           delay(displayMsTime);
-//           screen->SetScreen(MAIN_CONTROL_SCREEN);
+//           screen.SetScreen(MAIN_CONTROL_SCREEN);
 //         }
 //         break;
 //       case 1:  // Edit Measurement button
@@ -246,12 +215,12 @@ void ButtonHandler(SCREEN_OBJECT obj) {
 //       case 2:  // HOME BUTTON
 //         Serial.println("HOME BUTTON PRESSED");
 //         genie.SetForm(5);  // Show homing in progress screen
-//         motor->StartSensorlessHoming();
+//         motor.StartSensorlessHoming();
 //         break;
 //       case 3:  // Reset Servo button
 //         Serial.println("Reset Servo pressed");
-//         motor->hasHomed = false;  //require re homing
-//         motor->HandleAlerts();
+//         motor.hasHomed = false;  //require re homing
+//         motor.HandleAlerts();
 //         break;
 //       case 4:  // Settings Button
 //         Serial.println("Settings Button Pressed");
@@ -292,21 +261,20 @@ void ButtonHandler(SCREEN_OBJECT obj) {
 //UI Functions: --------------------------------------------
 
 void SetMeasurementUIDisplay() {
-  screen->SetScreen(MAIN_CONTROL_SCREEN); // Go back to the main form
-
-  String paramValue = GetParameterInputValue();  // Only call this ONCE
+  screen.SetScreen(MAIN_CONTROL_SCREEN);                // Go back to the main form
+                                                        //GetParameterInputValue
+  String paramValue = screen.GetParameterInputValue();  // Only call this ONCE since it resets the input buffer.
   String combinedString = paramValue + getUnitString(currentUnits);
 
-  screen->SetStringLabel(MAIN_MEASUREMENT_LABEL, combinedString);
-  //genie.WriteInhLabel(0, combinedString.c_str());
+  screen.SetStringLabel(MAIN_MEASUREMENT_LABEL, combinedString);
 
   float val = paramValue.toFloat();  // Parse string to float once
 
   // Optional: Check if input was valid
   if (paramValue.length() == 0 || isnan(val)) {
-    screen->SetScreen(OUTSIDE_RANGE_ERROR_SCREEN); // Custom error for invalid float
+    screen.SetScreen(OUTSIDE_RANGE_ERROR_SCREEN);  // Custom error for invalid float
     delay(displayMsTime);
-    screen->SetScreen(PARAMETER_EDIT_SCREEN);
+    screen.SetScreen(PARAMETER_EDIT_SCREEN);
     return;
   }
 
@@ -317,80 +285,12 @@ void SetMeasurementUIDisplay() {
     currentMainMeasurement = val;
     Serial.println(currentMainMeasurement);
   } else {
-    screen->SetScreen(OUTSIDE_RANGE_ERROR_SCREEN);  // Handle out-of-range input
+    screen.SetScreen(OUTSIDE_RANGE_ERROR_SCREEN);  // Handle out-of-range input
     delay(displayMsTime);
-    screen->SetScreen(PARAMETER_EDIT_SCREEN);
+    screen.SetScreen(PARAMETER_EDIT_SCREEN);
   }
 }
 
-
-/*Returns 0 if an error occurs with the operation.*/
-float GetParameterEnteredAsFloat() {
-  String rawString = GetParameterInputValue();
-  float val = rawString.toFloat();
-
-  // Basic check for invalid conversion
-  if (val == 0.0 && !rawString.startsWith("0")) {
-    Serial.println("Error converting input to float: ");
-    Serial.println(rawString);
-    return 0.0;
-  } else {
-    return val;
-  }
-}
-
-
-/*
-Returns true when user presses Enter. Updates the global 'currentMainMeasurement'.
-Some of this code is adapted from the ClearCore/HMI example project.
-*/
-bool ParameterInput(genieFrame Event) {
-  // Get the value of the key pressed
-  temp = genie.GetEventData(&Event);
-
-  // Check if the key is a digit (0-9) and if we have space in the array
-  if (temp >= 48 && temp <= 57 && counter < 9) {
-    keyvalue[counter] = temp;      // Append the decimal value of the key pressed
-    keyvalue[counter + 1] = '\0';  // Null-terminate the string
-    counter++;
-  } else if (temp == 110 && counter < 9) {  // '.' pressed (ASCII for '.')
-    // Allow only one decimal point
-    bool hasDecimal = false;
-    for (int i = 0; i < counter; i++) {
-      if (keyvalue[i] == '.') {
-        hasDecimal = true;
-        break;
-      }
-    }
-    if (!hasDecimal && counter < 9) {
-      keyvalue[counter] = '.';       // Append the decimal character
-      keyvalue[counter + 1] = '\0';  // Null-terminate the string
-      counter++;
-    }
-  } else if (temp == 8) {  // Check if Backspace/delete Key (ASCII for Backspace)
-    if (counter > 0) {
-      counter--;              // Decrement the counter
-      keyvalue[counter] = 0;  // Overwrite the last position with null
-                              // TODO: Update the LED_DIGITS object on the display if you have one
-                              // genie.WriteObject(GENIE_OBJ_LED_DIGITS, 18, atoi(keyvalue)); // Update display
-    }
-  } else if (temp == 13) {  // Check if 'Enter' Key (ASCII for Enter)
-    return true;            // Indicate that Enter was pressed
-  }
-  return false;  // Indicate that Enter was not pressed
-}
-
-/*
-We have a function to get the value as a String object, then discard keyvalue's contents for the next time it gets used.
-*/
-String GetParameterInputValue() {
-  String stringKeyValue = String(keyvalue);
-  for (int f = 0; f < 10; f++) {
-    keyvalue[f] = 0;
-  }
-  counter = 0;
-  return stringKeyValue;
-}
 
 
 // // #include "ClearCore.h"
