@@ -6,16 +6,16 @@
 //Way for the main ino code to at a high level tell whatever implementation a screen object and vise versa to get values.
 //ONLY objects that need to be set/get accessed, not static labels for example.
 enum SCREEN_OBJECT {
-  NONE,  //Default for when nothing is being pressed
-  MAIN_MEASUREMENT_LABEL,
-  MEASURE_BUTTON,
-  EDIT_TARGET_BUTTON,
-  HOME_BUTTON,
-  RESET_SERVO_BUTTON,
-  SETTINGS_BUTTON,
-  EDIT_HOME_TO_BLADE_OFFSET,
-  LIVE_PARAMETER_INPUT_LABEL,
-  KEYBOARD_VALUE_ENTER //flag to detect when the user has entered a value and to store the buffer that has been saved until the value is safly retrieved ONCE!
+  NONE,  //Default for when nothing is being pressed //0
+  MAIN_MEASUREMENT_LABEL, //1
+  MEASURE_BUTTON, //2
+  EDIT_TARGET_BUTTON, //3
+  HOME_BUTTON, //4
+  RESET_SERVO_BUTTON, //5
+  SETTINGS_BUTTON, //6
+  EDIT_HOME_TO_BLADE_OFFSET, //7
+  LIVE_PARAMETER_INPUT_LABEL, //8
+  KEYBOARD_VALUE_ENTER //9 //flag to detect when the user has entered a value and to store the buffer that has been saved until the value is safely retrieved ONCE!
 };
 
 enum SCREEN {

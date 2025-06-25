@@ -45,8 +45,8 @@ BeltMechanism currentMechanism = BeltMechanism(200, 5000, 500, 0.236, 1.0, UNIT_
 
 
 //Uncomment the respective screen type
-Screen4D screen = Screen4D(screenBaudRate);
-// ScreenGiga screen = ScreenGiga();
+// Screen4D screen = Screen4D(screenBaudRate);
+ScreenGiga screen = ScreenGiga();
 
 //Uncomment the respective motor type
 SDMotor motor = SDMotor(currentMechanism);
@@ -110,6 +110,7 @@ void loop() {
   screen.ScreenPeriodic();
   // Continuously call motor homing state machine updates
   motor.StateMachinePeriodic(screen);
+  delay(10);
 }
 
 //gets called from the screen class for both 4D screen as well as giga screen
@@ -163,7 +164,7 @@ void ButtonHandler(SCREEN_OBJECT obj) {
       Serial.println("Enter key pressed!!");
       switch (currentInputMode) {
         case INPUT_MEASUREMENT:
-          SetMeasurementUIDisplay();  // Update the main screen label with the new value
+          SetMeasurementUIDisplay();  // Update the main screen label with the new value and goes to it
           break;
         case INPUT_HOME_TO_BLADE_OFFSET:
           homeToBladeOffset.val = screen.GetParameterEnteredAsFloat();
@@ -179,6 +180,10 @@ void SetMeasurementUIDisplay() {
   screen.SetScreen(MAIN_CONTROL_SCREEN);                // Go back to the main form
                                                         //GetParameterInputValue
   String paramValue = screen.GetParameterInputValue();  // Only call this ONCE since it resets the input buffer.
+
+  // Serial.print("Current parameter input:");
+  // Serial.println(paramValue);
+  
   String combinedString = paramValue + getUnitString(currentUnits);
 
   float val = paramValue.toFloat();  // Parse string to float once
@@ -187,8 +192,8 @@ void SetMeasurementUIDisplay() {
   if (paramValue.length() == 0 || isnan(val)) {
     return;
   }
-  Serial.println(String(homeToBladeOffset.val));
   float hypotheticalMovementPosition = convertToInches(homeToBladeOffset.val, homeToBladeOffset.unit) - convertToInches(val, currentUnits);
+
 
   if (hypotheticalMovementPosition > 0) {
     // Make sure moving to that position is possible
@@ -196,24 +201,29 @@ void SetMeasurementUIDisplay() {
     screen.SetStringLabel(MAIN_MEASUREMENT_LABEL, combinedString);
   } else {
     screen.SetScreen(OUTSIDE_RANGE_ERROR_SCREEN);
-    delay(displayMsTime);
+    delay(displayMsTime) ;
     screen.SetScreen(MAIN_CONTROL_SCREEN);
   }
 }
 
 
-// // #include "ClearCore.h"
 
-// // void setup() {
-// //   Serial0.begin(9600);  // COM0 UART at 9600 baud
-// //   Serial.begin(115200); // USB Serial for debug
 
-// //   Serial.println("ClearCore Serial0 started");
-// // }
 
-// // void loop() {
-// //   Serial0.println("Hello from ClearCore COM0");
-// //   Serial.println("Sent message on Serial0");
+// #include "ClearCore.h"
 
-// //   delay(1000);
-// // }
+// void setup() {
+//   Serial.begin(115200);
+
+//   Serial1.begin(9600);
+//   Serial1.ttl(true);
+//   delay(1000);
+
+//   Serial.println("ClearCore sending...");
+// }
+
+// void loop() {
+//   Serial1.println("Hello from clearcore!");
+//   delay(1000);
+// }
+

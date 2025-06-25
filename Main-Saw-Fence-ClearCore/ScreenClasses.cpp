@@ -42,7 +42,7 @@ void Screen4D::SetStringLabel(SCREEN_OBJECT label, String str) {
       genie.WriteInhLabel(0, str);
       break;
     case LIVE_PARAMETER_INPUT_LABEL:
-      genie.WriteInhLabel(1, str);
+      genie.WriteInhLabel(8, str);
       break;
   }
 }
@@ -161,15 +161,68 @@ ScreenGiga::ScreenGiga() {
 }
 
 void ScreenGiga::InitAndConnect() {
-  Serial1.begin(9600);  // COM1 UART at 9600 baud
-
   memset(keyvalue, 0, sizeof(keyvalue));
   counter = 0;
   enterPressed = false;
+
+  Serial1.begin(9600);
+  Serial1.ttl(true);  // if using TTL level, otherwise remove this line
+  delay(5000);        // wait for Giga to boot up
+
+  Serial.println("ClearCore ready, sending HELLO");
+
+  // --- Handshake ---
+  String inputBuffer = "";
+  unsigned long startTime = millis();
+  bool handshakeDone = false;
+
+  Serial1.println("HELLO");  // send HELLO to Giga
+
+  while (millis() - startTime < 10000) {  // 10 second timeout
+    while (Serial1.available()) {
+      char c = Serial1.read();
+
+      // Debug: show what was received
+      Serial.print("RX char: ");
+      Serial.println(c);
+
+      if (c == '\n' || c == '\r') {
+        // end of line
+        inputBuffer.trim();  // remove spaces
+        Serial.print("RX line: ");
+        Serial.println(inputBuffer);
+
+        if (inputBuffer == "ACK") {
+          Serial.println("Received ACK from Giga!");
+          handshakeDone = true;
+          break;
+        }
+        // clear buffer for next line
+        inputBuffer = "";
+      } else {
+        inputBuffer += c;
+      }
+    }
+
+    if (handshakeDone) break;
+
+    Serial.println("Waiting for Giga handshake response...");
+    delay(100);
+  }
+
+  if (!handshakeDone) {
+    Serial.println("Handshake timed out, no ACK received.");
+  } else {
+    Serial.println("Handshake complete.");
+  }
 }
+
+
 
 String ScreenGiga::GetParameterInputValue() {
   String result = String(keyvalue);
+  Serial.print("parameter input:");
+  Serial.println(result);
   memset(keyvalue, 0, sizeof(keyvalue));
   counter = 0;
   enterPressed = false;  //Reset for the next time.f
@@ -187,6 +240,7 @@ float ScreenGiga::GetParameterEnteredAsFloat() {
 }
 
 void ScreenGiga::SetStringLabel(SCREEN_OBJECT label, String str) {
+  //Send the object index defined in the enum in h file, The giga code determines if it is a valid label object
   Serial1.print("SETLABEL:");
   Serial1.print((int)label);
   Serial1.print(":");
@@ -195,69 +249,83 @@ void ScreenGiga::SetStringLabel(SCREEN_OBJECT label, String str) {
 
 void ScreenGiga::SetScreen(SCREEN screen) {
   Serial1.print("SETSCREEN:");
-  Serial1.println((int)screen);
+  Serial1.println((int)screen);  // add newline to mark message end!
 }
 
 void ScreenGiga::ScreenPeriodic() {
-  //This code segment especially was developed using AI assistance for parsing of digits
+  static String inputBuffer = "";
+
   while (Serial1.available()) {
-    String msg = Serial1.readStringUntil('\n');
-    msg.trim();
+    char c = Serial1.read();
 
-    if (msg.startsWith("KEY:")) {
-      char c = msg.charAt(4);
-      if (isdigit(c) && counter < 9) {
-        keyvalue[counter++] = c;
-        keyvalue[counter] = '\0';
-      } else if (c == '.' && counter < 9 && strchr(keyvalue, '.') == nullptr) {
-        keyvalue[counter++] = '.';
-        keyvalue[counter] = '\0';
-      }
-    } else if (msg == "BACKSPACE" && counter > 0) {
-      keyvalue[--counter] = '\0';
-    } else if (msg == "ENTER") {
-      eventCallback(KEYBOARD_VALUE_ENTER);
-      enterPressed = true;
-    } else if (msg == "CONNECTED") {
-      isConnected = true;
-    } else if (msg.startsWith("BUTTON:")) {
+    if (c == '\n' || c == '\r') {
+      inputBuffer.trim();
 
-      // Extract everything after "BUTTON:"
-      String btnStr = msg.substring(7);  // from index 7 to end
+      if (inputBuffer.length() > 0) {
+        // ----- Process message -----
+        if (inputBuffer.startsWith("KEY:")) {
+          String cKey = inputBuffer.substring(4);
+          cKey.trim();
 
-      btnStr.trim();  // remove any extra whitespace
+          if (isdigit(cKey.charAt(0)) && counter < 9) {
+            keyvalue[counter++] = cKey.charAt(0);
+            keyvalue[counter] = '\0';
+          } else if (cKey == "." && counter < 9 && strchr(keyvalue, '.') == nullptr) {
+            keyvalue[counter++] = '.';
+            keyvalue[counter] = '\0';
+          } else if (cKey == "BACKSPACE" && counter > 0) {
+            keyvalue[--counter] = '\0';
+          } else if (cKey == "ENTER") {
+            Serial.println("ENTER detected in ScreenPeriodic()");
+            if (eventCallback) eventCallback(KEYBOARD_VALUE_ENTER);
+            keyvalue[0] = '\0';
+            counter = 0;
+          } else if (cKey == "CONNECTED") {
+            isConnected = true;
+          }
+        } else if (inputBuffer.startsWith("BUTTON:")) {
+          String btnStr = inputBuffer.substring(7);
+          btnStr.trim();
 
-      // Check if btnStr is not empty and consists only of digits
-      bool validNumber = true;
-      for (int i = 0; i < btnStr.length(); i++) {
-        if (!isdigit(btnStr.charAt(i))) {
-          validNumber = false;
-          break;
+          bool validNumber = true;
+          for (int i = 0; i < btnStr.length(); i++) {
+            if (!isdigit(btnStr.charAt(i))) {
+              validNumber = false;
+              break;
+            }
+          }
+
+          if (validNumber && btnStr.length() > 0) {
+            int btnIndex = btnStr.toInt();
+
+            SCREEN_OBJECT btnEvent = NONE;
+            switch (btnIndex) {
+              case 2: btnEvent = MEASURE_BUTTON; break;
+              case 3: btnEvent = EDIT_TARGET_BUTTON; break;
+              case 4: btnEvent = HOME_BUTTON; break;
+              case 5: btnEvent = RESET_SERVO_BUTTON; break;
+              case 6: btnEvent = SETTINGS_BUTTON; break;
+              case 7: btnEvent = EDIT_HOME_TO_BLADE_OFFSET; break;
+              default: btnEvent = NONE; break;
+            }
+
+            if (btnEvent != NONE && eventCallback) {
+              eventCallback(btnEvent);
+            }
+          }
         }
       }
 
-      if (validNumber && btnStr.length() > 0) {
-        int btnIndex = btnStr.toInt();  // convert string to int safely
-
-        SCREEN_OBJECT btnEvent = NONE;
-        switch (btnIndex) {
-          case 0: btnEvent = MEASURE_BUTTON; break;
-          case 1: btnEvent = EDIT_TARGET_BUTTON; break;
-          case 2: btnEvent = HOME_BUTTON; break;
-          case 3: btnEvent = RESET_SERVO_BUTTON; break;
-          case 4: btnEvent = SETTINGS_BUTTON; break;
-          case 5: btnEvent = EDIT_HOME_TO_BLADE_OFFSET; break;
-          // You can add more cases for buttons 6, 7, ... 14, etc.
-          default: btnEvent = NONE; break;
-        }
-
-        if (btnEvent != NONE && eventCallback) {
-          eventCallback(btnEvent);
-        }
-      }
+      // Always clear buffer after newline
+      inputBuffer = "";
+    } else if (isPrintable(c)) {
+      inputBuffer += c;
     }
   }
 }
+
+
+
 
 
 void ScreenGiga::RegisterEventCallback(ScreenEventCallback callback) {
