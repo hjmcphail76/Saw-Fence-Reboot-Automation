@@ -5,6 +5,7 @@
 
 //Way for the main ino code to at a high level tell whatever implementation a screen object and vise versa to get values.
 //ONLY objects that need to be set/get accessed, not static labels for example.
+//These indexes are used to indicate with and int what object is being refrenced (event firing, setlabels, ect.) over serial (this is helpful for the giga code but 4D Systems screen indexing takes place elsewhere)
 enum SCREEN_OBJECT {
   NONE,  //Default for when nothing is being pressed //0
   MAIN_MEASUREMENT_LABEL, //1
@@ -15,7 +16,10 @@ enum SCREEN_OBJECT {
   SETTINGS_BUTTON, //6
   EDIT_HOME_TO_BLADE_OFFSET, //7
   LIVE_PARAMETER_INPUT_LABEL, //8
-  KEYBOARD_VALUE_ENTER //9 //flag to detect when the user has entered a value and to store the buffer that has been saved until the value is safely retrieved ONCE!
+  KEYBOARD_VALUE_ENTER, //9 //flag to detect when the user has entered a value and to store the buffer that has been saved until the value is safely retrieved ONCE!
+  EXIT_SETTINGS_BUTTON, //10
+  INCHES_UNIT_BUTTON, //11 We treat 11 and 12 as seperate objects so it is easy to implement in the high level code that a event was fired from this (regardless that it is a toggle switch)
+  MILLIMETERS_UNIT_BUTTON //12
 };
 
 enum SCREEN {

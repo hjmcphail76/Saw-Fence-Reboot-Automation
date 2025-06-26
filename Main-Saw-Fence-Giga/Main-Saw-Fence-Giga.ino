@@ -12,17 +12,33 @@ lv_obj_t* active_text_area = nullptr;
 
 /* --- Main button handler --- */
 static void ButtonEventHandler(lv_event_t* e) {
-  if (lv_event_get_code(e) != LV_EVENT_CLICKED) return;
-  lv_obj_t* btn = lv_event_get_target(e);
-  Serial.println("btn pressed");
+  if (lv_event_get_code(e) == LV_EVENT_CLICKED) {
+    lv_obj_t* btn = lv_event_get_target(e);
+    Serial.println("btn pressed");
 
-  if (btn == ui_MEASURE_BUTTON) Serial1.println("BUTTON:2");
-  else if (btn == ui_EDIT_TARGET_BUTTON) Serial1.println("BUTTON:3");
-  else if (btn == ui_HOME_AXIS_BUTTON) Serial1.println("BUTTON:4");
-  else if (btn == ui_RESET_SERVO_BUTTON) Serial1.println("BUTTON:5");
-  else if (btn == ui_SETTINGS_BUTTON) Serial1.println("BUTTON:6");
-  else if (btn == ui_EDIT_HOME_TO_BLADE_OFFSET_BUTTON) Serial1.println("BUTTON:7");
-  else Serial.println("Unknown button clicked");
+    if (btn == ui_MEASURE_BUTTON) Serial1.println("BUTTON:2");
+    else if (btn == ui_EDIT_TARGET_BUTTON) Serial1.println("BUTTON:3");
+    else if (btn == ui_HOME_AXIS_BUTTON) Serial1.println("BUTTON:4");
+    else if (btn == ui_RESET_SERVO_BUTTON) Serial1.println("BUTTON:5");
+    else if (btn == ui_SETTINGS_BUTTON) Serial1.println("BUTTON:6");
+    else if (btn == ui_EDIT_HOME_TO_BLADE_OFFSET_BUTTON) Serial1.println("BUTTON:7");
+    else if (btn == ui_EXIT_SETTINGS_BUTTON) Serial1.println("BUTTON:10");
+    else Serial.println("Unknown button clicked");
+  }
+  if (lv_event_get_code(e) == LV_EVENT_VALUE_CHANGED) {
+    lv_obj_t* obj = lv_event_get_target(e);
+
+    if (obj == ui_UNIT_SWITCH) {
+        bool isChecked = lv_obj_has_state(obj, LV_STATE_CHECKED);
+        Serial.print("UNIT_SWITCH state: ");
+        Serial.println(isChecked ? "ON" : "OFF");
+
+        // Optionally send over Serial1 too
+        Serial1.print("BUTTON:");
+        Serial1.println(isChecked ? "12" : "11");
+    }
+}
+
 }
 
 /* --- TextArea handler to catch digits, backspace, ENTER --- */
@@ -94,13 +110,14 @@ void setup() {
     }
   }
 
-
   lv_obj_add_event_cb((lv_obj_t*)ui_MEASURE_BUTTON, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
   lv_obj_add_event_cb((lv_obj_t*)ui_EDIT_TARGET_BUTTON, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
   lv_obj_add_event_cb((lv_obj_t*)ui_HOME_AXIS_BUTTON, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
   lv_obj_add_event_cb((lv_obj_t*)ui_RESET_SERVO_BUTTON, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
   lv_obj_add_event_cb((lv_obj_t*)ui_SETTINGS_BUTTON, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
   lv_obj_add_event_cb((lv_obj_t*)ui_EDIT_HOME_TO_BLADE_OFFSET_BUTTON, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
+  lv_obj_add_event_cb((lv_obj_t*)ui_EXIT_SETTINGS_BUTTON, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
+  lv_obj_add_event_cb((lv_obj_t*)ui_UNIT_SWITCH, ButtonEventHandler, LV_EVENT_VALUE_CHANGED, nullptr);
 
   lv_obj_add_event_cb(ui_PARAMETER_INPUT_TEXT_AREA, TextAreaEventHandler, LV_EVENT_INSERT, nullptr);
   lv_obj_add_event_cb(ui_PARAMETER_INPUT_TEXT_AREA, TextAreaEventHandler, LV_EVENT_DELETE, nullptr);
@@ -126,11 +143,10 @@ void loop() {
           lv_scr_load(ui_PARAMETER_EDIT_SCREEN);
           lv_textarea_set_text(ui_PARAMETER_INPUT_TEXT_AREA, "");
           setupNumericKeyboard(ui_PARAMETER_INPUT_KEYBOARD, ui_PARAMETER_INPUT_TEXT_AREA);
-          lv_keyboard_set_textarea(ui_PARAMETER_INPUT_KEYBOARD, ui_PARAMETER_INPUT_TEXT_AREA);  // <-- ADD THIS
+          lv_keyboard_set_textarea(ui_PARAMETER_INPUT_KEYBOARD, ui_PARAMETER_INPUT_TEXT_AREA);
           lv_obj_add_state(ui_PARAMETER_INPUT_TEXT_AREA, LV_STATE_FOCUSED);
           lv_textarea_set_cursor_pos(ui_PARAMETER_INPUT_TEXT_AREA, LV_TEXTAREA_CURSOR_LAST);
           break;
-
         case 3:
           lv_scr_load(ui_SETTINGS_SCREEN);
           break;
@@ -139,17 +155,23 @@ void loop() {
           break;
       }
     } else if (msg.startsWith("SETLABEL:")) {
-      Serial.println("incoming setlabel");
+      Serial.print("incoming setlabel: ");
+      Serial.println(msg);
       int a = msg.indexOf(':'), b = msg.indexOf(':', a + 1);
       if (a >= 0 && b >= 0) {
         int li = msg.substring(a + 1, b).toInt();
-        const char* txt = msg.substring(b + 1).c_str();
-        if (li == 1) lv_label_set_text(ui_CURRENT_MEASUREMENT_LABEL, txt);
-        if (li == 8) lv_textarea_set_text(ui_PARAMETER_INPUT_TEXT_AREA, txt);
+        String labelText = msg.substring(b + 1);  // <-- FIX: keep string alive
+        if (li == 1) {
+          lv_scr_load(ui_MAIN_CONTROL_SCREEN);  // Optional: force page for safety
+          lv_label_set_text(ui_CURRENT_MEASUREMENT_LABEL, labelText.c_str());
+          Serial.println("setting label 1??");
+          Serial.print("just set to: ");
+          Serial.println(lv_label_get_text(ui_CURRENT_MEASUREMENT_LABEL));
+        }
+        // if (li == 8) lv_textarea_set_text(ui_PARAMETER_INPUT_TEXT_AREA, labelText.c_str());
       }
     }
   }
-
 
   delay(10);
 }

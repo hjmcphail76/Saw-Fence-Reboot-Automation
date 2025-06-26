@@ -78,7 +78,7 @@ void Screen4D::ScreenPeriodic() {
 
   genieFrame Event;
   genie.DequeueEvent(&Event);
-  if (Event.reportObject.object == GENIE_OBJ_KEYBOARD) {
+  if (Event.reportObject.object == GENIE_OBJ_KEYBOARD) { //handle key presses
     int temp = genie.GetEventData(&Event);
 
     if (temp >= '0' && temp <= '9' && counter < 9) {
@@ -103,22 +103,20 @@ void Screen4D::ScreenPeriodic() {
       eventCallback(KEYBOARD_VALUE_ENTER);
     }
     genie.WriteInhLabel(1, String(keyvalue));
-  } else if (Event.reportObject.object == GENIE_OBJ_WINBUTTON) {
-    SCREEN_OBJECT btn;
 
-    switch (Event.reportObject.index) {
+  } else if (Event.reportObject.object == GENIE_OBJ_WINBUTTON) { //handle button presses
+    SCREEN_OBJECT btn;
+    switch (Event.reportObject.index) { //example, WinButton6 in workshop4
       case 0: btn = MEASURE_BUTTON; break;
       case 1: btn = EDIT_TARGET_BUTTON; break;
       case 2: btn = HOME_BUTTON; break;
       case 3: btn = RESET_SERVO_BUTTON; break;
       case 4: btn = SETTINGS_BUTTON; break;
       case 5: btn = EDIT_HOME_TO_BLADE_OFFSET; break;
+      case 6: btn = EXIT_SETTINGS_BUTTON; break;
       default: btn = NONE; break;  // skip unhandled
     }
-
-    if (eventCallback) {
-      eventCallback(btn);
-    }
+    eventCallback(btn);
   }
 }
 
@@ -306,6 +304,9 @@ void ScreenGiga::ScreenPeriodic() {
               case 5: btnEvent = RESET_SERVO_BUTTON; break;
               case 6: btnEvent = SETTINGS_BUTTON; break;
               case 7: btnEvent = EDIT_HOME_TO_BLADE_OFFSET; break;
+              case 10: btnEvent = EXIT_SETTINGS_BUTTON; break;
+              case 11: btnEvent = INCHES_UNIT_BUTTON; break;
+              case 12: btnEvent = MILLIMETERS_UNIT_BUTTON; break;
               default: btnEvent = NONE; break;
             }
 

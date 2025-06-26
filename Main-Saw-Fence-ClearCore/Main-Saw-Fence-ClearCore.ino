@@ -157,7 +157,9 @@ void ButtonHandler(SCREEN_OBJECT obj) {
       screen.SetScreen(PARAMETER_EDIT_SCREEN);  // Switch to the keyboard input screen
       currentInputMode = InputMode::INPUT_HOME_TO_BLADE_OFFSET;
       break;
-
+    case EXIT_SETTINGS_BUTTON:
+      Serial.println("Exit settings button pressed");
+      screen.SetScreen(MAIN_CONTROL_SCREEN);
     case KEYBOARD_VALUE_ENTER:
       // now that the user has entered a value we can safely acsess and use it
       // Using either the float or String acsess methods will result in the buffer of that value being cleared for next time, so only use ONCE!!
@@ -183,7 +185,7 @@ void SetMeasurementUIDisplay() {
 
   // Serial.print("Current parameter input:");
   // Serial.println(paramValue);
-  
+
   String combinedString = paramValue + getUnitString(currentUnits);
 
   float val = paramValue.toFloat();  // Parse string to float once
@@ -201,7 +203,7 @@ void SetMeasurementUIDisplay() {
     screen.SetStringLabel(MAIN_MEASUREMENT_LABEL, combinedString);
   } else {
     screen.SetScreen(OUTSIDE_RANGE_ERROR_SCREEN);
-    delay(displayMsTime) ;
+    delay(displayMsTime);
     screen.SetScreen(MAIN_CONTROL_SCREEN);
   }
 }
@@ -226,4 +228,3 @@ void SetMeasurementUIDisplay() {
 //   Serial1.println("Hello from clearcore!");
 //   delay(1000);
 // }
-
