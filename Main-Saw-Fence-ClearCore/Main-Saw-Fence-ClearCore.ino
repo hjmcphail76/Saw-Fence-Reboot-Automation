@@ -160,6 +160,16 @@ void ButtonHandler(SCREEN_OBJECT obj) {
     case EXIT_SETTINGS_BUTTON:
       Serial.println("Exit settings button pressed");
       screen.SetScreen(MAIN_CONTROL_SCREEN);
+      break;
+    case MILLIMETERS_UNIT_BUTTON:
+      currentUnits = UNIT_MILLIMETERS;
+      screen.SetStringLabel(MAIN_MEASUREMENT_LABEL, currentMainMeasurement + getUnitString(currentUnits));
+      break;
+    case INCHES_UNIT_BUTTON:
+      currentUnits = UNIT_INCHES;
+      screen.SetStringLabel(MAIN_MEASUREMENT_LABEL, currentMainMeasurement + getUnitString(currentUnits));
+      break;
+    
     case KEYBOARD_VALUE_ENTER:
       // now that the user has entered a value we can safely acsess and use it
       // Using either the float or String acsess methods will result in the buffer of that value being cleared for next time, so only use ONCE!!
@@ -194,6 +204,7 @@ void SetMeasurementUIDisplay() {
   if (paramValue.length() == 0 || isnan(val)) {
     return;
   }
+
   float hypotheticalMovementPosition = convertToInches(homeToBladeOffset.val, homeToBladeOffset.unit) - convertToInches(val, currentUnits);
 
 

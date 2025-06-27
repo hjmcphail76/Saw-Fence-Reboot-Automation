@@ -4,7 +4,7 @@
 // Define conversion factor from millimeters to inches
 const float MM_TO_INCH_FACTOR = 1.0 / 25.4;
 
-
+//These may move to main code
 float convertToInches(float value, UnitType unit) {
   if (unit == UNIT_MILLIMETERS) {
     return value * MM_TO_INCH_FACTOR;
