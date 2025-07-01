@@ -4,29 +4,19 @@
 #include "MotorClasses.h"
 #include "ScreenClasses.h"
 
-
 /*
 Neo7CNC Automated Chop Saw fence
 
-Hardware used:
-  -Teknic ClearCore controller
 
-  -Arduino Giga+Giga Shield Screen  OR  4D Systems 'Gen4 uLCD 43D CLB' Screen with the 'Clearcore to 4D' adapter.
-
-  -Clearpath MC or SD servo
-    -Both are supported
-    -Plug MC type servo into port 0 on the Clearcore.
-    -Plug SD type servo into ports 3 on the Clearcore.
-    -No code changes are required. Everything other than what is listed in 'User Configuration' is taken care on the backend for you.
+Wiki page with step-by-step documentation: https://github.com/hjmcphail76/Saw-Fence-Reboot-Automation/wiki
 */
-
 
 //--------------------------------------------------User Configuration start: -------------------------------------------------------------------------------
 
-//Serial Monitor Settings:
+//Serial Monitor Settings. Leave default at first.
 const int serialMoniterBaudRate = 115200;
 
-//HMI Screen UART settings, applies to both giga and 4D screen.
+//HMI Screen UART settings, applies to both giga and 4D screen. Leave default at first.
 const int screenBaudRate = 9600;
 
 //Default units for the system to boot with. UnitType::UNIT_INCHES  or  UnitType::UNIT_MILLIMETERS
@@ -44,17 +34,18 @@ BeltMechanism currentMechanism = BeltMechanism(200, 5000, 500, 0.236, 1.0, UNIT_
 // RackAndPinionMechanism currentMechanism = new RackAndPinionMechanism(100, 15000, 3000, 0.5, 1, UNIT_INCHES);
 
 
-//Uncomment the respective screen type
+//Uncomment the respective screen type:
+ScreenGiga screen = ScreenGiga(screenBaudRate);
 // Screen4D screen = Screen4D(screenBaudRate);
-ScreenGiga screen = ScreenGiga();
 
-//Uncomment the respective motor type
+
+//Uncomment the respective motor type:
 SDMotor motor = SDMotor(currentMechanism);
 //MCMotor motor = new MCMotor(currentMechanism);
 
-Value maxTravel = Value(47.0, UnitType::UNIT_INCHES);  //This 'Value' structure is defined in mechanismClasses.h and holds our value + whatever units
+Value maxTravel = Value(47.0, UnitType::UNIT_INCHES);
 
-Value homeToBladeOffset = Value(35, UnitType::UNIT_INCHES);  //Before changing this value, leave it default and deploy everything. Then when running, home the system and measure from blade to saw stop at home position.
+Value homeToBladeOffset = Value(35, UnitType::UNIT_INCHES);  //Before changing this value, leave it default and deploy everything and then when running, home the system and measure from blade to saw stop at home position.
 
 
 

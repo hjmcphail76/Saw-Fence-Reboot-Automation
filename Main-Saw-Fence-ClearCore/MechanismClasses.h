@@ -34,7 +34,7 @@ public:
     virtual float GetPinionDiameter() const { return 0.0; }
     virtual UnitType GetParamUnit() const = 0; // Pure virtual getter for unit type
 
-    // Virtual destructor for proper polymorphic deletion
+    // Virtual destructor for proper polymorphic deletion or whatever that means
     virtual ~Mechanism() {}
 };
 

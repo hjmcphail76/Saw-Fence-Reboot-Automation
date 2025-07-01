@@ -4,7 +4,7 @@
 
 Screen4D::Screen4D(float baud)
   : baudRate(baud) {
-  //We dont do any setup here since the constructor is not called in setup(). Use InitAndConnect before any other screen method calls.
+  //We don't do any setup here since the constructor is not called in setup(). Use InitAndConnect before any other screen method calls
 }
 
 void Screen4D::InitAndConnect() {
@@ -78,7 +78,7 @@ void Screen4D::ScreenPeriodic() {
 
   genieFrame Event;
   genie.DequeueEvent(&Event);
-  if (Event.reportObject.object == GENIE_OBJ_KEYBOARD) { //handle key presses
+  if (Event.reportObject.object == GENIE_OBJ_KEYBOARD) {  //handle key presses
     int temp = genie.GetEventData(&Event);
 
     if (temp >= '0' && temp <= '9' && counter < 9) {
@@ -104,9 +104,9 @@ void Screen4D::ScreenPeriodic() {
     }
     genie.WriteInhLabel(1, String(keyvalue));
 
-  } else if (Event.reportObject.object == GENIE_OBJ_WINBUTTON) { //handle button presses
+  } else if (Event.reportObject.object == GENIE_OBJ_WINBUTTON) {  //handle button presses
     SCREEN_OBJECT btn;
-    switch (Event.reportObject.index) { //example, WinButton6 in workshop4
+    switch (Event.reportObject.index) {  //example, WinButton6 in workshop4
       case 0: btn = MEASURE_BUTTON; break;
       case 1: btn = EDIT_TARGET_BUTTON; break;
       case 2: btn = HOME_BUTTON; break;
@@ -150,11 +150,11 @@ String Screen4D::GetParameterInputValue() {
 }
 
 
-
 // GIGA screen class:
 
 //constructer
-ScreenGiga::ScreenGiga() {
+ScreenGiga::ScreenGiga(float baud)
+  : baudRate(baud) {
   //We dont do any setup here since the constructor is not called in setup(). Use InitAndConnect before any other screen method calls.
 }
 
@@ -163,13 +163,13 @@ void ScreenGiga::InitAndConnect() {
   counter = 0;
   enterPressed = false;
 
-  Serial1.begin(9600);
-  Serial1.ttl(true);  // if using TTL level, otherwise remove this line
-  delay(5000);        // wait for Giga to boot up
+  Serial1.begin(baudRate);  // Serial 1 is the giga thin client interface that we send commands over
+  Serial1.ttl(true);
+  delay(5000);  // wait for Giga to boot up
 
   Serial.println("ClearCore ready, sending HELLO");
 
-  // --- Handshake ---
+  //Handshake to the giga. 10 sec timeout, and the giga will have no timeout and will wait for the clearcore to connect and start the handshake
   String inputBuffer = "";
   unsigned long startTime = millis();
   bool handshakeDone = false;
@@ -187,8 +187,8 @@ void ScreenGiga::InitAndConnect() {
       if (c == '\n' || c == '\r') {
         // end of line
         inputBuffer.trim();  // remove spaces
-        Serial.print("RX line: ");
-        Serial.println(inputBuffer);
+        // Serial.print("RX line: ");
+        // Serial.println(inputBuffer); //debugging
 
         if (inputBuffer == "ACK") {
           Serial.println("Received ACK from Giga!");
@@ -274,7 +274,6 @@ void ScreenGiga::ScreenPeriodic() {
           } else if (cKey == "BACKSPACE" && counter > 0) {
             keyvalue[--counter] = '\0';
           } else if (cKey == "ENTER") {
-            Serial.println("ENTER detected in ScreenPeriodic()");
             if (eventCallback) eventCallback(KEYBOARD_VALUE_ENTER);
             keyvalue[0] = '\0';
             counter = 0;

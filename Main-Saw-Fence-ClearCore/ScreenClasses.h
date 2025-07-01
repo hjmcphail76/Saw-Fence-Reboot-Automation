@@ -87,8 +87,10 @@ public:
 
 
 class ScreenGiga : public Screen {
+private:
+  float baudRate;
 public:
-  ScreenGiga();
+  ScreenGiga(float baud);
 
   // Screen interface overrides
   void SetStringLabel(SCREEN_OBJECT label, String str) override;
