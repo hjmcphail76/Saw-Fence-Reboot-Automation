@@ -97,6 +97,8 @@ void SDMotor::HandleAlerts() const {
   }
   Serial.println("Clearing alerts.");
   motor.ClearAlerts();
+
+  motor.EnableRequest(false);
 }
 
 void SDMotor::StateMachinePeriodic(Screen &screen) {

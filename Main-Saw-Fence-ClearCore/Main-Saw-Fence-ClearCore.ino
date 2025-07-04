@@ -4,18 +4,13 @@
 #include "MotorClasses.h"
 #include "ScreenClasses.h"
 
-//Harrison TODO tomorrow before demo:
-// Deploy latest
-// fix unit switching on 4d screen implementation
-// Add the rest of the error and alert screens to giga implementation
-// pack it all up
-
 /*
 Neo7CNC Automated Chop Saw fence
 
 
 Wiki page with step-by-step documentation: https://github.com/hjmcphail76/Saw-Fence-Reboot-Automation/wiki
 */
+
 
 //--------------------------------------------------User Configuration start: -------------------------------------------------------------------------------
 
@@ -31,28 +26,25 @@ UnitType currentUnits = UnitType::UNIT_INCHES;
 
 
 // Example: Belt Mechanism with 1.0 inch pulley diameter and a 1:1 motor gearbox reduction (none)
-BeltMechanism currentMechanism = BeltMechanism(200, 5000, 1500, 0.236, 1.0, UNIT_INCHES);
+// BeltMechanism currentMechanism = BeltMechanism(200, 5000, 1500, 0.236, 1.0, UNIT_INCHES);
 
 // Example: Leadscrew Mechanism with 0.2 inches per revolution pitch and a 1:1 motor gearbox reduction (none)
-// LeadscrewMechanism currentMechanism = new LeadscrewMechanism(2000, 5000, 500, 0.2, 1, UNIT_INCHES);
+LeadscrewMechanism currentMechanism = LeadscrewMechanism(200, 2000, 2000, 20, 1, UNIT_MILLIMETERS);
 
 // Example: Rack and Pinion Mechanism with 0.5 inch pinion diameter and a 1:1 motor gearbox reduction (none)
-// RackAndPinionMechanism currentMechanism = new RackAndPinionMechanism(100, 15000, 3000, 0.5, 1, UNIT_INCHES);
+// RackAndPinionMechanism currentMechanism = RackAndPinionMechanism(100, 15000, 3000, 0.5, 1, UNIT_INCHES);
 
 
 //Uncomment the respective screen type:
-ScreenGiga screen = ScreenGiga(screenBaudRate);
-// Screen4D screen = Screen4D(screenBaudRate);
+// ScreenGiga screen = ScreenGiga(screenBaudRate);
+Screen4D screen = Screen4D(screenBaudRate);
 
 
 //Uncomment the respective motor type:
 SDMotor motor = SDMotor(currentMechanism);
 //MCMotor motor = new MCMotor(currentMechanism);
 
-Value maxTravel = Value(47.0, UnitType::UNIT_INCHES);
-
-Value homeToBladeOffset = Value(35, UnitType::UNIT_INCHES);  //Before changing this value, leave it default and deploy everything and then when running, home the system and measure from blade to saw stop at home position.
-
+Value homeToBladeOffset = Value(26.89, UnitType::UNIT_INCHES);  //Before changing this value, leave it default and deploy everything and then when running, home the system and measure from blade to saw stop at home position.
 
 
 //--------------------------------------------------User Configuration end: --------------------------------------------------------------------------------
@@ -119,7 +111,7 @@ void ButtonHandler(SCREEN_OBJECT obj) {
       Serial.println("Measure pressed");
       if (motor.hasHomed) {
         //Verification that the entered position is within the travel range is done in SetMeasurementUIDisplay()
-        float position = convertToInches(homeToBladeOffset.val, homeToBladeOffset.unit) - convertToInches(currentMainMeasurement, currentUnits);
+        float position = convertToInches(currentMainMeasurement, currentUnits);//convertToInches(homeToBladeOffset.val, homeToBladeOffset.unit) - convertToInches(currentMainMeasurement, currentUnits);
         motor.MoveAbsolutePosition(static_cast<int32_t>(position * currentMechanism.CalculateStepsPerUnit()));
       } else {
         screen.SetScreen(PLEASE_HOME_ERROR_SCREEN);
@@ -217,24 +209,3 @@ void SetMeasurementUIDisplay() {
     screen.SetScreen(MAIN_CONTROL_SCREEN);
   }
 }
-
-
-
-
-
-// #include "ClearCore.h"
-
-// void setup() {
-//   Serial.begin(115200);
-
-//   Serial1.begin(9600);
-//   Serial1.ttl(true);
-//   delay(1000);
-
-//   Serial.println("ClearCore sending...");
-// }
-
-// void loop() {
-//   Serial1.println("Hello from clearcore!");
-//   delay(1000);
-// }
