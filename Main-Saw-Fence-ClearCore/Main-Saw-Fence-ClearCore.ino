@@ -4,6 +4,12 @@
 #include "MotorClasses.h"
 #include "ScreenClasses.h"
 
+//Harrison TODO tomorrow before demo:
+// Deploy latest
+// fix unit switching on 4d screen implementation
+// Add the rest of the error and alert screens to giga implementation
+// pack it all up
+
 /*
 Neo7CNC Automated Chop Saw fence
 
@@ -25,7 +31,7 @@ UnitType currentUnits = UnitType::UNIT_INCHES;
 
 
 // Example: Belt Mechanism with 1.0 inch pulley diameter and a 1:1 motor gearbox reduction (none)
-BeltMechanism currentMechanism = BeltMechanism(200, 5000, 500, 0.236, 1.0, UNIT_INCHES);
+BeltMechanism currentMechanism = BeltMechanism(200, 5000, 1500, 0.236, 1.0, UNIT_INCHES);
 
 // Example: Leadscrew Mechanism with 0.2 inches per revolution pitch and a 1:1 motor gearbox reduction (none)
 // LeadscrewMechanism currentMechanism = new LeadscrewMechanism(2000, 5000, 500, 0.2, 1, UNIT_INCHES);
@@ -112,12 +118,9 @@ void ButtonHandler(SCREEN_OBJECT obj) {
     case MEASURE_BUTTON:
       Serial.println("Measure pressed");
       if (motor.hasHomed) {
-        //Verification that the entered position is within the travel range is done in SetMeasurementUIDisplay(), and if it is outside then the screen and internal measure value stays the same as last verified position
-        // Convert the position to motor steps
-
+        //Verification that the entered position is within the travel range is done in SetMeasurementUIDisplay()
         float position = convertToInches(homeToBladeOffset.val, homeToBladeOffset.unit) - convertToInches(currentMainMeasurement, currentUnits);
         motor.MoveAbsolutePosition(static_cast<int32_t>(position * currentMechanism.CalculateStepsPerUnit()));
-
       } else {
         screen.SetScreen(PLEASE_HOME_ERROR_SCREEN);
         delay(displayMsTime);
@@ -154,13 +157,15 @@ void ButtonHandler(SCREEN_OBJECT obj) {
       break;
     case MILLIMETERS_UNIT_BUTTON:
       currentUnits = UNIT_MILLIMETERS;
+      currentMainMeasurement = 0.0;
       screen.SetStringLabel(MAIN_MEASUREMENT_LABEL, currentMainMeasurement + getUnitString(currentUnits));
       break;
     case INCHES_UNIT_BUTTON:
       currentUnits = UNIT_INCHES;
+      currentMainMeasurement = 0.0;
       screen.SetStringLabel(MAIN_MEASUREMENT_LABEL, currentMainMeasurement + getUnitString(currentUnits));
       break;
-    
+
     case KEYBOARD_VALUE_ENTER:
       // now that the user has entered a value we can safely acsess and use it
       // Using either the float or String acsess methods will result in the buffer of that value being cleared for next time, so only use ONCE!!
@@ -170,7 +175,10 @@ void ButtonHandler(SCREEN_OBJECT obj) {
           SetMeasurementUIDisplay();  // Update the main screen label with the new value and goes to it
           break;
         case INPUT_HOME_TO_BLADE_OFFSET:
-          homeToBladeOffset.val = screen.GetParameterEnteredAsFloat();
+          float newVal = screen.GetParameterEnteredAsFloat();
+          if (newVal != 0.0) {
+            homeToBladeOffset.val = newVal;
+          }
           screen.SetScreen(SETTINGS_SCREEN);  //go back to the settings screen
           break;
       }

@@ -3,7 +3,7 @@
 //#constant OLDCOMPILE
 
 
-// generated 6/11/2025 3:04:51 PM
+// generated 7/3/2025 3:11:04 PM
 // uSDRequired:- 1   InternalRequired:- 1
 
 #MODE FLASHBANK_1
@@ -167,8 +167,8 @@
     WRITE_LABEL     12
 
 // End P1.inc
-    nObjects        30
-    nInputs         15
+    nObjects        27
+    nInputs         16
     nAniTimers      0
     nKeyboards      1
 #END
@@ -291,23 +291,29 @@ func kbUp(var iKB, var oKB)
 endfunc
 
 #DATA
-    word gfxInternals -1, -1, Fgfx_Label2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
-    word gfxIntParms -1, -1, 12, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
-    word gfxIntStrings -1, -1, 0x8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+    word gfxInternals -1, -1, Fgfx_Label2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, Fgfx_Switch2, -1, -1, -1, -1, -1, -1, -1, -1
+    word gfxIntParms -1, -1, 12, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 17, -1, -1, -1, -1, -1, -1, -1, -1
+    word gfxIntStrings -1, -1, 0x8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0x18, -1, -1, -1, -1, -1, -1, -1, -1
     word oiviLabelB vILabelB0, vILabelB1
-    word xobj2iobj 0x2900, 0x2901
+    word oiviSwitchB vISwitchB0
+    word xobj2iiobj 0x3B00
+    word xobj2iobj 0x2900, 0x2901, 0x3B00
     word IILabelB0 0, 12, 311, 101, 2, 0x07E0, BLACK, 1, 4, 0x3, 80, CILabelB0
     byte CILabelB0 "000.000 in",0 
     word IILabelB1 0, 8, 195, 35, 2, 0x07E0, BLACK, 1, 3, 0x3, 80, CILabelB1
     byte CILabelB1 "000.000",0 
-    word FormStartIndex 0, 2, 7, 21, 27, 28, 29
-    word FormEndIndex 2, 7, 21, 27, 28, 29, 30
-    word iFormStartIndex 0, 0, 1, 2, 2, 2, 2
-    word iFormEndIndex 0, 1, 2, 2, 2, 2, 2
-    word iiFormStartIndex 0, 0, 0, 0, 0, 0, 0
-    word iiFormEndIndex 0, 0, 0, 0, 0, 0, 0
-    word InputControls -1, -1, 0, 44, 88, 132, 176, 220, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 220, 264, 286
-    word InternalInputControls -1, -1
+    word IISwitchB0 168, 160, 165, 49, 0x0, BLACK, 0x0887, 2, 0, SILVER,
+        0x5AEB, CnISwitchB0, CfISwitchB0, 3, 1, WHITE, 0xFFFF
+    byte CnISwitchB0 "Millimeters",0 
+    byte CfISwitchB0 "Inches",0 
+    word FormStartIndex 0, 2, 7, 21, 24, 25, 26
+    word FormEndIndex 2, 7, 21, 24, 25, 26, 27
+    word iFormStartIndex 0, 0, 1, 2, 3, 3, 3
+    word iFormEndIndex 0, 1, 2, 3, 3, 3, 3
+    word iiFormStartIndex 0, 0, 0, 0, 1, 1, 1
+    word iiFormEndIndex 0, 0, 0, 1, 1, 1, 1
+    word InputControls -1, -1, 0, 44, 88, 132, 176, 220, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 220, 264
+    word InternalInputControls -1, -1, 308
     word InputData tWinButton, 1, -1, -1, -1, -1, -1, -1, 0, 22, 2,
                 OT_REPORT, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                 tWinButton, 1, -1, -1, -1, -1, -1, -1, 0, 66, 4,
@@ -320,17 +326,18 @@ endfunc
                 OT_REPORT, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4,
                 tWinButton, 1, -1, -1, -1, -1, -1, -1, 0, 242, 12,
                 OT_REPORT, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5,
-                t4Dbutton, 1, -1, -1, -1, -1, -1, -1, 0, 0, 2,
-                tWinButton, 1, -1, -1, -1, -1, -1, -1, 0, 308, 14,
-                OT_ACTIVATE, 10, 1, 0, 18, 0, 0, 0, 0, 0, 0
+                tWinButton, 1, -1, -1, -1, -1, -1, -1, 0, 286, 14,
+                OT_REPORT, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6,
+                tiSwitchB, 1, 168, 332, 1, -1, -1, -1, 0, 330, 2,
+                OT_REPORT, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     word oDipSwitchs 0
     word oWinButtons 7, iWinbutton0, iWinbutton1, iWinbutton2, iWinbutton3, iWinbutton4, iWinbutton5, iWinbutton6
     word oForms 7, -1, -1, -1, -1, -1, -1, -1
     word oImages 1, iImage0
     word oKeyboards 1, iKeyboard0
-    word oStaticTexts 7, iStatictext0, iStatictext1, iStatictext2, iStatictext3, iStatictext4, iStatictext5, iStatictext6
-    word o4Dbuttons 1, i4Dbutton0
+    word oStaticTexts 7, iStatictext0, -1, -1, iStatictext3, iStatictext4, iStatictext5, iStatictext6
     word oiLabelBs 2, IILabelB0, IILabelB1
+    word oiSwitchBs 1, IISwitchB0
     word FormBGcolors 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000
     word kKeyboardKeystrokes iKeyboard0keystrokes
     word rKeyboardRoutines SendReport
@@ -338,6 +345,7 @@ endfunc
 
     var vILabelB0[WIDGET_RAM_SPACE] ;
     var vILabelB1[WIDGET_RAM_SPACE] ;
+    var vISwitchB0[WIDGET_RAM_SPACE] ;
 var dKeyboard[1], ActiveKeyboard ;
 // Start P2.inc
 var vObjects[MaxIntObjects+1] ;              // address of RAM objects
@@ -356,7 +364,11 @@ var InputCS, OutputCS ;
 func addressInternalWidget(var idx var iponly)
     var i, j ;
 //to(COM0) ; print("Address Int ", idx, " ") ;
-    GObjectIdx := xobj2iobj[idx] ;
+    if (iponly) 
+        GObjectIdx := xobj2iiobj[idx] ;
+    else
+        GObjectIdx := xobj2iobj[idx] ;
+    endif
     GObjectType := (GObjectIdx>>8) ;                          // extract object type
     i := oObjects[GObjectType] ;                              // i is address of list of all objects of this type
     GObjectIdx &= 0xff ;
@@ -458,9 +470,6 @@ func WriteObject(var ObjectType, var ObjectIdx, var NewVal)
             case tWinButton :
                 j := InputControls[oWinButtons[ObjectIdx+1]] ;
                 break ;
-            case t4Dbutton :
-                j := InputControls[o4Dbuttons[ObjectIdx+1]] ;
-                break ;
             default : j := -1 ;
         endswitch
         if (j != -1)
@@ -492,11 +501,7 @@ func TurnOffButtons(var group)
         k := j*IPDatasize ;
         if (*(InputData+k+Ofs_IPD_P2) == group)
             l := -1 ;
-             if (*(InputData+k) == t4Dbutton)
-                l := o4Dbuttons[*(InputData+k+Ofs_IPD_OBJVIDX)/2] ;
-                img_SetWord(hndl, l, IMAGE_INDEX, 0);
-                img_Show(hndl, l);      // only shows on current form
-            else if (*(InputData+k) == tWinButton)
+             if (*(InputData+k) == tWinButton)
                 l := oWinButtons[*(InputData+k+Ofs_IPD_OBJVIDX)/2] ;
                 img_SetWord(hndl, l, IMAGE_INDEX, 0);
                 img_Show(hndl, l);      // only shows on current form
@@ -709,7 +714,7 @@ func main()
     oObjects[tUserImages] := oDipSwitchs ; // dummy as no object there
     oObjects[tPinOutput] := oDipSwitchs ; // dummy as no object there
     oObjects[tPinInput] := oDipSwitchs ; // dummy as no object there
-    oObjects[t4Dbutton] := o4Dbuttons ;
+    oObjects[t4Dbutton] := oDipSwitchs ; // dummy as no object there
     oObjects[tAniButton] := oDipSwitchs ; // dummy as no object there
     oObjects[tColorPicker] := oDipSwitchs ; // dummy as no object there
     oObjects[tUserButton] := oDipSwitchs ; // dummy as no object there
@@ -738,7 +743,7 @@ func main()
     oObjects[tiMediaRotary] := oDipSwitchs ; // dummy as no object there
     oObjects[tiRotaryInput] := oDipSwitchs ; // dummy as no object there
     oObjects[tiSwitch] := oDipSwitchs ; // dummy as no object there
-    oObjects[tiSwitchB] := oDipSwitchs ; // dummy as no object there
+    oObjects[tiSwitchB] := oiSwitchBs ;
     oObjects[tiSliderE] := oDipSwitchs ; // dummy as no object there
     oObjects[tiMediaSlider] := oDipSwitchs ; // dummy as no object there
     oObjects[tiSliderH] := oDipSwitchs ; // dummy as no object there
@@ -748,10 +753,11 @@ func main()
     oObjects[tiSliderC] := oDipSwitchs ; // dummy as no object there
     oObjects[tiLinearInput] := oDipSwitchs ; // dummy as no object there
     vObjects[2] := oiviLabelB ;
+    vObjects[20] := oiviSwitchB ;
     dKeyboard[0] := oKeyboard0 ;
 // Start P4.inc
-    wp := widget_Create(2) ;
-    for (i := 0; i < 2; i++)
+    wp := widget_Create(3) ;
+    for (i := 0; i < 3; i++)
 	addressInternalWidget(i, 0) ;
         if (GObjectType != tiLedDigit) widget_Add(wp, i, GObjectRAM) ;    // don't add tiLedDigit objects as they are only 1 word long
 //        if (GObjectType == tiLabelB)			// code to cause 'early' allocation of 'buffer' storage in LabelB widgets
@@ -966,6 +972,25 @@ func main()
 
 ciSwitch:
 cDipswitch:
+    pInputIndex := oObjects[GObjectType]  + *(CurInputData+Ofs_IPD_OBJVIDX) ;
+#IF EXISTS OLDCOMPILE
+    if (*(CurInputData+Ofs_IPD_P1))
+        i := (TouchXpos - *(CurInputData+Ofs_IPD_P2)) / *(CurInputData+Ofs_IPD_P3) ;
+    else
+        i := (TouchYpos - *(CurInputData+Ofs_IPD_P2)) / *(CurInputData+Ofs_IPD_P3) ;
+    endif
+    if (i > *(CurInputData+Ofs_IPD_P4)) i := *(CurInputData+Ofs_IPD_P4) ;
+#ELSE
+    i := gfx_XYlinToVal(TouchXpos, TouchYpos, *(CurInputData+Ofs_IPD_P1),
+                 *(CurInputData+Ofs_IPD_P2), *(CurInputData+Ofs_IPD_P3), 0, *(CurInputData+Ofs_IPD_P4) ) ;
+#ENDIF
+/* Is this needed?
+        if (GObjectType == tiSwitchB) i := 1 - i ;
+    endif
+    if (i > *(CurInputData+Ofs_IPD_P4)) i := *(CurInputData+Ofs_IPD_P4) ;
+*/
+    UpdateObjects(i) ;
+endsub ;
 
 cKnob:
 ciDial:

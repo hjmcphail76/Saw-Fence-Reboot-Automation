@@ -29,16 +29,15 @@ static void ButtonEventHandler(lv_event_t* e) {
     lv_obj_t* obj = lv_event_get_target(e);
 
     if (obj == ui_UNIT_SWITCH) {
-        bool isChecked = lv_obj_has_state(obj, LV_STATE_CHECKED);
-        Serial.print("UNIT_SWITCH state: ");
-        Serial.println(isChecked ? "ON" : "OFF");
+      bool isChecked = lv_obj_has_state(obj, LV_STATE_CHECKED);
+      Serial.print("UNIT_SWITCH state: ");
+      Serial.println(isChecked ? "ON" : "OFF");
 
-        // Optionally send over Serial1 too
-        Serial1.print("BUTTON:");
-        Serial1.println(isChecked ? "12" : "11");
+      // Optionally send over Serial1 too
+      Serial1.print("BUTTON:");
+      Serial1.println(isChecked ? "12" : "11");
     }
-}
-
+  }
 }
 
 /* --- TextArea handler to catch digits, backspace, ENTER --- */
@@ -150,6 +149,15 @@ void loop() {
         case 3:
           lv_scr_load(ui_SETTINGS_SCREEN);
           break;
+        case 4:
+          lv_scr_load(ui_OUTSIDE_RANGE_ERROR_SCREEN);
+          break;
+        case 5:
+          lv_scr_load(ui_HOMING_ALERT_SCREEN);
+          break;
+        case 6:
+          lv_scr_load(ui_PLEASE_HOME_ERROR_SCREEN);
+          break;
         default:
           lv_scr_load(ui_SPLASH_SCREEN);
           break;
@@ -160,15 +168,14 @@ void loop() {
       int a = msg.indexOf(':'), b = msg.indexOf(':', a + 1);
       if (a >= 0 && b >= 0) {
         int li = msg.substring(a + 1, b).toInt();
-        String labelText = msg.substring(b + 1);  // <-- FIX: keep string alive
-        if (li == 1) {
+        String labelText = msg.substring(b + 1);
+        if (li == 1) { //label at object index 1, see screen.h for details ;)
           lv_scr_load(ui_MAIN_CONTROL_SCREEN);  // Optional: force page for safety
           lv_label_set_text(ui_CURRENT_MEASUREMENT_LABEL, labelText.c_str());
           Serial.println("setting label 1??");
           Serial.print("just set to: ");
           Serial.println(lv_label_get_text(ui_CURRENT_MEASUREMENT_LABEL));
         }
-        // if (li == 8) lv_textarea_set_text(ui_PARAMETER_INPUT_TEXT_AREA, labelText.c_str());
       }
     }
   }

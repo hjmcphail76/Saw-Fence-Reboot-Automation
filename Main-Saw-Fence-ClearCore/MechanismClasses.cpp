@@ -32,9 +32,9 @@ float convertUnits(float value, UnitType from, UnitType to) {
 String getUnitString(UnitType unit) {
   switch (unit) {
     case UNIT_INCHES:
-      return "in";
+      return " in";
     case UNIT_MILLIMETERS:
-      return "mm";
+      return " mm";
     default:
       return "";
   }

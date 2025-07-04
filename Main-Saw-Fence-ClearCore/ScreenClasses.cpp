@@ -78,6 +78,17 @@ void Screen4D::ScreenPeriodic() {
 
   genieFrame Event;
   genie.DequeueEvent(&Event);
+
+  if (Event.reportObject.object == 0){
+    return; //since we call the dequeue event (this whole method) periodicly, we get a false object (0) that usualy would not appear since it is meant to be hooked up to an event handler.
+    //Return and skip rest of processing if this is the case
+  }
+
+  Serial.print("Object: ");
+  Serial.println(Event.reportObject.object);
+  Serial.print("Index: ");
+  Serial.println(Event.reportObject.index);
+
   if (Event.reportObject.object == GENIE_OBJ_KEYBOARD) {  //handle key presses
     int temp = genie.GetEventData(&Event);
 
@@ -104,19 +115,40 @@ void Screen4D::ScreenPeriodic() {
     }
     genie.WriteInhLabel(1, String(keyvalue));
 
-  } else if (Event.reportObject.object == GENIE_OBJ_WINBUTTON) {  //handle button presses
-    SCREEN_OBJECT btn;
-    switch (Event.reportObject.index) {  //example, WinButton6 in workshop4
-      case 0: btn = MEASURE_BUTTON; break;
-      case 1: btn = EDIT_TARGET_BUTTON; break;
-      case 2: btn = HOME_BUTTON; break;
-      case 3: btn = RESET_SERVO_BUTTON; break;
-      case 4: btn = SETTINGS_BUTTON; break;
-      case 5: btn = EDIT_HOME_TO_BLADE_OFFSET; break;
-      case 6: btn = EXIT_SETTINGS_BUTTON; break;
-      default: btn = NONE; break;  // skip unhandled
+  } else {
+    SCREEN_OBJECT btn = NONE;
+    if (Event.reportObject.object == GENIE_OBJ_WINBUTTON) {  //handle button presses
+      Serial.println("hmm");
+      SCREEN_OBJECT btn;
+      switch (Event.reportObject.index) {  //example, WinButton6 in workshop4
+        case 0: btn = MEASURE_BUTTON; break;
+        case 1: btn = EDIT_TARGET_BUTTON; break;
+        case 2: btn = HOME_BUTTON; break;
+        case 3: btn = RESET_SERVO_BUTTON; break;
+        case 4: btn = SETTINGS_BUTTON; break;
+        case 5: btn = EDIT_HOME_TO_BLADE_OFFSET; break;
+        case 6: btn = EXIT_SETTINGS_BUTTON; break;
+        default: btn = NONE; break;  // skip undefined button
+      }
+      eventCallback(btn);
     }
-    eventCallback(btn);
+    if (Event.reportObject.object == GENIE_OBJ_ISWITCHB) {
+      Serial.println("Switch pressed!");
+      switch (Event.reportObject.index) {
+        case 0:
+          btn = MEASURE_BUTTON;
+          if (genie.GetEventData(&Event)) {  //on
+            btn = MILLIMETERS_UNIT_BUTTON;
+          } else {
+            btn = INCHES_UNIT_BUTTON;
+          }
+          break;
+        default:
+          btn = NONE;
+          break;
+      }
+      eventCallback(btn);
+    }
   }
 }
 

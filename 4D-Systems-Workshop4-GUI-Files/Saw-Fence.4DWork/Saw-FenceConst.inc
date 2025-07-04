@@ -1,4 +1,4 @@
-// File generated 6/11/2025 3:04:44 PM
+// File generated 7/3/2025 3:10:59 PM
 // Warning! This is a generated file, any manual changes will be
 // lost during the next generation.
 
@@ -29,6 +29,7 @@
 #CONST
     iILabelB0
     iILabelB1
+    iISwitchB0
 #END
 
 // object indexes into ImageControl
@@ -54,15 +55,12 @@
     iKeyboard0_10   // offset 0xD8C00
     iKeyboard0_11   // offset 0xDD600
     iKeyboard0_12   // offset 0xE2000
-    iStatictext1    // offset 0xE6A00
-    iStatictext2    // offset 0xE7400
-    iWinbutton5     // offset 0xE8800
-    i4Dbutton0      // offset 0xF0000
-    iWinbutton6     // offset 0xF4200
-    iStatictext5    // offset 0xFD200
-    iStatictext3    // offset 0x100400
-    iStatictext4    // offset 0x123800
-    iStatictext6    // offset 0x131E00
+    iWinbutton5     // offset 0xE6A00
+    iWinbutton6     // offset 0xEE200
+    iStatictext5    // offset 0xF7200
+    iStatictext3    // offset 0xFA400
+    iStatictext4    // offset 0x114400
+    iStatictext6    // offset 0x11AE00
 #END
 
 
