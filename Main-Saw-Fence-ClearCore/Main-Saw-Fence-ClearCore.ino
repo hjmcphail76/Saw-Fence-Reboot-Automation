@@ -3,6 +3,7 @@
 #include "MechanismClasses.h"
 #include "MotorClasses.h"
 #include "ScreenClasses.h"
+#include "SDHelper.h"
 
 /*
 Neo7CNC Automated Chop Saw fence
@@ -43,8 +44,6 @@ Screen4D screen = Screen4D(screenBaudRate);
 //Uncomment the respective motor type:
 SDMotor motor = SDMotor(currentMechanism);
 //MCMotor motor = new MCMotor(currentMechanism);
-
-Value homeToBladeOffset = Value(26.89, UnitType::UNIT_INCHES);  //Before changing this value, leave it default and deploy everything and then when running, home the system and measure from blade to saw stop at home position.
 
 
 //--------------------------------------------------User Configuration end: --------------------------------------------------------------------------------
@@ -111,7 +110,7 @@ void ButtonHandler(SCREEN_OBJECT obj) {
       Serial.println("Measure pressed");
       if (motor.hasHomed) {
         //Verification that the entered position is within the travel range is done in SetMeasurementUIDisplay()
-        float position = convertToInches(currentMainMeasurement, currentUnits);//convertToInches(homeToBladeOffset.val, homeToBladeOffset.unit) - convertToInches(currentMainMeasurement, currentUnits);
+        float position = convertToInches(currentMainMeasurement, currentUnits);
         motor.MoveAbsolutePosition(static_cast<int32_t>(position * currentMechanism.CalculateStepsPerUnit()));
       } else {
         screen.SetScreen(PLEASE_HOME_ERROR_SCREEN);
@@ -169,7 +168,7 @@ void ButtonHandler(SCREEN_OBJECT obj) {
         case INPUT_HOME_TO_BLADE_OFFSET:
           float newVal = screen.GetParameterEnteredAsFloat();
           if (newVal != 0.0) {
-            homeToBladeOffset.val = newVal;
+            
           }
           screen.SetScreen(SETTINGS_SCREEN);  //go back to the settings screen
           break;
@@ -196,7 +195,7 @@ void SetMeasurementUIDisplay() {
     return;
   }
 
-  float hypotheticalMovementPosition = convertToInches(homeToBladeOffset.val, homeToBladeOffset.unit) - convertToInches(val, currentUnits);
+  float hypotheticalMovementPosition = convertToInches(val, currentUnits);
 
 
   if (hypotheticalMovementPosition > 0) {
