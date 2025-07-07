@@ -48,6 +48,15 @@ static void TextAreaEventHandler(lv_event_t* e) {
   if (code == LV_EVENT_INSERT) {
     const char* txt = (const char*)lv_event_get_param(e);
     if (txt && *txt) {
+      if (txt == ".") {
+        if (String(lv_textarea_get_text(ui_PARAMETER_INPUT_TEXT_AREA)).indexOf(".") != -1) {
+          String text = String(lv_textarea_get_text(ui_PARAMETER_INPUT_TEXT_AREA));
+          if (text.length() > 0) {
+            text.remove(text.length() - 1);  // Remove last character (the '.')
+            lv_textarea_set_text(ui_PARAMETER_INPUT_TEXT_AREA, text.c_str());
+          }
+        }
+      }
       Serial1.print("KEY:");
       Serial1.println(txt);
     }
@@ -169,7 +178,7 @@ void loop() {
       if (a >= 0 && b >= 0) {
         int li = msg.substring(a + 1, b).toInt();
         String labelText = msg.substring(b + 1);
-        if (li == 1) { //label at object index 1, see screen.h for details ;)
+        if (li == 1) {                          //label at object index 1, see screen.h for details ;)
           lv_scr_load(ui_MAIN_CONTROL_SCREEN);  // Optional: force page for safety
           lv_label_set_text(ui_CURRENT_MEASUREMENT_LABEL, labelText.c_str());
           Serial.println("setting label 1??");

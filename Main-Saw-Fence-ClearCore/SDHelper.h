@@ -1,5 +1,4 @@
-#ifndef SDHELPER_H
-#define SDHELPER_H
+#pragma once
 
 #include <SD.h>
 
@@ -8,4 +7,4 @@ extern bool sdInit;
 
 void initSDCard();
 
-#endif
+void writeToSettings(String str);

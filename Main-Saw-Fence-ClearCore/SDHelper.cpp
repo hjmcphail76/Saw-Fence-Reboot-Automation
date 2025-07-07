@@ -13,21 +13,23 @@ void initSDCard() {
     }
   }
 
-  myFile = SD.open("test.txt", FILE_WRITE);
+  myFile = SD.open("settings.txt", FILE_WRITE);  //Creates it if not there
 
   if (myFile) {
     Serial.println("initialization done.");
+    sdInit = true;
+  } else {
+    Serial.println("init FAILED. File missing");
   }
-  //   Serial.print("Writing to test.txt...");
-  //   myFile.println("testing 1, 2, 3.");
-  //   // Close the file:
-  //   myFile.close();
-  //   Serial.println("done.");
-  // } else {
-  //   // If the file didn't open, print an error:
-  //   Serial.println("error opening test.txt");
-  //   while (true) {
-  //     continue;
-  //   }
-  // }
+
+  
+  // myFile.println("testing 1, 2, 3.");
+  // // Close the file:
+  // myFile.close();
+}
+
+
+
+void writeToSettings(String str){
+  
 }

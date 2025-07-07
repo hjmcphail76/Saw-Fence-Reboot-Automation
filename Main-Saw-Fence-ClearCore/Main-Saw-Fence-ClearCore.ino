@@ -4,6 +4,7 @@
 #include "MotorClasses.h"
 #include "ScreenClasses.h"
 #include "SDHelper.h"
+#include <Arduino.h>
 
 /*
 Neo7CNC Automated Chop Saw fence
@@ -26,19 +27,19 @@ UnitType currentUnits = UnitType::UNIT_INCHES;
 // UnitType currentUnits = UnitType::UNIT_MILLIMETERS;
 
 
-// Example: Belt Mechanism with 1.0 inch pulley diameter and a 1:1 motor gearbox reduction (none)
-// BeltMechanism currentMechanism = BeltMechanism(200, 5000, 1500, 0.236, 1.0, UNIT_INCHES);
+// Example: Belt Mechanism with a 1.0 inch pulley diameter and a 1:1 motor gearbox reduction (none)
+// BeltMechanism currentMechanism = BeltMechanism(1000, 5000, 1500, 0.236, 1.0, UNIT_INCHES);
 
 // Example: Leadscrew Mechanism with 0.2 inches per revolution pitch and a 1:1 motor gearbox reduction (none)
-LeadscrewMechanism currentMechanism = LeadscrewMechanism(200, 2000, 2000, 20, 1, UNIT_MILLIMETERS);
+LeadscrewMechanism currentMechanism = LeadscrewMechanism(1000, 200000, 4000, 20, 1, UNIT_MILLIMETERS);
 
 // Example: Rack and Pinion Mechanism with 0.5 inch pinion diameter and a 1:1 motor gearbox reduction (none)
-// RackAndPinionMechanism currentMechanism = RackAndPinionMechanism(100, 15000, 3000, 0.5, 1, UNIT_INCHES);
+// RackAndPinionMechanism currentMechanism = RackAndPinionMechanism(1000, 15000, 3000, 0.5, 1, UNIT_INCHES);
 
 
 //Uncomment the respective screen type:
-// ScreenGiga screen = ScreenGiga(screenBaudRate);
-Screen4D screen = Screen4D(screenBaudRate);
+ScreenGiga screen = ScreenGiga(screenBaudRate);
+// Screen4D screen = Screen4D(screenBaudRate);
 
 
 //Uncomment the respective motor type:
@@ -51,12 +52,9 @@ SDMotor motor = SDMotor(currentMechanism);
 
 // -------------------------------------------------------------------------
 
-// Declare our user-defined helper functions: ------------------------------
-void SetMeasurementUIDisplay();
-bool ParameterInput(genieFrame Event);
 String getUnitString(UnitType unit);
-float convertFromInches(float valueInInches, UnitType targetUnit);
-float convertToInches(float value, UnitType unit);
+// float convertFromInches(float valueInInches, UnitType targetUnit);
+// float convertToInches(float value, UnitType unit);
 float convertUnits(float value, UnitType from, UnitType to);
 float GetParameterEnteredAsFloat();
 
@@ -84,6 +82,8 @@ void setup() {
   delay(5000);  // Give time for serial monitor to connect
   Serial.println("Serial Monitor init");
 
+  initSDCard();
+
   screen.InitAndConnect();
   motor.InitAndConnect();
 
@@ -110,7 +110,7 @@ void ButtonHandler(SCREEN_OBJECT obj) {
       Serial.println("Measure pressed");
       if (motor.hasHomed) {
         //Verification that the entered position is within the travel range is done in SetMeasurementUIDisplay()
-        float position = convertToInches(currentMainMeasurement, currentUnits);
+        float position = convertUnits(currentMainMeasurement, currentUnits, UNIT_INCHES);
         motor.MoveAbsolutePosition(static_cast<int32_t>(position * currentMechanism.CalculateStepsPerUnit()));
       } else {
         screen.SetScreen(PLEASE_HOME_ERROR_SCREEN);
@@ -125,8 +125,10 @@ void ButtonHandler(SCREEN_OBJECT obj) {
       break;
     case HOME_BUTTON:
       Serial.println("HOME BUTTON PRESSED");
-      screen.SetScreen(HOMING_ALERT_SCREEN);  // Show homing in progress screen
       motor.StartSensorlessHoming();
+      screen.SetScreen(HOMING_ALERT_SCREEN);  // Show homing in progress screen
+      delay(displayMsTime);                   //This is a crude way but it should not matter in the end. (I don't exactly love this solution to the bug i was running into.)
+      screen.SetScreen(MAIN_CONTROL_SCREEN);
       break;
     case RESET_SERVO_BUTTON:
       Serial.println("Reset Servo pressed");
@@ -160,7 +162,6 @@ void ButtonHandler(SCREEN_OBJECT obj) {
     case KEYBOARD_VALUE_ENTER:
       // now that the user has entered a value we can safely acsess and use it
       // Using either the float or String acsess methods will result in the buffer of that value being cleared for next time, so only use ONCE!!
-      Serial.println("Enter key pressed!!");
       switch (currentInputMode) {
         case INPUT_MEASUREMENT:
           SetMeasurementUIDisplay();  // Update the main screen label with the new value and goes to it
@@ -168,7 +169,6 @@ void ButtonHandler(SCREEN_OBJECT obj) {
         case INPUT_HOME_TO_BLADE_OFFSET:
           float newVal = screen.GetParameterEnteredAsFloat();
           if (newVal != 0.0) {
-            
           }
           screen.SetScreen(SETTINGS_SCREEN);  //go back to the settings screen
           break;
@@ -176,15 +176,10 @@ void ButtonHandler(SCREEN_OBJECT obj) {
   }
 }
 
-//UI formating helper Functions: --------------------------------------------
-
 void SetMeasurementUIDisplay() {
-  screen.SetScreen(MAIN_CONTROL_SCREEN);                // Go back to the main form
-                                                        //GetParameterInputValue
-  String paramValue = screen.GetParameterInputValue();  // Only call this ONCE since it resets the input buffer.
+  screen.SetScreen(MAIN_CONTROL_SCREEN);  // Go back to the main screen
 
-  // Serial.print("Current parameter input:");
-  // Serial.println(paramValue);
+  String paramValue = screen.GetParameterInputValue();  // Only call this ONCE since it resets the input buffer.
 
   String combinedString = paramValue + getUnitString(currentUnits);
 
@@ -195,11 +190,11 @@ void SetMeasurementUIDisplay() {
     return;
   }
 
-  float hypotheticalMovementPosition = convertToInches(val, currentUnits);
+  float hypotheticalMovementPosition = convertUnits(val, currentUnits, UNIT_INCHES);
 
 
-  if (hypotheticalMovementPosition > 0) {
-    // Make sure moving to that position is possible
+  if (hypotheticalMovementPosition >= 0) {
+    // Make sure moving to that position is possible and if no then give out of range error.
     currentMainMeasurement = val;
     screen.SetStringLabel(MAIN_MEASUREMENT_LABEL, combinedString);
   } else {

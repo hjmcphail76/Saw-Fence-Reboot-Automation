@@ -79,8 +79,8 @@ void Screen4D::ScreenPeriodic() {
   genieFrame Event;
   genie.DequeueEvent(&Event);
 
-  if (Event.reportObject.object == 0){
-    return; //since we call the dequeue event (this whole method) periodicly, we get a false object (0) that usualy would not appear since it is meant to be hooked up to an event handler.
+  if (Event.reportObject.object == 0) {
+    return;  //since we call the dequeue event (this whole method) periodicly, we get a false object (0) that usualy would not appear since it is meant to be hooked up to an event handler.
     //Return and skip rest of processing if this is the case
   }
 
@@ -206,21 +206,21 @@ void ScreenGiga::InitAndConnect() {
   unsigned long startTime = millis();
   bool handshakeDone = false;
 
-  Serial1.println("HELLO");  // send HELLO to Giga
-
   while (millis() - startTime < 10000) {  // 10 second timeout
+    Serial1.println("HELLO");             // send HELLO to Giga
     while (Serial1.available()) {
       char c = Serial1.read();
 
-      // Debug: show what was received
-      Serial.print("RX char: ");
-      Serial.println(c);
+      // Debugging, show what was received character by character
+      // Serial.print("RX char: ");
+      // Serial.println(c);
 
       if (c == '\n' || c == '\r') {
         // end of line
         inputBuffer.trim();  // remove spaces
+
         // Serial.print("RX line: ");
-        // Serial.println(inputBuffer); //debugging
+        // Serial.println(inputBuffer); //debugging, show full recieved line buffer
 
         if (inputBuffer == "ACK") {
           Serial.println("Received ACK from Giga!");
@@ -251,8 +251,8 @@ void ScreenGiga::InitAndConnect() {
 
 String ScreenGiga::GetParameterInputValue() {
   String result = String(keyvalue);
-  Serial.print("parameter input:");
-  Serial.println(result);
+  // Serial.print("parameter input:");
+  // Serial.println(result);
   memset(keyvalue, 0, sizeof(keyvalue));
   counter = 0;
   enterPressed = false;  //Reset for the next time.f

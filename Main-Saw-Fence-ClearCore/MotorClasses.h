@@ -8,7 +8,6 @@ class Motor {
 public:
     enum HomingState {
         HOMING_INIT,
-        HOMING_WAIT_HLFB,
         HOMING_COMPLETE,
         HOMING_ERROR,
         HOMING_IDLE

@@ -1,21 +1,6 @@
-#ifndef MECHANISM_CLASSES_H
-#define MECHANISM_CLASSES_H
+#pragma once
+#include "Utils.h"
 
-#include <Arduino.h> // Required for String and other Arduino types
-
-
-// Enum for unit types
-enum UnitType {
-    UNIT_INCHES,
-    UNIT_MILLIMETERS
-};
-
-struct Value {
-    float val;
-    UnitType unit;
-
-    Value(float num, UnitType u) : val(num), unit(u) {}
-};
 
 
 // --- Abstract Base Class (Interface) for Mechanism Configuration ---
@@ -112,5 +97,3 @@ public:
     float GetPinionDiameter() const override;
     UnitType GetParamUnit() const override;
 };
-
-#endif // MECHANISM_CLASSES_H

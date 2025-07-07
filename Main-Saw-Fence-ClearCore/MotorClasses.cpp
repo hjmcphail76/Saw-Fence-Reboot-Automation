@@ -63,12 +63,10 @@ bool SDMotor::MoveAbsolutePosition(int32_t position) {
     return false;
   }
 
-  Serial.print("Moving to absolute position: ");
-  Serial.println(position);
+  // Serial.print("Moving to absolute position: ");
+  // Serial.println(position);
 
   motor.Move(position, MotorDriver::MOVE_TARGET_ABSOLUTE);
-
-  Serial.println("Moving... Waiting for HLFB");
 
   while ((!motor.StepsComplete() || motor.HlfbState() != MotorDriver::HLFB_ASSERTED) && !motor.StatusReg().bit.AlertsPresent) {
     continue;
@@ -109,20 +107,18 @@ void SDMotor::StateMachinePeriodic(Screen &screen) {
       motor.EnableRequest(false);
       Delay_ms(10);
       motor.EnableRequest(true);
-      Serial.println("Waiting for homing to complete (HLFB asserted)...");
-      homingState = HOMING_WAIT_HLFB;
-      break;
+      homingState = HOMING_COMPLETE;
 
-    case HOMING_WAIT_HLFB:
-      if (motor.HlfbState() == MotorDriver::HLFB_ASSERTED) {
-        Serial.println("Sensorless homing complete!");
-        hasHomed = true;
-        homingState = HOMING_COMPLETE;
-      } else if (motor.StatusReg().bit.AlertsPresent) {
-        Serial.println("Alert occurred during homing.");
-        HandleAlerts();
-        homingState = HOMING_ERROR;
-      }
+      //Again this is janky and this should be fixed at some point. It works though.
+      // if (motor.HlfbState() == MotorDriver::HLFB_ASSERTED) {
+      //   Serial.println("Sensorless homing complete!");
+      //   hasHomed = true;
+      //   homingState = HOMING_COMPLETE;
+      // } else if (motor.StatusReg().bit.AlertsPresent) {
+      //   Serial.println("Alert occurred during homing.");
+      //   HandleAlerts();
+      //   homingState = HOMING_ERROR;
+      // }
       break;
 
     case HOMING_COMPLETE:
@@ -168,10 +164,7 @@ bool MCMotor::MoveAbsolutePosition(int32_t position) {
     return false;
   }
 
-  Serial.print("MC Motor move to: ");
-  Serial.println(position);
-
-  //Add MC movement here
+  //Add MC movement here maybe
 }
 
 void MCMotor::StartSensorlessHoming() {
@@ -179,14 +172,12 @@ void MCMotor::StartSensorlessHoming() {
 }
 
 void MCMotor::HandleAlerts() const {
-  motor.ClearAlerts();
+  // motor.ClearAlerts();
 }
 
 void MCMotor::StateMachinePeriodic(Screen *screen) {
   switch (homingState) {
     case HOMING_INIT:
-      break;
-    case HOMING_WAIT_HLFB:
       break;
     case HOMING_COMPLETE:
       break;

@@ -1,49 +1,13 @@
-#include "MechanismClasses.h"  // Include its own header file
-#include "ClearCore.h"         // Include ClearCore.h here as its functions (like Serial.println) are used in implementations
+#include "MechanismClasses.h"
+#include "ClearCore.h"
+#include "Utils.h"
+#include <Arduino.h>
 
-// Define conversion factor from millimeters to inches
-const float MM_TO_INCH_FACTOR = 1.0 / 25.4;
-
-//These may move to main code
-float convertToInches(float value, UnitType unit) {
-  if (unit == UNIT_MILLIMETERS) {
-    return value * MM_TO_INCH_FACTOR;
-  }
-  return value;
-}
-
-float convertFromInches(float valueInInches, UnitType targetUnit) {
-  if (targetUnit == UNIT_MILLIMETERS) {
-    return valueInInches / MM_TO_INCH_FACTOR;
-  }
-  return valueInInches;
-}
-
-float convertUnits(float value, UnitType from, UnitType to) {
-  if (from == to) return value;
-  if (from == UnitType::UNIT_INCHES && to == UnitType::UNIT_MILLIMETERS)
-    return value * 25.4;
-  if (from == UnitType::UNIT_MILLIMETERS && to == UnitType::UNIT_INCHES)
-    return value / 25.4;
-  // Add other unit pairs if needed
-  return value;
-}
-
-String getUnitString(UnitType unit) {
-  switch (unit) {
-    case UNIT_INCHES:
-      return " in";
-    case UNIT_MILLIMETERS:
-      return " mm";
-    default:
-      return "";
-  }
-}
 
 // --- Concrete Class for Belt Mechanism ---
 // Corrected constructor definition to match declaration in MechanismClasses.h
 BeltMechanism::BeltMechanism(int res, int accel, int vel, float diameter, float gearboxReduction, UnitType unit)
-  : motorProgInputRes(res), maxAccel(accel), maxVel(vel), pulleyDiameter(diameter), gearboxReduction(gearboxReduction), pulleyDiameterUnit(unit) {}
+  : motorProgInputRes(res), maxAccel(accel * res/60), maxVel(vel * res/60), pulleyDiameter(diameter), gearboxReduction(gearboxReduction), pulleyDiameterUnit(unit) {}
 
 int BeltMechanism::GetMotorProgInputRes() const {
   return motorProgInputRes;
@@ -77,7 +41,7 @@ UnitType BeltMechanism::GetParamUnit() const {
 // --- Concrete Class for Leadscrew Mechanism ---
 // Corrected constructor definition to match declaration in MechanismClasses.h
 LeadscrewMechanism::LeadscrewMechanism(int res, int accel, int vel, float pitch, float gearboxReduction, UnitType unit)
-  : motorProgInputRes(res), maxAccel(accel), maxVel(vel), leadscrewPitch(pitch), gearboxReduction(gearboxReduction), leadscrewPitchUnit(unit) {}
+  : motorProgInputRes(res), maxAccel(accel * res/60), maxVel(vel * res/60), leadscrewPitch(pitch), gearboxReduction(gearboxReduction), leadscrewPitchUnit(unit) {}
 
 int LeadscrewMechanism::GetMotorProgInputRes() const {
   return motorProgInputRes;
@@ -111,7 +75,7 @@ UnitType LeadscrewMechanism::GetParamUnit() const {
 // --- Concrete Class for Rack and Pinion Mechanism ---
 // Corrected constructor definition to match declaration in MechanismClasses.h
 RackAndPinionMechanism::RackAndPinionMechanism(int res, int accel, int vel, float diameter, float gearboxReduction, UnitType unit)
-  : motorProgInputRes(res), maxAccel(accel), maxVel(vel), pinionDiameter(diameter), gearboxReduction(gearboxReduction), pinionDiameterUnit(unit) {}
+  : motorProgInputRes(res), maxAccel(accel * res/60), maxVel(vel * res/60), pinionDiameter(diameter), gearboxReduction(gearboxReduction), pinionDiameterUnit(unit) {}
 
 int RackAndPinionMechanism::GetMotorProgInputRes() const {
   return motorProgInputRes;
