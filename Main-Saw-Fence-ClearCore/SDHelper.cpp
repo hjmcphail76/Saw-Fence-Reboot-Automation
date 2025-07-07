@@ -8,9 +8,9 @@ void initSDCard() {
 
   if (!SD.begin()) {
     Serial.println("SD Card initialization failed!");
-    while (true) {
-      continue;
-    }
+    // while (true) {
+    //   continue;
+    // }
   }
 
   myFile = SD.open("settings.txt", FILE_WRITE);  //Creates it if not there
