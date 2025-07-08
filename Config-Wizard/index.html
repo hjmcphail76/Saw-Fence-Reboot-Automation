@@ -1,0 +1,125 @@
+<!-- This wizard code is AI Assisted -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Config Wizard</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧙 Config Wizard</h1>
+        <form id="config-form">
+            <label>
+                Serial Monitor Baud Rate:
+                <input type="text" name="serialBaud" value="115200" />
+                <span class="note">Leave this as is unless you know what you're doing.</span>
+            </label>
+
+            <label>
+                Screen Baud Rate:
+                <input type="text" name="screenBaud" value="9600" />
+                <span class="note">Leave this as is unless you know what you're doing.</span>
+            </label>
+
+            <label>
+                Motor Pulses Per Revolution:
+                <input type="text" name="motorPulses" value="1000" />
+                <span class="note">Leave this as is unless you know what you're doing.</span>
+            </label>
+
+            <label>
+                Default Boot Units:
+                <select name="defaultUnits">
+                    <option value="inches">Inches</option>
+                    <option value="millimeters">Millimeters</option>
+                </select>
+            </label>
+
+            <label>
+                Screen Setup:
+                <select name="screenType">
+                    <option value="4D_systems">4D Systems Screen</option>
+                    <option value="giga_shield">Giga Shield</option>
+                </select>
+            </label>
+
+            <label>
+                Mechanism Setup:
+                <select name="mechanism" id="mechanism-select">
+                    <option value="belt">Belt mechanism</option>
+                    <option value="lead_screw">Lead screw mechanism</option>
+                    <option value="rack_pinion">Rack and pinion mechanism</option>
+                </select>
+            </label>
+
+            <!-- Mechanism-specific sections -->
+
+            <div id="belt-fields" class="mechanism-fields">
+                <label>
+                    Pulley Diameter:
+                    <input type="text" name="beltPulleyDiameter" />
+                </label>
+                <label>
+                    Pulley Unit:
+                    <select name="beltPulleyUnit">
+                        <option value="inches">Inches</option>
+                        <option value="millimeters">Millimeters</option>
+                    </select>
+                </label>
+                <label>
+                    Gearbox Reduction:
+                    <input type="text" name="beltGearbox" value="1" />
+                </label>
+            </div>
+
+            <div id="lead_screw-fields" class="mechanism-fields" style="display:none;">
+                <label>
+                    Screw Pitch (Distance per Rev):
+                    <input type="text" name="leadPitch" />
+                </label>
+                <label>
+                    Pitch Unit:
+                    <select name="leadPitchUnit">
+                        <option value="inches">Inches</option>
+                        <option value="millimeters">Millimeters</option>
+                    </select>
+                </label>
+                <label>
+                    Gearbox Reduction:
+                    <input type="text" name="leadGearbox" value="1" />
+                </label>
+            </div>
+
+            <div id="rack_pinion-fields" class="mechanism-fields" style="display:none;">
+                <label>
+                    Pinion Diameter:
+                    <input type="text" name="pinionDiameter" />
+                </label>
+                <label>
+                    Pinion Unit:
+                    <select name="pinionUnit">
+                        <option value="inches">Inches</option>
+                        <option value="millimeters">Millimeters</option>
+                    </select>
+                </label>
+                <label>
+                    Gearbox Reduction:
+                    <input type="text" name="rackGearbox" value="1" />
+                </label>
+            </div>
+
+            <button type="submit">Generate JSON</button>
+        </form>
+
+        <a id="downloadLink" style="display: none;">⬇️ Download config.json</a>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

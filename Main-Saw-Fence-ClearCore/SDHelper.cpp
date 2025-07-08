@@ -1,4 +1,6 @@
+#define ARDUINOJSON_ENABLE_PROGMEM 0
 #include "SDHelper.h"
+#include <ArduinoJson.h>
 
 File myFile;
 bool sdInit = false;

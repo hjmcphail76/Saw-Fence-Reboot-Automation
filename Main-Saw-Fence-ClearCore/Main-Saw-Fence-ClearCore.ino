@@ -50,8 +50,6 @@ SDMotor motor = SDMotor(currentMechanism);
 //--------------------------------------------------User Configuration end: --------------------------------------------------------------------------------
 
 
-// -------------------------------------------------------------------------
-
 String getUnitString(UnitType unit);
 // float convertFromInches(float valueInInches, UnitType targetUnit);
 // float convertToInches(float value, UnitType unit);
