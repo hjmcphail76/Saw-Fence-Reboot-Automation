@@ -38,8 +38,8 @@ LeadscrewMechanism currentMechanism = LeadscrewMechanism(1000, 200000, 4000, 20,
 
 
 //Uncomment the respective screen type:
-ScreenGiga screen = ScreenGiga(screenBaudRate);
-// Screen4D screen = Screen4D(screenBaudRate);
+// ScreenGiga screen = ScreenGiga(screenBaudRate);
+Screen4D screen = Screen4D(screenBaudRate);
 
 
 //Uncomment the respective motor type:
@@ -81,6 +81,7 @@ void setup() {
   Serial.println("Serial Monitor init");
 
   initSDCard();
+  readSettings();
 
   screen.InitAndConnect();
   motor.InitAndConnect();

@@ -56,7 +56,7 @@ document.getElementById("config-form").addEventListener("submit", function (e) {
 
     const link = document.getElementById("downloadLink");
     link.href = url;
-    link.download = "config.json";
+    link.download = "config.txt";
     link.style.display = "block";
-    link.textContent = "⬇️ Download config.json";
+    link.textContent = "⬇️ Download json config file";
 });

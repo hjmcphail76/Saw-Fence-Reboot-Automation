@@ -105,11 +105,14 @@ void setup() {
   Serial.begin(115200);
   Serial1.begin(9600);
 
+  Serial.println("Init done.");
+
   // wait for handshake
   while (!isConnected) {
     lv_timer_handler();
     if (Serial1.available()) {
       String m = Serial1.readStringUntil('\n');
+      Serial.println(m);
       m.trim();
       if (m == "HELLO") {
         Serial1.println("ACK");
