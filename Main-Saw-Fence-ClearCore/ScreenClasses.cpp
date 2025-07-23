@@ -206,21 +206,22 @@ void ScreenGiga::InitAndConnect() {
   unsigned long startTime = millis();
   bool handshakeDone = false;
 
+  Serial.println("Waiting for Giga handshake response...");
   while (millis() - startTime < 10000) {  // 10 second timeout
     Serial1.println("HELLO");             // send HELLO to Giga
     while (Serial1.available()) {
       char c = Serial1.read();
 
-      // Debugging, show what was received character by character
-      // Serial.print("RX char: ");
-      // Serial.println(c);
+      //Debugging, show what was received character by character
+      Serial.print("RX char: ");
+      Serial.println(c);
 
       if (c == '\n' || c == '\r') {
         // end of line
         inputBuffer.trim();  // remove spaces
 
-        // Serial.print("RX line: ");
-        // Serial.println(inputBuffer); //debugging, show full recieved line buffer
+        Serial.print("RX line: ");
+        Serial.println(inputBuffer); //debugging, show full recieved line buffer
 
         if (inputBuffer == "ACK") {
           Serial.println("Received ACK from Giga!");
@@ -236,7 +237,8 @@ void ScreenGiga::InitAndConnect() {
 
     if (handshakeDone) break;
 
-    Serial.println("Waiting for Giga handshake response...");
+    
+    
     delay(100);
   }
 

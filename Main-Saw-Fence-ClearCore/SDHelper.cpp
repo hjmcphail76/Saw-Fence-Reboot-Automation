@@ -79,6 +79,5 @@ systemConfig readSettings() {
   config.screenType = String(screenType);
   config.mechanismType = String(mech);
 
-
   return config;
 }

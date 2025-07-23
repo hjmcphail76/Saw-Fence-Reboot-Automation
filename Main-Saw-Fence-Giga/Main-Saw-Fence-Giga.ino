@@ -16,13 +16,13 @@ static void ButtonEventHandler(lv_event_t* e) {
     lv_obj_t* btn = lv_event_get_target(e);
     Serial.println("btn pressed");
 
-    if (btn == ui_MEASURE_BUTTON) Serial1.println("BUTTON:2");
-    else if (btn == ui_EDIT_TARGET_BUTTON) Serial1.println("BUTTON:3");
-    else if (btn == ui_HOME_AXIS_BUTTON) Serial1.println("BUTTON:4");
-    else if (btn == ui_RESET_SERVO_BUTTON) Serial1.println("BUTTON:5");
-    else if (btn == ui_SETTINGS_BUTTON) Serial1.println("BUTTON:6");
-    else if (btn == ui_EDIT_HOME_TO_BLADE_OFFSET_BUTTON) Serial1.println("BUTTON:7");
-    else if (btn == ui_EXIT_SETTINGS_BUTTON) Serial1.println("BUTTON:10");
+    if (btn == ui_MEASURE_BUTTON) Serial2.println("BUTTON:2");
+    else if (btn == ui_EDIT_TARGET_BUTTON) Serial2.println("BUTTON:3");
+    else if (btn == ui_HOME_AXIS_BUTTON) Serial2.println("BUTTON:4");
+    else if (btn == ui_RESET_SERVO_BUTTON) Serial2.println("BUTTON:5");
+    else if (btn == ui_SETTINGS_BUTTON) Serial2.println("BUTTON:6");
+    else if (btn == ui_EDIT_HOME_TO_BLADE_OFFSET_BUTTON) Serial2.println("BUTTON:7");
+    else if (btn == ui_EXIT_SETTINGS_BUTTON) Serial2.println("BUTTON:10");
     else Serial.println("Unknown button clicked");
   }
   if (lv_event_get_code(e) == LV_EVENT_VALUE_CHANGED) {
@@ -33,16 +33,15 @@ static void ButtonEventHandler(lv_event_t* e) {
       Serial.print("UNIT_SWITCH state: ");
       Serial.println(isChecked ? "ON" : "OFF");
 
-      // Optionally send over Serial1 too
-      Serial1.print("BUTTON:");
-      Serial1.println(isChecked ? "12" : "11");
+      // Optionally send over Serial2 too
+      Serial2.print("BUTTON:");
+      Serial2.println(isChecked ? "12" : "11");
     }
   }
 }
 
 /* --- TextArea handler to catch digits, backspace, ENTER --- */
 static void TextAreaEventHandler(lv_event_t* e) {
-  Serial.println("haha");
   lv_event_code_t code = lv_event_get_code(e);
 
   if (code == LV_EVENT_INSERT) {
@@ -57,13 +56,13 @@ static void TextAreaEventHandler(lv_event_t* e) {
           }
         }
       }
-      Serial1.print("KEY:");
-      Serial1.println(txt);
+      Serial2.print("KEY:");
+      Serial2.println(txt);
     }
   } else if (code == LV_EVENT_DELETE) {
-    Serial1.println("KEY:BACKSPACE");
+    Serial2.println("KEY:BACKSPACE");
   } else if (code == LV_EVENT_READY) {
-    Serial1.println("KEY:ENTER");
+    Serial2.println("KEY:ENTER");
   }
 }
 
@@ -103,19 +102,21 @@ void setup() {
   lv_timer_handler();
 
   Serial.begin(115200);
-  Serial1.begin(9600);
+  Serial2.begin(9600);
 
   Serial.println("Init done.");
 
   // wait for handshake
   while (!isConnected) {
     lv_timer_handler();
-    if (Serial1.available()) {
-      String m = Serial1.readStringUntil('\n');
-      Serial.println(m);
+    if (Serial2.available()) {
+      String m = Serial2.readStringUntil('\n');
+      Serial.println("Recieved: "+ m);
       m.trim();
       if (m == "HELLO") {
-        Serial1.println("ACK");
+        Serial2.println("ACK");
+        Serial2.flush();
+        Serial.println("Sent ACK to clearcore");
         isConnected = true;
       }
     }
@@ -138,8 +139,9 @@ void setup() {
 void loop() {
   lv_timer_handler();
 
-  if (Serial1.available()) {
-    String msg = Serial1.readStringUntil('\n');
+  if (Serial2.available()) {
+    String msg = Serial2.readStringUntil('\n');
+    Serial.println(msg);
     msg.trim();
     if (msg.startsWith("SETSCREEN:")) {
       int idx = msg.substring(10).toInt();
@@ -175,7 +177,7 @@ void loop() {
           break;
       }
     } else if (msg.startsWith("SETLABEL:")) {
-      Serial.print("incoming setlabel: ");
+      Serial.print("Incoming setlabel: ");
       Serial.println(msg);
       int a = msg.indexOf(':'), b = msg.indexOf(':', a + 1);
       if (a >= 0 && b >= 0) {
@@ -184,8 +186,6 @@ void loop() {
         if (li == 1) {                          //label at object index 1, see screen.h for details ;)
           lv_scr_load(ui_MAIN_CONTROL_SCREEN);  // Optional: force page for safety
           lv_label_set_text(ui_CURRENT_MEASUREMENT_LABEL, labelText.c_str());
-          Serial.println("setting label 1??");
-          Serial.print("just set to: ");
           Serial.println(lv_label_get_text(ui_CURRENT_MEASUREMENT_LABEL));
         }
       }
