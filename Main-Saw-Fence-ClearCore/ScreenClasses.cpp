@@ -213,15 +213,17 @@ void ScreenGiga::InitAndConnect() {
       char c = Serial1.read();
 
       //Debugging, show what was received character by character
-      Serial.print("RX char: ");
-      Serial.println(c);
+      // Serial.print("RX char: ");
+      // Serial.println(c);
 
       if (c == '\n' || c == '\r') {
         // end of line
         inputBuffer.trim();  // remove spaces
 
-        Serial.print("RX line: ");
-        Serial.println(inputBuffer); //debugging, show full recieved line buffer
+        
+        //debugging, show full recieved line buffer
+        // Serial.print("RX line: ");
+        // Serial.println(inputBuffer);
 
         if (inputBuffer == "ACK") {
           Serial.println("Received ACK from Giga!");

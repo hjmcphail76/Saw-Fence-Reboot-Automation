@@ -190,6 +190,13 @@ void loop() {
         }
       }
     }
+    else if (msg.startsWith("SETUNITSWITCH:")) {
+      int a = msg.indexOf(':');
+
+      //TODO
+
+
+    }
   }
 
   delay(10);

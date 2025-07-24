@@ -20,11 +20,14 @@ document.getElementById("config-form").addEventListener("submit", function (e) {
         serialMonitorBaud: formData.get("serialBaud") || "115200",
         screenBaud: formData.get("screenBaud") || "9600",
         motorPulsesPerRevolution: formData.get("motorPulses") || "1000",
+        motorShaftVelocity: (formData.get("motorShaftVel")) || 1000,
+        motorShaftAcceleration: (formData.get("motorShaftAccel")) || 10000,
         defaultUnits: formData.get("defaultUnits"),
         screenType: formData.get("screenType"),
         mechanism: formData.get("mechanism"),
         mechanismParameters: {}
     };
+
 
     switch (config.mechanism) {
         case "belt":

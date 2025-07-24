@@ -35,3 +35,13 @@ String getUnitString(UnitType unit) {
       return "";
   }
 }
+
+UnitType getUnitFromString(String str) {
+  if (str == "inches") {
+    return UNIT_INCHES;
+  } else if (str == "millimeters") {
+    return UNIT_MILLIMETERS;
+  } else {
+    return UNIT_UNKNOWN;
+  }
+}

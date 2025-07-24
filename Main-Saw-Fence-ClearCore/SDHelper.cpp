@@ -1,6 +1,7 @@
 #define ARDUINOJSON_ENABLE_PROGMEM 0
 #include "SDHelper.h"
 #include <ArduinoJson.h>
+#include "Utils.h"
 
 File myFile;
 bool sdInit = false;
@@ -23,20 +24,20 @@ void initSDCard() {
 }
 
 
-void writeSettings(systemConfig writeConfig) {
+void writeSettings(SystemConfig writeConfig) {
   if (sdInit) {
   }
 }
 
-systemConfig readSettings() {
-  systemConfig config;
+SystemConfig readSettings() {
+  SystemConfig config;
 
   if (!sdInit) {
     Serial.println("SD card not initialized!");
     return config;
   }
 
-  File myFile = SD.open("/config.txt", FILE_READ);
+  myFile = SD.open("/config.txt", FILE_READ);
   if (!myFile) {
     Serial.println("Failed to open config.txt");
     return config;
@@ -52,32 +53,59 @@ systemConfig readSettings() {
     return config;
   }
 
-  const char* serialBaud = doc["serialMonitorBaud"] | "115200";
-  const char* screenBaud = doc["screenBaud"] | "9600";
-  const char* pulses = doc["motorPulsesPerRevolution"] | "1000";
-  const char* units = doc["defaultUnits"] | "inches";
-  const char* screenType = doc["screenType"] | "giga_shield";
-  const char* mech = doc["mechanism"] | "belt";
+  JsonObject params = doc["mechanismParameters"].as<JsonObject>();
 
-  JsonObject params = doc["mechanismParameters"];
+  // Assign values directly from JSON
+  config.serialMonitorBaud = String(doc["serialMonitorBaud"] | "115200").toInt();
+  config.screenBaud = String(doc["screenBaud"] | "9600").toInt();
+  config.motorPulsesPerRevolution = String(doc["motorPulsesPerRevolution"] | "1000").toInt();
+  config.defaultUnits = getUnitFromString(String(doc["defaultUnits"] | "Undefined"));
+  config.screenType = String(doc["screenType"] | "giga_shield");
+  config.mechanismType = String(doc["mechanism"] | "belt");
+  config.motorShaftVel = String(doc["motorShaftVelocity"] | "1000").toInt();
+  config.motorShaftAccel = String(doc["motorShaftAcceleration"] | "10000").toInt();
 
+  if (!params.isNull()) {
+    config.mechanismParams.unit = getUnitFromString(String(params["unit"] | "Undefined"));
+
+    if (config.mechanismType == "belt") {
+      config.mechanismParams.pulleyDiameter = String(params["pulleyDiameter"] | "0").toFloat();
+      config.mechanismParams.gearboxReduction = String(params["gearboxReduction"] | "1").toFloat();
+
+    } else if (config.mechanismType == "lead_screw") {
+      config.mechanismParams.screwPitch = String(params["pitch"] | "0").toFloat();
+      config.mechanismParams.gearboxReduction = String(params["gearboxReduction"] | "1").toFloat();
+
+    } else if (config.mechanismType == "rack_pinion") {
+      config.mechanismParams.pinionDiameter = String(params["pinionDiameter"] | "0").toFloat();
+      config.mechanismParams.gearboxReduction = String(params["gearboxReduction"] | "1").toFloat();
+    }
+  }
+
+  // Print out what's stored
+  Serial.println();
+  Serial.println("=== CONFIG LOADED ===");
+  Serial.println("Serial Baud: " + String(config.serialMonitorBaud));
+  Serial.println("Screen Baud: " + String(config.screenBaud));
+  Serial.println("Motor Pulses/Rev: " + String(config.motorPulsesPerRevolution));
+  Serial.println("Units: " + String(getUnitString(config.defaultUnits)));
+  Serial.println("Screen Type: " + config.screenType);
+  Serial.println("Mechanism: " + config.mechanismType);
+  Serial.println("Motor Shaft Velocity: " + String(config.motorShaftVel));
+  Serial.println("Motor Shaft Acceleration: " + String(config.motorShaftAccel));
+
+  if (config.mechanismType == "belt") {
+    Serial.println("Pulley diameter: " + String(config.mechanismParams.pulleyDiameter));
+    Serial.println("Gearbox reduction: " + String(config.mechanismParams.gearboxReduction));
+  } else if (config.mechanismType == "lead_screw") {
+    Serial.println("Leadscrew pitch: " + String(config.mechanismParams.screwPitch));
+    Serial.println("Gearbox reduction: " + String(config.mechanismParams.gearboxReduction));
+  } else if (config.mechanismType == "rack_pinion") {
+    Serial.println("Pinion diameter: " + String(config.mechanismParams.pinionDiameter));
+    Serial.println("Gearbox reduction: " + String(config.mechanismParams.gearboxReduction));
+  }
 
   Serial.println();
-  Serial.println("=== CONFIG LOADED ==="); 
-  Serial.println("Serial Baud: " + String(serialBaud));
-  Serial.println("Screen Baud: " + String(screenBaud));
-  Serial.println("Motor Pulses/Rev: " + String(pulses));
-  Serial.println("Units: " + String(units));
-  Serial.println("Screen Type: " + String(screenType));
-  Serial.println("Mechanism: " + String(mech));
-  Serial.println();
-
-  config.serialMonitorBaud = atoi(serialBaud);
-  config.screenBaud = atoi(screenBaud);
-  config.motorPulsesPerRevolution = atoi(pulses);
-  config.defaultUnits = String(units);
-  config.screenType = String(screenType);
-  config.mechanismType = String(mech);
 
   return config;
 }
