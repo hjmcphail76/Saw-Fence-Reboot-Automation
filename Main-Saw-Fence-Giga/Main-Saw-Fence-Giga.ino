@@ -9,6 +9,7 @@ Arduino_GigaDisplayTouch Touch;
 
 bool isConnected = false;
 lv_obj_t* active_text_area = nullptr;
+static String lastText = "";
 
 /* --- Main button handler --- */
 static void ButtonEventHandler(lv_event_t* e) {
@@ -21,10 +22,11 @@ static void ButtonEventHandler(lv_event_t* e) {
     else if (btn == ui_HOME_AXIS_BUTTON) Serial2.println("BUTTON:4");
     else if (btn == ui_RESET_SERVO_BUTTON) Serial2.println("BUTTON:5");
     else if (btn == ui_SETTINGS_BUTTON) Serial2.println("BUTTON:6");
-    else if (btn == ui_EDIT_HOME_TO_BLADE_OFFSET_BUTTON) Serial2.println("BUTTON:7");
+    else if (btn == ui_EDIT_MAX_TRAVEL_BUTTON) Serial2.println("BUTTON:7");
     else if (btn == ui_EXIT_SETTINGS_BUTTON) Serial2.println("BUTTON:10");
     else Serial.println("Unknown button clicked");
   }
+
   if (lv_event_get_code(e) == LV_EVENT_VALUE_CHANGED) {
     lv_obj_t* obj = lv_event_get_target(e);
 
@@ -33,7 +35,6 @@ static void ButtonEventHandler(lv_event_t* e) {
       Serial.print("UNIT_SWITCH state: ");
       Serial.println(isChecked ? "ON" : "OFF");
 
-      // Optionally send over Serial2 too
       Serial2.print("BUTTON:");
       Serial2.println(isChecked ? "12" : "11");
     }
@@ -43,31 +44,48 @@ static void ButtonEventHandler(lv_event_t* e) {
 /* --- TextArea handler to catch digits, backspace, ENTER --- */
 static void TextAreaEventHandler(lv_event_t* e) {
   lv_event_code_t code = lv_event_get_code(e);
+  const char* currentText = lv_textarea_get_text(ui_PARAMETER_INPUT_TEXT_AREA);
 
   if (code == LV_EVENT_INSERT) {
     const char* txt = (const char*)lv_event_get_param(e);
     if (txt && *txt) {
-      if (txt == ".") {
-        if (String(lv_textarea_get_text(ui_PARAMETER_INPUT_TEXT_AREA)).indexOf(".") != -1) {
-          String text = String(lv_textarea_get_text(ui_PARAMETER_INPUT_TEXT_AREA));
+      if (String(txt) == ".") {
+        if (String(currentText).indexOf('.') != -1) {
+          String text = String(currentText);
           if (text.length() > 0) {
             text.remove(text.length() - 1);  // Remove last character (the '.')
             lv_textarea_set_text(ui_PARAMETER_INPUT_TEXT_AREA, text.c_str());
           }
+          return;
         }
       }
       Serial2.print("KEY:");
       Serial2.println(txt);
     }
-  } else if (code == LV_EVENT_DELETE) {
-    Serial2.println("KEY:BACKSPACE");
-  } else if (code == LV_EVENT_READY) {
+  } 
+  else if (code == LV_EVENT_VALUE_CHANGED) {
+    String newText = String(currentText);
+    
+    Serial.print("newtxt: ");
+    Serial.println(newText);
+
+    Serial.print("lasttxt: ");
+    Serial.println(lastText);
+    if (newText.length() < lastText.length()) {
+      Serial.println("Backspace detected!");
+      Serial2.println("KEY:BACKSPACE");
+    }
+    lastText = newText;
+  } 
+  else if (code == LV_EVENT_READY) {
+    Serial.println("Enter has been pressed...")
     Serial2.println("KEY:ENTER");
+    lastText = "";
   }
 }
 
 /* --- Numeric keyboard setup (unchanged) --- */
-void setupNumericKeyboard(lv_obj_t* keyboard, lv_obj_t* ta = nullptr) {
+void setupNumericKeyboard(lv_obj_t * keyboard, lv_obj_t* ta = nullptr) {
   if (!keyboard) {
     Serial.println("Error: Keyboard is NULL");
     return;
@@ -111,7 +129,7 @@ void setup() {
     lv_timer_handler();
     if (Serial2.available()) {
       String m = Serial2.readStringUntil('\n');
-      Serial.println("Recieved: "+ m);
+      Serial.println("Received: " + m);
       m.trim();
       if (m == "HELLO") {
         Serial2.println("ACK");
@@ -122,17 +140,19 @@ void setup() {
     }
   }
 
+  // Button bindings
   lv_obj_add_event_cb((lv_obj_t*)ui_MEASURE_BUTTON, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
   lv_obj_add_event_cb((lv_obj_t*)ui_EDIT_TARGET_BUTTON, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
   lv_obj_add_event_cb((lv_obj_t*)ui_HOME_AXIS_BUTTON, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
   lv_obj_add_event_cb((lv_obj_t*)ui_RESET_SERVO_BUTTON, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
   lv_obj_add_event_cb((lv_obj_t*)ui_SETTINGS_BUTTON, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
-  lv_obj_add_event_cb((lv_obj_t*)ui_EDIT_HOME_TO_BLADE_OFFSET_BUTTON, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
+  lv_obj_add_event_cb((lv_obj_t*)ui_EDIT_MAX_TRAVEL_BUTTON, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
   lv_obj_add_event_cb((lv_obj_t*)ui_EXIT_SETTINGS_BUTTON, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
   lv_obj_add_event_cb((lv_obj_t*)ui_UNIT_SWITCH, ButtonEventHandler, LV_EVENT_VALUE_CHANGED, nullptr);
 
+  // Textarea event bindings
   lv_obj_add_event_cb(ui_PARAMETER_INPUT_TEXT_AREA, TextAreaEventHandler, LV_EVENT_INSERT, nullptr);
-  lv_obj_add_event_cb(ui_PARAMETER_INPUT_TEXT_AREA, TextAreaEventHandler, LV_EVENT_DELETE, nullptr);
+  lv_obj_add_event_cb(ui_PARAMETER_INPUT_TEXT_AREA, TextAreaEventHandler, LV_EVENT_VALUE_CHANGED, nullptr);
   lv_obj_add_event_cb(ui_PARAMETER_INPUT_TEXT_AREA, TextAreaEventHandler, LV_EVENT_READY, nullptr);
 }
 
@@ -143,6 +163,7 @@ void loop() {
     String msg = Serial2.readStringUntil('\n');
     Serial.println(msg);
     msg.trim();
+
     if (msg.startsWith("SETSCREEN:")) {
       int idx = msg.substring(10).toInt();
       switch (idx) {
@@ -183,19 +204,15 @@ void loop() {
       if (a >= 0 && b >= 0) {
         int li = msg.substring(a + 1, b).toInt();
         String labelText = msg.substring(b + 1);
-        if (li == 1) {                          //label at object index 1, see screen.h for details ;)
-          lv_scr_load(ui_MAIN_CONTROL_SCREEN);  // Optional: force page for safety
+        if (li == 1) {
+          lv_scr_load(ui_MAIN_CONTROL_SCREEN);
           lv_label_set_text(ui_CURRENT_MEASUREMENT_LABEL, labelText.c_str());
           Serial.println(lv_label_get_text(ui_CURRENT_MEASUREMENT_LABEL));
         }
       }
-    }
-    else if (msg.startsWith("SETUNITSWITCH:")) {
+    } else if (msg.startsWith("SETUNITSWITCH:")) {
       int a = msg.indexOf(':');
-
-      //TODO
-
-
+      // TODO: handle switch change
     }
   }
 

@@ -126,7 +126,7 @@ void Screen4D::ScreenPeriodic() {
         case 2: btn = HOME_BUTTON; break;
         case 3: btn = RESET_SERVO_BUTTON; break;
         case 4: btn = SETTINGS_BUTTON; break;
-        case 5: btn = EDIT_HOME_TO_BLADE_OFFSET; break;
+        case 5: btn = EDIT_MAX_TRAVEL_BUTTON; break;
         case 6: btn = EXIT_SETTINGS_BUTTON; break;
         default: btn = NONE; break;  // skip undefined button
       }
@@ -301,13 +301,18 @@ void ScreenGiga::ScreenPeriodic() {
           String cKey = inputBuffer.substring(4);
           cKey.trim();
 
+          Serial.print("Message: ");
+          Serial.println(cKey);
+
           if (isdigit(cKey.charAt(0)) && counter < 9) {
             keyvalue[counter++] = cKey.charAt(0);
             keyvalue[counter] = '\0';
           } else if (cKey == "." && counter < 9 && strchr(keyvalue, '.') == nullptr) {
             keyvalue[counter++] = '.';
             keyvalue[counter] = '\0';
-          } else if (cKey == "BACKSPACE" && counter > 0) {
+          } else if (cKey == "BACKSPACE") {
+            Serial.print("backspace, counter: ");
+            Serial.println(counter);
             keyvalue[--counter] = '\0';
           } else if (cKey == "ENTER") {
             if (eventCallback) eventCallback(KEYBOARD_VALUE_ENTER);
@@ -316,6 +321,8 @@ void ScreenGiga::ScreenPeriodic() {
           } else if (cKey == "CONNECTED") {
             isConnected = true;
           }
+          Serial.print("Current text string:");
+          Serial.println(String(keyvalue));
         } else if (inputBuffer.startsWith("BUTTON:")) {
           String btnStr = inputBuffer.substring(7);
           btnStr.trim();
@@ -338,7 +345,7 @@ void ScreenGiga::ScreenPeriodic() {
               case 4: btnEvent = HOME_BUTTON; break;
               case 5: btnEvent = RESET_SERVO_BUTTON; break;
               case 6: btnEvent = SETTINGS_BUTTON; break;
-              case 7: btnEvent = EDIT_HOME_TO_BLADE_OFFSET; break;
+              case 7: btnEvent = EDIT_MAX_TRAVEL_BUTTON; break;
               case 10: btnEvent = EXIT_SETTINGS_BUTTON; break;
               case 11: btnEvent = INCHES_UNIT_BUTTON; break;
               case 12: btnEvent = MILLIMETERS_UNIT_BUTTON; break;

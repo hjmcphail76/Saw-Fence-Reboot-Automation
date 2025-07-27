@@ -9,17 +9,9 @@
 
 /*
 Neo7CNC Automated Chop Saw fence
-
-Wiki page with step-by-step documentation: https://github.com/hjmcphail76/Saw-Fence-Reboot-Automation/wiki
 */
 
-//--------------------------------------------------User Configuration start: -------------------------------------------------------------------------------
 
-
-
-//--------------------------------------------------User Configuration end: --------------------------------------------------------------------------------
-
-// Forward declarations
 String getUnitString(UnitType unit);
 float convertUnits(float value, UnitType from, UnitType to);
 float GetParameterEnteredAsFloat();
@@ -37,6 +29,7 @@ enum InputMode {
   INPUT_MEASUREMENT,
   INPUT_HOME_TO_BLADE_OFFSET
 };
+
 InputMode currentInputMode = INPUT_MEASUREMENT;
 
 // Global pointers for objects (must be created in setup)
@@ -146,7 +139,7 @@ void ButtonHandler(SCREEN_OBJECT obj) {
       Serial.println("Settings Button Pressed");
       screenPtr->SetScreen(SETTINGS_SCREEN);
       break;
-    case EDIT_HOME_TO_BLADE_OFFSET:
+    case EDIT_MAX_TRAVEL_BUTTON:
       Serial.println("Edit home to blade offset Button Pressed");
       screenPtr->SetScreen(PARAMETER_EDIT_SCREEN);
       currentInputMode = INPUT_HOME_TO_BLADE_OFFSET;
@@ -166,8 +159,10 @@ void ButtonHandler(SCREEN_OBJECT obj) {
       screenPtr->SetStringLabel(MAIN_MEASUREMENT_LABEL, String(currentMainMeasurement) + getUnitString(currentUnits));
       break;
     case KEYBOARD_VALUE_ENTER:
+    Serial.println("ENTER");
       switch (currentInputMode) {
         case INPUT_MEASUREMENT:
+          Serial.println("ENTEr");
           SetMeasurementUIDisplay();
           break;
         case INPUT_HOME_TO_BLADE_OFFSET:

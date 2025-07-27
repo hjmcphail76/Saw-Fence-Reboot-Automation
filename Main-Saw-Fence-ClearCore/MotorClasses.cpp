@@ -52,41 +52,62 @@ int SDMotor::GetMotorProgInputRes() const {
 
 bool SDMotor::MoveAbsolutePosition(int32_t position) {
   if (!hasHomed) {
-    StartSensorlessHoming();
     return false;
   }
+
+
+  motor.MoveStopAbrupt();
+
+  motor.EnableRequest(true);
+  Delay_ms(10);
 
   if (motor.StatusReg().bit.AlertsPresent) {
-    Serial.println("Motor alert detected.");
+    Serial.println("Motor alert detected before move.");
     HandleAlerts();
-    Serial.println("Move canceled.");
+
+    motor.EnableRequest(true);
+    Delay_ms(10);
+
+    if (motor.StatusReg().bit.AlertsPresent) {
+      Serial.println("Alert persists after handling. Canceling move.");
+      return false;
+    }
+  }
+
+  // Ensure motor is ready
+  if (motor.HlfbState() != MotorDriver::HLFB_ASSERTED) {
+    Serial.println("Motor not ready (HLFB not asserted).");
     return false;
   }
 
-  // Serial.print("Moving to absolute position: ");
-  // Serial.println(position);
+  Serial.print("Moving to position: ");
+  Serial.println(position);
 
   motor.Move(position, MotorDriver::MOVE_TARGET_ABSOLUTE);
 
-  while ((!motor.StepsComplete() || motor.HlfbState() != MotorDriver::HLFB_ASSERTED) && !motor.StatusReg().bit.AlertsPresent) {
-    continue;
-  }
+  // Wait for motion to complete
+  // while ((!motor.StepsComplete() || motor.HlfbState() != MotorDriver::HLFB_ASSERTED) && !motor.StatusReg().bit.AlertsPresent) {
+  //   continue;
+  // }
 
+  // Check again for alerts during the move
   if (motor.StatusReg().bit.AlertsPresent) {
     Serial.println("Motor alert during move.");
     HandleAlerts();
     return false;
   }
 
-  Serial.println("Move Done");
+  Serial.println("Move done.");
   return true;
 }
+
 
 void SDMotor::StartSensorlessHoming() {
   homingState = HOMING_INIT;
 }
 
-void SDMotor::HandleAlerts() const {
+void SDMotor::HandleAlerts() {
+  motor.MoveStopAbrupt();
   if (motor.AlertReg().bit.MotorFaulted) {
     Serial.println("Faults present. Cycling enable signal.");
     motor.EnableRequest(false);
@@ -134,55 +155,6 @@ void SDMotor::StateMachinePeriodic(Screen *screen) {
       hasHomed = false;
       break;
 
-    case HOMING_IDLE:
-      break;
-  }
-}
-
-// ====================
-// --- MCMotor ---
-// ====================
-
-MCMotor::MCMotor(Mechanism *mech)
-  : maxAccel(mech->GetMaxAccel()), maxVel(mech->GetMaxVel()) {}
-
-void MCMotor::InitAndConnect() {
-  // Initialize for ClearCore MC motor
-}
-
-int MCMotor::GetMaxAccel() const {
-  return maxAccel;
-}
-
-int MCMotor::GetMaxVel() const {
-  return maxVel;
-}
-
-bool MCMotor::MoveAbsolutePosition(int32_t position) {
-  if (!hasHomed) {
-    StartSensorlessHoming();
-    return false;
-  }
-
-  //Add MC movement here maybe
-}
-
-void MCMotor::StartSensorlessHoming() {
-  homingState = HOMING_INIT;
-}
-
-void MCMotor::HandleAlerts() const {
-  // motor.ClearAlerts();
-}
-
-void MCMotor::StateMachinePeriodic(Screen *screen) {
-  switch (homingState) {
-    case HOMING_INIT:
-      break;
-    case HOMING_COMPLETE:
-      break;
-    case HOMING_ERROR:
-      break;
     case HOMING_IDLE:
       break;
   }

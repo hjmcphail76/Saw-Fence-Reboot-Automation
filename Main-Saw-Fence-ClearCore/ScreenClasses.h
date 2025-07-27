@@ -14,7 +14,7 @@ enum SCREEN_OBJECT {
   HOME_BUTTON, //4
   RESET_SERVO_BUTTON, //5
   SETTINGS_BUTTON, //6
-  EDIT_HOME_TO_BLADE_OFFSET, //7
+  EDIT_MAX_TRAVEL_BUTTON, //7
   LIVE_PARAMETER_INPUT_LABEL, //8
   KEYBOARD_VALUE_ENTER, //9 //flag to detect when the user has entered a value and to store the buffer that has been saved until the value is safely retrieved ONCE!
   EXIT_SETTINGS_BUTTON, //10
