@@ -60,7 +60,6 @@ static void TextAreaEventHandler(lv_event_t* e) {
         }
       }
 
-
       Serial2.print("KEY:");
       Serial2.println(txt);
     }

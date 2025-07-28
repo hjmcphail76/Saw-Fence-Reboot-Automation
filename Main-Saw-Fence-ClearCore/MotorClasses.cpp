@@ -55,7 +55,6 @@ bool SDMotor::MoveAbsolutePosition(int32_t position) {
     return false;
   }
 
-
   motor.MoveStopAbrupt();
 
   motor.EnableRequest(true);
@@ -63,10 +62,8 @@ bool SDMotor::MoveAbsolutePosition(int32_t position) {
 
   if (motor.StatusReg().bit.AlertsPresent) {
     Serial.println("Motor alert detected before move.");
-    HandleAlerts();
-
-    motor.EnableRequest(true);
-    Delay_ms(10);
+    // HandleAlerts();
+    motor.ClearAlerts();
 
     if (motor.StatusReg().bit.AlertsPresent) {
       Serial.println("Alert persists after handling. Canceling move.");
