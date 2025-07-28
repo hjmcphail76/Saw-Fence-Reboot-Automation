@@ -44,48 +44,52 @@ static void ButtonEventHandler(lv_event_t* e) {
 /* --- TextArea handler to catch digits, backspace, ENTER --- */
 static void TextAreaEventHandler(lv_event_t* e) {
   lv_event_code_t code = lv_event_get_code(e);
-  const char* currentText = lv_textarea_get_text(ui_PARAMETER_INPUT_TEXT_AREA);
+  String currentText = String(lv_textarea_get_text(ui_PARAMETER_INPUT_TEXT_AREA));
 
   if (code == LV_EVENT_INSERT) {
     const char* txt = (const char*)lv_event_get_param(e);
     if (txt && *txt) {
       if (String(txt) == ".") {
-        if (String(currentText).indexOf('.') != -1) {
-          String text = String(currentText);
+        if (currentText.indexOf('.') != -1) {
+          String text = currentText;
           if (text.length() > 0) {
-            text.remove(text.length() - 1);  // Remove last character (the '.')
+            text.remove(text.length() - 1);  // Remove last character ('.')
             lv_textarea_set_text(ui_PARAMETER_INPUT_TEXT_AREA, text.c_str());
           }
           return;
         }
       }
+
+
       Serial2.print("KEY:");
       Serial2.println(txt);
     }
-  } 
-  else if (code == LV_EVENT_VALUE_CHANGED) {
-    String newText = String(currentText);
-    
+  } else if (code == LV_EVENT_VALUE_CHANGED) {
     Serial.print("newtxt: ");
-    Serial.println(newText);
+    Serial.println(currentText);
 
     Serial.print("lasttxt: ");
-    Serial.println(lastText);
-    if (newText.length() < lastText.length()) {
+    Serial.println(currentText);
+    if (currentText.length() < lastText.length()) {
       Serial.println("Backspace detected!");
       Serial2.println("KEY:BACKSPACE");
+      return;
     }
-    lastText = newText;
-  } 
-  else if (code == LV_EVENT_READY) {
-    Serial.println("Enter has been pressed...")
-    Serial2.println("KEY:ENTER");
-    lastText = "";
+
+    if (currentText.indexOf("ENTER") != -1) {
+      Serial.println("Enter has been pressed...");
+      Serial2.println("KEY:ENTER");
+      lastText = "";
+      return;
+    }
+
+    lastText = currentText;
   }
+
 }
 
 /* --- Numeric keyboard setup (unchanged) --- */
-void setupNumericKeyboard(lv_obj_t * keyboard, lv_obj_t* ta = nullptr) {
+void setupNumericKeyboard(lv_obj_t* keyboard, lv_obj_t* ta = nullptr) {
   if (!keyboard) {
     Serial.println("Error: Keyboard is NULL");
     return;
