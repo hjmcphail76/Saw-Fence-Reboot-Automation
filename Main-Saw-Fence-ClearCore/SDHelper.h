@@ -8,8 +8,10 @@ struct mechanismConfig {
   float pulleyDiameter = 0;    // For belt
   float screwPitch = 0;        // For lead screw
   float pinionDiameter = 0;    // For rack and pinion
+  UnitType unit1 = UnitType::UNIT_UNKNOWN; //for the fields above lol
 
-  UnitType unit = UnitType::UNIT_UNKNOWN;
+  float maxTravel = 0.0f;
+  UnitType maxTravelUnit = UnitType::UNIT_UNKNOWN;
   float gearboxReduction = 1; // Example: 1 for 1:1
 };
 #define ARDUINOJSON_ENABLE_PROGMEM 0

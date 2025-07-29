@@ -27,7 +27,7 @@ int displayMsTime = 1250;
 
 enum InputMode {
   INPUT_MEASUREMENT,
-  INPUT_HOME_TO_BLADE_OFFSET
+  INPUT_MAX_TRAVEL_BUTTON
 };
 
 InputMode currentInputMode = INPUT_MEASUREMENT;
@@ -61,7 +61,7 @@ void setup() {
       config.motorShaftVel,
       config.mechanismParams.pulleyDiameter,
       config.mechanismParams.gearboxReduction,
-      config.mechanismParams.unit);
+      config.mechanismParams.unit1);
 
   } else if (config.mechanismType == "lead_screw") {
     currentMechanismPtr = new LeadscrewMechanism(
@@ -70,7 +70,7 @@ void setup() {
       config.motorShaftVel,
       config.mechanismParams.screwPitch,
       config.mechanismParams.gearboxReduction,
-      config.mechanismParams.unit);
+      config.mechanismParams.unit1);
   }
   else if (config.mechanismType == "rack_pinion"){
     currentMechanismPtr = new RackAndPinionMechanism(config.motorPulsesPerRevolution,
@@ -78,7 +78,7 @@ void setup() {
       config.motorShaftVel,
       config.mechanismParams.pinionDiameter,
       config.mechanismParams.gearboxReduction,
-      config.mechanismParams.unit);
+      config.mechanismParams.unit1);
   }
 
   screenPtr = new ScreenGiga(screenBaudRate);
@@ -142,7 +142,7 @@ void ButtonHandler(SCREEN_OBJECT obj) {
     case EDIT_MAX_TRAVEL_BUTTON:
       Serial.println("Edit home to blade offset Button Pressed");
       screenPtr->SetScreen(PARAMETER_EDIT_SCREEN);
-      currentInputMode = INPUT_HOME_TO_BLADE_OFFSET;
+      currentInputMode = INPUT_MAX_TRAVEL_BUTTON;
       break;
     case EXIT_SETTINGS_BUTTON:
       Serial.println("Exit settings button pressed");
@@ -165,7 +165,7 @@ void ButtonHandler(SCREEN_OBJECT obj) {
           Serial.println("ENTEr");
           SetMeasurementUIDisplay();
           break;
-        case INPUT_HOME_TO_BLADE_OFFSET:
+        case INPUT_MAX_TRAVEL_BUTTON:
           float newVal = screenPtr->GetParameterEnteredAsFloat();
           if (newVal != 0.0f) {
             // handle newVal if needed

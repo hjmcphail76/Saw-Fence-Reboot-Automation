@@ -66,7 +66,10 @@ SystemConfig readSettings() {
   config.motorShaftAccel = String(doc["motorShaftAcceleration"] | "10000").toInt();
 
   if (!params.isNull()) {
-    config.mechanismParams.unit = getUnitFromString(String(params["unit"] | "Undefined"));
+    config.mechanismParams.unit1 = getUnitFromString(String(params["maxTravelUnit"] | "Undefined")); // Pulley/pitch/diameter unit
+
+    config.mechanismParams.maxTravel = String(params["maxTravel"] | "0.0").toFloat();
+
 
     if (config.mechanismType == "belt") {
       config.mechanismParams.pulleyDiameter = String(params["pulleyDiameter"] | "0").toFloat();
@@ -97,6 +100,7 @@ SystemConfig readSettings() {
   if (config.mechanismType == "belt") {
     Serial.println("Pulley diameter: " + String(config.mechanismParams.pulleyDiameter));
     Serial.println("Gearbox reduction: " + String(config.mechanismParams.gearboxReduction));
+
   } else if (config.mechanismType == "lead_screw") {
     Serial.println("Leadscrew pitch: " + String(config.mechanismParams.screwPitch));
     Serial.println("Gearbox reduction: " + String(config.mechanismParams.gearboxReduction));
@@ -104,6 +108,8 @@ SystemConfig readSettings() {
     Serial.println("Pinion diameter: " + String(config.mechanismParams.pinionDiameter));
     Serial.println("Gearbox reduction: " + String(config.mechanismParams.gearboxReduction));
   }
+
+  Serial.println("Max Travel: " + String(config.mechanismParams.maxTravel));
 
   Serial.println();
 

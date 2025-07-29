@@ -34,24 +34,32 @@ document.getElementById("config-form").addEventListener("submit", function (e) {
             config.mechanismParameters = {
                 pulleyDiameter: formData.get("beltPulleyDiameter"),
                 unit: formData.get("beltPulleyUnit"),
-                gearboxReduction: formData.get("beltGearbox") || "1:1"
+                gearboxReduction: formData.get("beltGearbox") || "1:1",
+                maxTravel: formData.get("beltMaxTravel"),
+                maxTravelUnit: formData.get("beltMaxTravelUnit")
             };
             break;
         case "lead_screw":
             config.mechanismParameters = {
                 pitch: formData.get("leadPitch"),
                 unit: formData.get("leadPitchUnit"),
-                gearboxReduction: formData.get("leadGearbox") || "1:1"
+                gearboxReduction: formData.get("leadGearbox") || "1:1",
+                maxTravel: formData.get("leadMaxTravel"),
+                maxTravelUnit: formData.get("leadMaxTravelUnit")
             };
             break;
         case "rack_pinion":
             config.mechanismParameters = {
                 pinionDiameter: formData.get("pinionDiameter"),
                 unit: formData.get("pinionUnit"),
-                gearboxReduction: formData.get("rackGearbox") || "1:1"
+                gearboxReduction: formData.get("rackGearbox") || "1:1",
+                maxTravel: formData.get("rackMaxTravel"),
+                maxTravelUnit: formData.get("rackMaxTravelUnit")
             };
             break;
     }
+
+
 
     const json = JSON.stringify(config, null, 2);
     const blob = new Blob([json], { type: "application/json" });
