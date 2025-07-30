@@ -23,7 +23,12 @@ int counter = 0;
 int temp, sumTemp;
 int newValue;
 float currentMainMeasurement = 0.0f;
+float maxTravelMeasurement = 0.0f;
+UnitType maxTravelUnit;
 int displayMsTime = 1250;
+UnitType currentUnit;
+int serialMoniterBaudRate;
+int screenBaudRate;
 
 enum InputMode {
   INPUT_MEASUREMENT,
@@ -32,13 +37,10 @@ enum InputMode {
 
 InputMode currentInputMode = INPUT_MEASUREMENT;
 
-// Global pointers for objects (must be created in setup)
 Mechanism* currentMechanismPtr = nullptr;
 ScreenGiga* screenPtr = nullptr;
 SDMotor* motorPtr = nullptr;
-UnitType currentUnits;
-int serialMoniterBaudRate;
-int screenBaudRate;
+
 
 void setup() {
   Serial.begin(serialMoniterBaudRate);
@@ -52,9 +54,14 @@ void setup() {
   serialMoniterBaudRate = config.serialMonitorBaud;
   screenBaudRate = config.screenBaud;
 
-  currentUnits = config.defaultUnits;
+  currentUnit = config.defaultUnit;
 
+  maxTravelMeasurement = config.mechanismParams.maxTravel;
+  maxTravelUnit = config.mechanismParams.maxTravelUnit;
+
+  //per mechanism type config loading
   if (config.mechanismType == "belt") {
+    // I hate to name it this, but unit1 repersents the unit of either pulley diameter, screw pitch, or gear pitch diameter
 
     currentMechanismPtr = new BeltMechanism(config.motorPulsesPerRevolution,
       config.motorShaftAccel,
@@ -110,8 +117,18 @@ void ButtonHandler(SCREEN_OBJECT obj) {
     case MEASURE_BUTTON:
       Serial.println("Measure pressed");
       if (motorPtr->hasHomed) {
-        float position = convertUnits(currentMainMeasurement, currentUnits, UNIT_INCHES);
-        motorPtr->MoveAbsolutePosition(static_cast<int32_t>(position * currentMechanismPtr->CalculateStepsPerUnit()));
+        float position = convertUnits(currentMainMeasurement, currentUnit, UNIT_INCHES);
+        // Serial.println("Position in inches: "+ String(position)); debugging
+        if (position < convertUnits(maxTravelMeasurement, maxTravelUnit, UNIT_INCHES)){
+          motorPtr->MoveAbsolutePosition(static_cast<int32_t>(position * currentMechanismPtr->CalculateStepsPerUnit()));
+          
+        }
+        else{
+          screenPtr->SetScreen(OUTSIDE_RANGE_ERROR_SCREEN);
+          delay(displayMsTime);
+          screenPtr->SetScreen(MAIN_CONTROL_SCREEN);
+          return;
+        }
       } else {
         screenPtr->SetScreen(PLEASE_HOME_ERROR_SCREEN);
         delay(displayMsTime);
@@ -149,20 +166,18 @@ void ButtonHandler(SCREEN_OBJECT obj) {
       screenPtr->SetScreen(MAIN_CONTROL_SCREEN);
       break;
     case MILLIMETERS_UNIT_BUTTON:
-      currentUnits = UNIT_MILLIMETERS;
+      currentUnit = UNIT_MILLIMETERS;
       currentMainMeasurement = 0.0f;
-      screenPtr->SetStringLabel(MAIN_MEASUREMENT_LABEL, String(currentMainMeasurement) + getUnitString(currentUnits));
+      screenPtr->SetStringLabel(MAIN_MEASUREMENT_LABEL, String(currentMainMeasurement) + getUnitString(currentUnit));
       break;
     case INCHES_UNIT_BUTTON:
-      currentUnits = UNIT_INCHES;
+      currentUnit = UNIT_INCHES;
       currentMainMeasurement = 0.0f;
-      screenPtr->SetStringLabel(MAIN_MEASUREMENT_LABEL, String(currentMainMeasurement) + getUnitString(currentUnits));
+      screenPtr->SetStringLabel(MAIN_MEASUREMENT_LABEL, String(currentMainMeasurement) + getUnitString(currentUnit));
       break;
     case KEYBOARD_VALUE_ENTER:
-    Serial.println("ENTER");
       switch (currentInputMode) {
         case INPUT_MEASUREMENT:
-          Serial.println("ENTEr");
           SetMeasurementUIDisplay();
           break;
         case INPUT_MAX_TRAVEL_BUTTON:
@@ -182,7 +197,7 @@ void SetMeasurementUIDisplay() {
 
   String paramValue = screenPtr->GetParameterInputValue();
 
-  String combinedString = paramValue + getUnitString(currentUnits);
+  String combinedString = paramValue + getUnitString(currentUnit);
 
   float val = paramValue.toFloat();
 
@@ -190,7 +205,7 @@ void SetMeasurementUIDisplay() {
     return;
   }
 
-  float hypotheticalMovementPosition = convertUnits(val, currentUnits, UNIT_INCHES);
+  float hypotheticalMovementPosition = convertUnits(val, currentUnit, UNIT_INCHES);
 
   if (hypotheticalMovementPosition >= 0) {
     currentMainMeasurement = val;

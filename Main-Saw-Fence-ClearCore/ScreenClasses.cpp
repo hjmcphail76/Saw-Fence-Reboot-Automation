@@ -311,8 +311,6 @@ void ScreenGiga::ScreenPeriodic() {
             keyvalue[counter++] = '.';
             keyvalue[counter] = '\0';
           } else if (cKey == "BACKSPACE") {
-            Serial.print("backspace, counter: ");
-            Serial.println(counter);
             keyvalue[--counter] = '\0';
           } else if (cKey == "ENTER") {
             if (eventCallback) eventCallback(KEYBOARD_VALUE_ENTER);

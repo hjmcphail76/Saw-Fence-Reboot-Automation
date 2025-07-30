@@ -10,16 +10,14 @@ public:
     virtual int GetMotorProgInputRes() const = 0;
     virtual int GetMaxAccel() const = 0;
     virtual int GetMaxVel() const = 0;
-    virtual float CalculateStepsPerUnit() const = 0;
+    virtual float CalculateStepsPerUnit() const = 0; //per inch
 
-    // Virtual getters for mechanism-specific parameters and their units.
-    // Return 0.0 by default for types where the parameter is not applicable.
     virtual float GetPulleyDiameter() const { return 0.0; }
     virtual float GetLeadscrewPitch() const { return 0.0; }
     virtual float GetPinionDiameter() const { return 0.0; }
-    virtual UnitType GetParamUnit() const = 0; // Pure virtual getter for unit type
+    virtual UnitType GetParamUnit() const = 0;
 
-    // Virtual destructor for proper polymorphic deletion or whatever that means
+    // Virtual destructor for proper polymorphic deletion or whatever that means for C++ lol
     virtual ~Mechanism() {}
 };
 

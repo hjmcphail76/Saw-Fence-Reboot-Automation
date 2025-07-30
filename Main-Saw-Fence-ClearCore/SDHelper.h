@@ -26,7 +26,7 @@ struct SystemConfig {
   int serialMonitorBaud = 115200; //default placeholders
   int screenBaud = 9600;
   int motorPulsesPerRevolution = 1000;
-  UnitType defaultUnits = UnitType::UNIT_UNKNOWN;
+  UnitType defaultUnit = UnitType::UNIT_UNKNOWN;
   String screenType = "giga_shield"; // "4d_systems" or "giga_shield"
 
   int motorShaftVel = 1000;

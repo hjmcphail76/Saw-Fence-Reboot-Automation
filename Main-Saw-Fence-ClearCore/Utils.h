@@ -10,15 +10,6 @@ enum UnitType {
   UNIT_UNKNOWN
 };
 
-struct Value {
-  float val;
-  UnitType unit;
-
-  Value(float num, UnitType u)
-    : val(num), unit(u) {}
-};
-
-
 // void initSDCard();
 float convertToInches(float value, UnitType unit);
 float convertFromInches(float valueInInches, UnitType targetUnit);

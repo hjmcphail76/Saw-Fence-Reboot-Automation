@@ -59,14 +59,14 @@ SystemConfig readSettings() {
   config.serialMonitorBaud = String(doc["serialMonitorBaud"] | "115200").toInt();
   config.screenBaud = String(doc["screenBaud"] | "9600").toInt();
   config.motorPulsesPerRevolution = String(doc["motorPulsesPerRevolution"] | "1000").toInt();
-  config.defaultUnits = getUnitFromString(String(doc["defaultUnits"] | "Undefined"));
+  config.defaultUnit = getUnitFromString(String(doc["defaultUnit"] | "Undefined"));
   config.screenType = String(doc["screenType"] | "giga_shield");
   config.mechanismType = String(doc["mechanism"] | "belt");
   config.motorShaftVel = String(doc["motorShaftVelocity"] | "1000").toInt();
   config.motorShaftAccel = String(doc["motorShaftAcceleration"] | "10000").toInt();
 
   if (!params.isNull()) {
-    config.mechanismParams.unit1 = getUnitFromString(String(params["maxTravelUnit"] | "Undefined")); // Pulley/pitch/diameter unit
+    config.mechanismParams.unit1 = getUnitFromString(String(params["unit"] | "Undefined")); // Pulley/pitch/diameter unit
 
     config.mechanismParams.maxTravel = String(params["maxTravel"] | "0.0").toFloat();
 
@@ -91,7 +91,7 @@ SystemConfig readSettings() {
   Serial.println("Serial Baud: " + String(config.serialMonitorBaud));
   Serial.println("Screen Baud: " + String(config.screenBaud));
   Serial.println("Motor Pulses/Rev: " + String(config.motorPulsesPerRevolution));
-  Serial.println("Units: " + String(getUnitString(config.defaultUnits)));
+  Serial.println("Unit: " + String(getUnitString(config.defaultUnit)));
   Serial.println("Screen Type: " + config.screenType);
   Serial.println("Mechanism: " + config.mechanismType);
   Serial.println("Motor Shaft Velocity: " + String(config.motorShaftVel));

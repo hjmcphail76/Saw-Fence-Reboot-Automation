@@ -83,9 +83,9 @@ bool SDMotor::MoveAbsolutePosition(int32_t position) {
   motor.Move(position, MotorDriver::MOVE_TARGET_ABSOLUTE);
 
   // Wait for motion to complete
-  // while ((!motor.StepsComplete() || motor.HlfbState() != MotorDriver::HLFB_ASSERTED) && !motor.StatusReg().bit.AlertsPresent) {
-  //   continue;
-  // }
+  while ((!motor.StepsComplete() || motor.HlfbState() != MotorDriver::HLFB_ASSERTED) && !motor.StatusReg().bit.AlertsPresent) {
+    continue;
+  }
 
   // Check again for alerts during the move
   if (motor.StatusReg().bit.AlertsPresent) {
