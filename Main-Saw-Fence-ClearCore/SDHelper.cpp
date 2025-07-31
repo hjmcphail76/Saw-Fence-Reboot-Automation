@@ -1,3 +1,5 @@
+// Some of this file is AI generated
+
 #define ARDUINOJSON_ENABLE_PROGMEM 0
 #include "SDHelper.h"
 #include <ArduinoJson.h>
@@ -25,8 +27,60 @@ void initSDCard() {
 
 
 void writeSettings(SystemConfig writeConfig) {
-  if (sdInit) {
+  if (!sdInit) {
+    Serial.println("SD card not initialized!");
+    return;
   }
+
+  SD.remove("/config.txt");
+
+  myFile = SD.open("/config.txt", FILE_WRITE);
+  if (!myFile) {
+    Serial.println("Failed to open config.txt for writing");
+    return;
+  }
+
+  StaticJsonDocument<1024> doc;
+
+  doc["serialMonitorBaud"] = String(writeConfig.serialMonitorBaud);
+  doc["screenBaud"] = String(writeConfig.screenBaud);
+  doc["motorPulsesPerRevolution"] = String(writeConfig.motorPulsesPerRevolution);
+  doc["motorShaftVelocity"] = String(writeConfig.motorShaftVel);
+  doc["motorShaftAcceleration"] = String(writeConfig.motorShaftAccel);
+  doc["defaultUnit"] = String(getUnitWordStringFromUnit(writeConfig.defaultUnit));
+
+  doc["screenType"] = String(writeConfig.screenType);
+  doc["mechanism"] = String(writeConfig.mechanismType);
+  
+  // Add mechanismParameters
+  JsonObject params = doc.createNestedObject("mechanismParameters");
+
+  params["unit"] = getUnitWordStringFromUnit(writeConfig.mechanismParams.unit1); // pulley diameter, screw pitch, gear pitch diameter
+
+  params["maxTravel"] = String(writeConfig.mechanismParams.maxTravel);
+  params["maxTravelUnit"] = getUnitWordStringFromUnit(writeConfig.mechanismParams.maxTravelUnit);
+  
+  if (writeConfig.mechanismType == "belt") {
+    params["pulleyDiameter"] = String(writeConfig.mechanismParams.pulleyDiameter);
+    params["gearboxReduction"] = String(writeConfig.mechanismParams.gearboxReduction);
+  } else if (writeConfig.mechanismType == "lead_screw") {
+    params["pitch"] = String(writeConfig.mechanismParams.screwPitch);
+    params["gearboxReduction"] = String(writeConfig.mechanismParams.gearboxReduction);
+  } else if (writeConfig.mechanismType == "rack_pinion") {
+    params["pinionDiameter"] = String(writeConfig.mechanismParams.pinionDiameter);
+    params["gearboxReduction"] = String(writeConfig.mechanismParams.gearboxReduction);
+  }
+
+  myFile.seek(0);
+
+  // Write the JSON to the file
+  if (serializeJson(doc, myFile) == 0) {
+    Serial.println("Failed to write JSON to file");
+  } else {
+    Serial.println("Config successfully written to SD");
+  }
+
+  myFile.close();
 }
 
 SystemConfig readSettings() {
@@ -66,9 +120,10 @@ SystemConfig readSettings() {
   config.motorShaftAccel = String(doc["motorShaftAcceleration"] | "10000").toInt();
 
   if (!params.isNull()) {
-    config.mechanismParams.unit1 = getUnitFromString(String(params["unit"] | "Undefined")); // Pulley/pitch/diameter unit
+    config.mechanismParams.unit1 = getUnitFromString(String(params["unit"] | "Undefined"));  // Pulley/pitch/diameter unit
 
     config.mechanismParams.maxTravel = String(params["maxTravel"] | "0.0").toFloat();
+    config.mechanismParams.maxTravelUnit = getUnitFromString(params["maxTravelUnit"] | "Undefined");
 
 
     if (config.mechanismType == "belt") {

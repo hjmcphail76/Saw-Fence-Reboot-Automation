@@ -36,6 +36,17 @@ String getUnitString(UnitType unit) {
   }
 }
 
+String getUnitWordStringFromUnit(UnitType unit){
+  switch (unit) {
+    case UNIT_INCHES:
+      return "inches";
+    case UNIT_MILLIMETERS:
+      return "millimeters";
+    default:
+      return "";
+  }
+}
+
 UnitType getUnitFromString(String str) {
   if (str == "inches") {
     return UNIT_INCHES;

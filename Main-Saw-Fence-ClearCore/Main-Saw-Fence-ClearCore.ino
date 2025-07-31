@@ -29,6 +29,7 @@ int displayMsTime = 1250;
 UnitType currentUnit;
 int serialMoniterBaudRate;
 int screenBaudRate;
+SystemConfig config;
 
 enum InputMode {
   INPUT_MEASUREMENT,
@@ -49,7 +50,7 @@ void setup() {
 
   initSDCard();
 
-  SystemConfig config = readSettings();
+  config = readSettings();
 
   serialMoniterBaudRate = config.serialMonitorBaud;
   screenBaudRate = config.screenBaud;
@@ -121,7 +122,6 @@ void ButtonHandler(SCREEN_OBJECT obj) {
         // Serial.println("Position in inches: "+ String(position)); debugging
         if (position < convertUnits(maxTravelMeasurement, maxTravelUnit, UNIT_INCHES)){
           motorPtr->MoveAbsolutePosition(static_cast<int32_t>(position * currentMechanismPtr->CalculateStepsPerUnit()));
-          
         }
         else{
           screenPtr->SetScreen(OUTSIDE_RANGE_ERROR_SCREEN);
@@ -169,11 +169,20 @@ void ButtonHandler(SCREEN_OBJECT obj) {
       currentUnit = UNIT_MILLIMETERS;
       currentMainMeasurement = 0.0f;
       screenPtr->SetStringLabel(MAIN_MEASUREMENT_LABEL, String(currentMainMeasurement) + getUnitString(currentUnit));
+      if (config.defaultUnit != currentUnit){
+        config.defaultUnit = currentUnit;
+        
+        writeSettings(config);
+      }
       break;
     case INCHES_UNIT_BUTTON:
       currentUnit = UNIT_INCHES;
       currentMainMeasurement = 0.0f;
       screenPtr->SetStringLabel(MAIN_MEASUREMENT_LABEL, String(currentMainMeasurement) + getUnitString(currentUnit));
+      if (config.defaultUnit != currentUnit){
+        config.defaultUnit = currentUnit;
+        writeSettings(config);
+      }
       break;
     case KEYBOARD_VALUE_ENTER:
       switch (currentInputMode) {

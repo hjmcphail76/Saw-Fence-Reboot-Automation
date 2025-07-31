@@ -16,3 +16,4 @@ float convertFromInches(float valueInInches, UnitType targetUnit);
 float convertUnits(float value, UnitType from, UnitType to);
 String getUnitString(UnitType unit);
 UnitType getUnitFromString(String str);
+String getUnitWordStringFromUnit(UnitType unit);
