@@ -62,6 +62,7 @@ void setup() {
 
   //per mechanism type config loading
   if (config.mechanismType == "belt") {
+
     // I hate to name it this, but unit1 repersents the unit of either pulley diameter, screw pitch, or gear pitch diameter
 
     currentMechanismPtr = new BeltMechanism(config.motorPulsesPerRevolution,
@@ -92,7 +93,7 @@ void setup() {
   screenPtr = new ScreenGiga(screenBaudRate);
   motorPtr = new SDMotor(currentMechanismPtr);
 
-  screenPtr->InitAndConnect();
+  screenPtr->InitAndConnect(currentUnit);
   motorPtr->InitAndConnect();
 
   screenPtr->RegisterEventCallback(ButtonHandler);
@@ -102,7 +103,8 @@ void setup() {
 
   screenPtr->SetScreen(MAIN_CONTROL_SCREEN);
 
-  SetMeasurementUIDisplay();
+  //SetMeasurementUIDisplay();
+  screenPtr->SetStringLabel(MAIN_MEASUREMENT_LABEL, "0.00" + getUnitString(currentUnit));
 }
 
 void loop() {
@@ -121,6 +123,7 @@ void ButtonHandler(SCREEN_OBJECT obj) {
         float position = convertUnits(currentMainMeasurement, currentUnit, UNIT_INCHES);
         // Serial.println("Position in inches: "+ String(position)); debugging
         if (position < convertUnits(maxTravelMeasurement, maxTravelUnit, UNIT_INCHES)){
+          Serial.println("Max travel: " + String(maxTravelMeasurement) + " " + getUnitString(currentUnit) + getUnitString(config.mechanismParams.maxTravelUnit));
           motorPtr->MoveAbsolutePosition(static_cast<int32_t>(position * currentMechanismPtr->CalculateStepsPerUnit()));
         }
         else{
@@ -169,20 +172,16 @@ void ButtonHandler(SCREEN_OBJECT obj) {
       currentUnit = UNIT_MILLIMETERS;
       currentMainMeasurement = 0.0f;
       screenPtr->SetStringLabel(MAIN_MEASUREMENT_LABEL, String(currentMainMeasurement) + getUnitString(currentUnit));
-      if (config.defaultUnit != currentUnit){
-        config.defaultUnit = currentUnit;
-        
-        writeSettings(config);
-      }
+      config.defaultUnit = currentUnit;
+      writeSettings(config);
       break;
     case INCHES_UNIT_BUTTON:
       currentUnit = UNIT_INCHES;
       currentMainMeasurement = 0.0f;
       screenPtr->SetStringLabel(MAIN_MEASUREMENT_LABEL, String(currentMainMeasurement) + getUnitString(currentUnit));
-      if (config.defaultUnit != currentUnit){
-        config.defaultUnit = currentUnit;
-        writeSettings(config);
-      }
+      config.defaultUnit = currentUnit;
+      writeSettings(config);
+      
       break;
     case KEYBOARD_VALUE_ENTER:
       switch (currentInputMode) {
@@ -192,7 +191,10 @@ void ButtonHandler(SCREEN_OBJECT obj) {
         case INPUT_MAX_TRAVEL_BUTTON:
           float newVal = screenPtr->GetParameterEnteredAsFloat();
           if (newVal != 0.0f) {
-            // handle newVal if needed
+            maxTravelMeasurement = newVal;
+            config.mechanismParams.maxTravel = maxTravelMeasurement;
+            config.mechanismParams.maxTravelUnit = currentUnit;
+            writeSettings(config);
           }
           screenPtr->SetScreen(SETTINGS_SCREEN);
           break;
@@ -205,6 +207,7 @@ void SetMeasurementUIDisplay() {
   screenPtr->SetScreen(MAIN_CONTROL_SCREEN);
 
   String paramValue = screenPtr->GetParameterInputValue();
+  Serial.println("getting value to set: " + paramValue);
 
   String combinedString = paramValue + getUnitString(currentUnit);
 

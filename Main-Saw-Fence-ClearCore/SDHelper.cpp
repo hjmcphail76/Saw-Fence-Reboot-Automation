@@ -48,18 +48,17 @@ void writeSettings(SystemConfig writeConfig) {
   doc["motorShaftVelocity"] = String(writeConfig.motorShaftVel);
   doc["motorShaftAcceleration"] = String(writeConfig.motorShaftAccel);
   doc["defaultUnit"] = String(getUnitWordStringFromUnit(writeConfig.defaultUnit));
-
   doc["screenType"] = String(writeConfig.screenType);
   doc["mechanism"] = String(writeConfig.mechanismType);
-  
+
   // Add mechanismParameters
   JsonObject params = doc.createNestedObject("mechanismParameters");
 
-  params["unit"] = getUnitWordStringFromUnit(writeConfig.mechanismParams.unit1); // pulley diameter, screw pitch, gear pitch diameter
+  params["unit"] = getUnitWordStringFromUnit(writeConfig.mechanismParams.unit1);  // pulley diameter, screw pitch, gear pitch diameter
 
   params["maxTravel"] = String(writeConfig.mechanismParams.maxTravel);
   params["maxTravelUnit"] = getUnitWordStringFromUnit(writeConfig.mechanismParams.maxTravelUnit);
-  
+
   if (writeConfig.mechanismType == "belt") {
     params["pulleyDiameter"] = String(writeConfig.mechanismParams.pulleyDiameter);
     params["gearboxReduction"] = String(writeConfig.mechanismParams.gearboxReduction);

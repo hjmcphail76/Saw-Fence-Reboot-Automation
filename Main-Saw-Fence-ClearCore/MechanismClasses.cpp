@@ -58,7 +58,7 @@ float LeadscrewMechanism::CalculateStepsPerUnit() const {
   float pitchInInches = convertToInches(leadscrewPitch, leadscrewPitchUnit);
   // Steps per unit = (Motor Steps per Revolution / Leadscrew Pitch) * Gearbox Reduction
   if (pitchInInches > 0) {
-    Serial.println("steps per inch: " + String((static_cast<float>(motorProgInputRes) / pitchInInches) * gearboxReduction));
+    //Serial.println("steps per inch: " + String((static_cast<float>(motorProgInputRes) / pitchInInches) * gearboxReduction));
     return (static_cast<float>(motorProgInputRes) / pitchInInches) * gearboxReduction;
   } else {
     Serial.println("Error: Leadscrew pitch cannot be zero for leadscrew mechanism.");

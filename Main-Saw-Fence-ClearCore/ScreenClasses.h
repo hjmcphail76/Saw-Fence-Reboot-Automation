@@ -2,6 +2,7 @@
 #include <ClearCore.h>
 #include <genieArduinoDEV.h>
 #include "ScreenClasses.h"
+#include "Utils.h"
 
 //Way for the main ino code to at a high level tell whatever implementation a screen object and vise versa to get values.
 //ONLY objects that need to be set/get accessed, not static labels for example.
@@ -46,7 +47,7 @@ public:
   virtual String GetParameterInputValue();     // Gets current input and clears buffer
   virtual float GetParameterEnteredAsFloat();  // Converts buffer to float
 
-  virtual void InitAndConnect();
+  virtual void InitAndConnect(UnitType defaultBootUnit);
 
   bool GetIsConnected(){
     return isConnected;
@@ -81,7 +82,7 @@ public:
   String GetParameterInputValue() override;     // Gets current input and clears buffer
   float GetParameterEnteredAsFloat() override;  // Converts buffer to float
 
-  void InitAndConnect() override;
+  void InitAndConnect(UnitType defaultBootUnit) override;
 };
 
 
@@ -103,5 +104,5 @@ public:
 
   void RegisterEventCallback(ScreenEventCallback callback) override;
 
-  void InitAndConnect() override;
+  void InitAndConnect(UnitType defaultBootUnit) override;
 };

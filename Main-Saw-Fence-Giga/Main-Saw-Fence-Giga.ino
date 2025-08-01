@@ -84,7 +84,6 @@ static void TextAreaEventHandler(lv_event_t* e) {
 
     lastText = currentText;
   }
-
 }
 
 /* --- Numeric keyboard setup (unchanged) --- */
@@ -213,9 +212,15 @@ void loop() {
           Serial.println(lv_label_get_text(ui_CURRENT_MEASUREMENT_LABEL));
         }
       }
-    } else if (msg.startsWith("SETUNITSWITCH:")) {
+    } else if (msg.startsWith("SETSWITCHTOSTATE:")) {  // it takes in and uses the button index (for example, 11 is inches enabled and 12 is inches but it corresponds to on/off switch)
       int a = msg.indexOf(':');
-      // TODO: handle switch change
+      int index = msg.substring(a + 1, msg.length()).toInt();
+      if (index == 12) {
+        lv_obj_add_state(ui_UNIT_SWITCH, LV_STATE_CHECKED);  //on, millimeters
+      }
+      else if (index == 11){
+        lv_obj_clear_state(ui_UNIT_SWITCH, LV_STATE_CHECKED);
+      }
     }
   }
 

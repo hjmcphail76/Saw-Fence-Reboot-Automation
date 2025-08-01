@@ -1,13 +1,14 @@
 #include <ClearCore.h>
 #include <genieArduinoDEV.h>
 #include "ScreenClasses.h"
+#include "Utils.h"
 
 Screen4D::Screen4D(float baud)
   : baudRate(baud) {
   //We don't do any setup here since the constructor is not called in setup(). Use InitAndConnect before any other screen method calls
 }
 
-void Screen4D::InitAndConnect() {
+void Screen4D::InitAndConnect(UnitType defaultBootUnit) {
   enterPressed = false;
 
   Serial1.begin(baudRate);
@@ -187,10 +188,10 @@ String Screen4D::GetParameterInputValue() {
 //constructer
 ScreenGiga::ScreenGiga(float baud)
   : baudRate(baud) {
-  //We dont do any setup here since the constructor is not called in setup(). Use InitAndConnect before any other screen method calls.
+  //We don not do any setup here since the constructor is not called in setup(). call InitAndConnect before any other screen method calls.
 }
 
-void ScreenGiga::InitAndConnect() {
+void ScreenGiga::InitAndConnect(UnitType defaultBootUnit) {
   memset(keyvalue, 0, sizeof(keyvalue));
   counter = 0;
   enterPressed = false;
@@ -220,7 +221,7 @@ void ScreenGiga::InitAndConnect() {
         // end of line
         inputBuffer.trim();  // remove spaces
 
-        
+
         //debugging, show full recieved line buffer
         // Serial.print("RX line: ");
         // Serial.println(inputBuffer);
@@ -238,10 +239,17 @@ void ScreenGiga::InitAndConnect() {
     }
 
     if (handshakeDone) break;
-
-    
-    
     delay(100);
+
+    if (defaultBootUnit == UNIT_MILLIMETERS) {
+      Serial1.println("SETSWITCHTOSTATE:12");
+      Serial.println("Switching to millimeters");
+    }
+    else if (defaultBootUnit == UNIT_INCHES) {
+      Serial1.println("SETSWITCHTOSTATE:11");
+      Serial.println("Switching to inches");
+    }
+
   }
 
   if (!handshakeDone) {
@@ -255,11 +263,9 @@ void ScreenGiga::InitAndConnect() {
 
 String ScreenGiga::GetParameterInputValue() {
   String result = String(keyvalue);
-  // Serial.print("parameter input:");
-  // Serial.println(result);
   memset(keyvalue, 0, sizeof(keyvalue));
   counter = 0;
-  enterPressed = false;  //Reset for the next time.f
+  enterPressed = false;  //Reset for the next time.
   return result;
 }
 
@@ -364,10 +370,6 @@ void ScreenGiga::ScreenPeriodic() {
     }
   }
 }
-
-
-
-
 
 void ScreenGiga::RegisterEventCallback(ScreenEventCallback callback) {
   eventCallback = callback;
