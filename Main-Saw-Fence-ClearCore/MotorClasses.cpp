@@ -3,26 +3,6 @@
 #include "MechanismClasses.h"
 #include "ScreenClasses.h"
 
-// ====================
-// --- Base Motor ---
-// ====================
-
-bool Motor::MoveAbsolutePosition(int32_t position) {
-  return false;  // default fallback
-}
-
-void Motor::StartSensorlessHoming() {
-  homingState = HOMING_INIT;
-}
-
-void Motor::InitAndConnect() {
-  // Default: do nothing
-}
-
-// ====================
-// --- SDMotor ---
-// ====================
-
 SDMotor::SDMotor(Mechanism *mech)
   : maxAccel(mech->GetMaxAccel()),
     maxVel(mech->GetMaxVel()),
