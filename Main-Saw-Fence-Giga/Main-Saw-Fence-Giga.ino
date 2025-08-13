@@ -18,7 +18,7 @@ static void ButtonEventHandler(lv_event_t* e) {
     Serial.println("btn pressed");
 
     if (btn == ui_MEASURE_BUTTON) Serial2.println("BUTTON:2");
-    else if (btn == ui_EDIT_TARGET_BUTTON) Serial2.println("BUTTON:3");
+    else if ((btn == ui_EDIT_TARGET_BUTTON) || (btn == ui_TEXT_PRESS_EDIT_TARGET)) Serial2.println("BUTTON:3");
     else if (btn == ui_HOME_AXIS_BUTTON) Serial2.println("BUTTON:4");
     else if (btn == ui_RESET_SERVO_BUTTON) Serial2.println("BUTTON:5");
     else if (btn == ui_SETTINGS_BUTTON) Serial2.println("BUTTON:6");
@@ -59,7 +59,6 @@ static void TextAreaEventHandler(lv_event_t* e) {
           return;
         }
       }
-
       Serial2.print("KEY:");
       Serial2.println(txt);
     }
@@ -86,7 +85,7 @@ static void TextAreaEventHandler(lv_event_t* e) {
   }
 }
 
-/* --- Numeric keyboard setup (unchanged) --- */
+/* --- Numeric keyboard setup --- */
 void setupNumericKeyboard(lv_obj_t* keyboard, lv_obj_t* ta = nullptr) {
   if (!keyboard) {
     Serial.println("Error: Keyboard is NULL");
@@ -111,7 +110,24 @@ void setupNumericKeyboard(lv_obj_t* keyboard, lv_obj_t* ta = nullptr) {
   };
 
   lv_keyboard_set_map(keyboard, LV_KEYBOARD_MODE_USER_4, kb_map, kb_ctrl);
+
+  // --- Style for big numbers ---
+  static lv_style_t kb_style;
+  lv_style_init(&kb_style);
+
+  // Use a large built-in font (or your custom one)
+  lv_style_set_text_font(&kb_style, &lv_font_montserrat_48);
+
+  // Center the text in the keys
+  lv_style_set_text_align(&kb_style, LV_TEXT_ALIGN_CENTER);
+
+  lv_style_set_pad_all(&kb_style, 10);
+
+  lv_obj_add_style(keyboard, &kb_style, LV_PART_ITEMS);
+
+  lv_obj_set_size(keyboard, 700, 450);
 }
+
 
 void setup() {
   Display.begin();
@@ -150,7 +166,9 @@ void setup() {
   lv_obj_add_event_cb((lv_obj_t*)ui_SETTINGS_BUTTON, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
   lv_obj_add_event_cb((lv_obj_t*)ui_EDIT_MAX_TRAVEL_BUTTON, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
   lv_obj_add_event_cb((lv_obj_t*)ui_EXIT_SETTINGS_BUTTON, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
+  lv_obj_add_event_cb((lv_obj_t*)ui_TEXT_PRESS_EDIT_TARGET, ButtonEventHandler, LV_EVENT_CLICKED, nullptr);
   lv_obj_add_event_cb((lv_obj_t*)ui_UNIT_SWITCH, ButtonEventHandler, LV_EVENT_VALUE_CHANGED, nullptr);
+
 
   // Textarea event bindings
   lv_obj_add_event_cb(ui_PARAMETER_INPUT_TEXT_AREA, TextAreaEventHandler, LV_EVENT_INSERT, nullptr);
@@ -217,8 +235,7 @@ void loop() {
       int index = msg.substring(a + 1, msg.length()).toInt();
       if (index == 12) {
         lv_obj_add_state(ui_UNIT_SWITCH, LV_STATE_CHECKED);  //on, millimeters
-      }
-      else if (index == 11){
+      } else if (index == 11) {
         lv_obj_clear_state(ui_UNIT_SWITCH, LV_STATE_CHECKED);
       }
     }

@@ -149,6 +149,8 @@ void ButtonHandler(SCREEN_OBJECT obj) {
       screenPtr->SetScreen(HOMING_ALERT_SCREEN);
       delay(displayMsTime);
       screenPtr->SetScreen(MAIN_CONTROL_SCREEN);
+      currentMainMeasurement = 0.0f;
+      screenPtr->SetStringLabel(MAIN_MEASUREMENT_LABEL, String(currentMainMeasurement) + getUnitString(currentUnit));
       break;
     case RESET_SERVO_BUTTON:
       Serial.println("Reset Servo pressed");
@@ -181,7 +183,6 @@ void ButtonHandler(SCREEN_OBJECT obj) {
       screenPtr->SetStringLabel(MAIN_MEASUREMENT_LABEL, String(currentMainMeasurement) + getUnitString(currentUnit));
       config.defaultUnit = currentUnit;
       writeSettings(config);
-      
       break;
     case KEYBOARD_VALUE_ENTER:
       switch (currentInputMode) {
