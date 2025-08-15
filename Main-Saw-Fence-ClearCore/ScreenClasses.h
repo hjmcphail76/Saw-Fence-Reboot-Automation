@@ -17,7 +17,7 @@ enum SCREEN_OBJECT {
   SETTINGS_BUTTON, //6
   EDIT_MAX_TRAVEL_BUTTON, //7
   LIVE_PARAMETER_INPUT_LABEL, //8
-  KEYBOARD_VALUE_ENTER, //9 //flag to detect when the user has entered a value and to store the buffer that has been saved until the value is safely retrieved ONCE!
+  KEYBOARD_VALUE_ENTER, //9 //flag to detect when the user has entered a value and to store the buffer that has been saved until the value is safely retrieved
   EXIT_SETTINGS_BUTTON, //10
   INCHES_UNIT_BUTTON, //11 We treat 11 and 12 as seperate objects so it is easy to implement in the high level code that a event was fired from this (regardless that it is a toggle switch)
   MILLIMETERS_UNIT_BUTTON //12
@@ -58,33 +58,9 @@ public:
   }
 protected:
   ScreenEventCallback eventCallback = nullptr;
-    char keyvalue[10] = { 0 };
-  int counter = 0;
   bool enterPressed = false;
   bool isConnected = false;
 };
-
-
-
-class Screen4D : public Screen {
-private:
-  Genie genie;
-  float baudRate;
-public:
-  Screen4D(float baud);
-  void SetStringLabel(SCREEN_OBJECT label, String str) override;
-  void SetScreen(SCREEN screen) override;
-  void ScreenPeriodic() override;
-
-  void RegisterEventCallback(ScreenEventCallback callback) override;
-
-  // Input handling interface
-  String GetParameterInputValue() override;     // Gets current input and clears buffer
-  float GetParameterEnteredAsFloat() override;  // Converts buffer to float
-
-  void InitAndConnect(UnitType defaultBootUnit) override;
-};
-
 
 
 class ScreenGiga : public Screen {
@@ -105,4 +81,6 @@ public:
   void RegisterEventCallback(ScreenEventCallback callback) override;
 
   void InitAndConnect(UnitType defaultBootUnit) override;
+
+  String lastEntered = "0.00";
 };

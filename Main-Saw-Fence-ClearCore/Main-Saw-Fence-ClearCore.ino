@@ -206,9 +206,11 @@ void ButtonHandler(SCREEN_OBJECT obj) {
 
 void SetMeasurementUIDisplay() {
   screenPtr->SetScreen(MAIN_CONTROL_SCREEN);
-
   String paramValue = screenPtr->GetParameterInputValue();
-  Serial.println("getting value to set: " + paramValue);
+
+  if (paramValue.length() < 1){
+    paramValue = "0.00";
+  }
 
   String combinedString = paramValue + getUnitString(currentUnit);
 

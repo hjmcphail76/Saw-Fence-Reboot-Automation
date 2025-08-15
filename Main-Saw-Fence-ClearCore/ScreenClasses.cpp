@@ -2,187 +2,6 @@
 #include <genieArduinoDEV.h>
 #include "ScreenClasses.h"
 #include "Utils.h"
-
-Screen4D::Screen4D(float baud)
-  : baudRate(baud) {
-  //We don't do any setup here since the constructor is not called in setup(). Use InitAndConnect before any other screen method calls
-}
-
-void Screen4D::InitAndConnect(UnitType defaultBootUnit) {
-  enterPressed = false;
-
-  Serial1.begin(baudRate);
-
-  // Loop until Genie display is online or times out
-  unsigned long startTime = millis();
-  bool genieReady = false;
-
-  while (!genie.Begin(Serial1)) {
-    Serial.println("waiting for Genie...");
-    delay(250);
-
-    if (millis() - startTime > 5000) {  // Timeout after 5 seconds
-      Serial.println("Genie init timeout.");
-      break;
-    }
-  }
-
-  if (genie.IsOnline()) {
-    Serial.println("Genie initialization successful. Display is online!");
-    genie.SetForm(1);
-    Serial.println(genie.GetForm());
-  } else {
-    Serial.println("Genie initialization failed.");
-  }
-}
-
-void Screen4D::SetStringLabel(SCREEN_OBJECT label, String str) {
-  // Translate SCREEN_OBJECT to Genie object index
-  switch (label) {
-    case MAIN_MEASUREMENT_LABEL:
-      genie.WriteInhLabel(0, str);
-      break;
-    case LIVE_PARAMETER_INPUT_LABEL:
-      genie.WriteInhLabel(8, str);
-      break;
-  }
-}
-
-void Screen4D::SetScreen(SCREEN screen) {
-  switch (screen) {
-    case SPLASH_SCREEN:
-      genie.SetForm(0);
-      break;
-    case MAIN_CONTROL_SCREEN:
-      genie.SetForm(1);
-      break;
-    case PARAMETER_EDIT_SCREEN:
-      genie.SetForm(2);
-      break;
-    case SETTINGS_SCREEN:
-      genie.SetForm(3);
-      break;
-    case OUTSIDE_RANGE_ERROR_SCREEN:
-      genie.SetForm(4);
-      break;
-    case HOMING_ALERT_SCREEN:
-      genie.SetForm(5);
-      break;
-    case PLEASE_HOME_ERROR_SCREEN:
-      genie.SetForm(6);
-      break;
-  }
-}
-
-void Screen4D::ScreenPeriodic() {
-  genie.DoEvents();
-
-  genieFrame Event;
-  genie.DequeueEvent(&Event);
-
-  if (Event.reportObject.object == 0) {
-    return;  //since we call the dequeue event (this whole method) periodicly, we get a false object (0) that usualy would not appear since it is meant to be hooked up to an event handler.
-    //Return and skip rest of processing if this is the case
-  }
-
-  Serial.print("Object: ");
-  Serial.println(Event.reportObject.object);
-  Serial.print("Index: ");
-  Serial.println(Event.reportObject.index);
-
-  if (Event.reportObject.object == GENIE_OBJ_KEYBOARD) {  //handle key presses
-    int temp = genie.GetEventData(&Event);
-
-    if (temp >= '0' && temp <= '9' && counter < 9) {
-      keyvalue[counter++] = temp;
-      keyvalue[counter] = '\0';
-    } else if (temp == 110 && counter < 9) {  // '.' key
-      bool hasDecimal = false;
-      for (int i = 0; i < counter; i++) {
-        if (keyvalue[i] == '.') {
-          hasDecimal = true;
-          break;
-        }
-      }
-      if (!hasDecimal) {
-        keyvalue[counter++] = '.';
-        keyvalue[counter] = '\0';
-      }
-    } else if (temp == 8 && counter > 0) {  // Backspace
-      keyvalue[--counter] = '\0';
-    } else if (temp == 13) {  // Enter key
-      enterPressed = true;
-      eventCallback(KEYBOARD_VALUE_ENTER);
-    }
-    genie.WriteInhLabel(1, String(keyvalue));
-
-  } else {
-    SCREEN_OBJECT btn = NONE;
-    if (Event.reportObject.object == GENIE_OBJ_WINBUTTON) {  //handle button presses
-      Serial.println("hmm");
-      SCREEN_OBJECT btn;
-      switch (Event.reportObject.index) {  //example, WinButton6 in workshop4
-        case 0: btn = MEASURE_BUTTON; break;
-        case 1: btn = EDIT_TARGET_BUTTON; break;
-        case 2: btn = HOME_BUTTON; break;
-        case 3: btn = RESET_SERVO_BUTTON; break;
-        case 4: btn = SETTINGS_BUTTON; break;
-        case 5: btn = EDIT_MAX_TRAVEL_BUTTON; break;
-        case 6: btn = EXIT_SETTINGS_BUTTON; break;
-        default: btn = NONE; break;  // skip undefined button
-      }
-      eventCallback(btn);
-    }
-    if (Event.reportObject.object == GENIE_OBJ_ISWITCHB) {
-      Serial.println("Switch pressed!");
-      switch (Event.reportObject.index) {
-        case 0:
-          btn = MEASURE_BUTTON;
-          if (genie.GetEventData(&Event)) {  //on
-            btn = MILLIMETERS_UNIT_BUTTON;
-          } else {
-            btn = INCHES_UNIT_BUTTON;
-          }
-          break;
-        default:
-          btn = NONE;
-          break;
-      }
-      eventCallback(btn);
-    }
-  }
-}
-
-void Screen4D::RegisterEventCallback(ScreenEventCallback callback) {
-  this->eventCallback = callback;
-}
-
-/*Returns 0 if an error occurs with the operation.*/
-float Screen4D::GetParameterEnteredAsFloat() {
-  String rawString = GetParameterInputValue();
-  float val = rawString.toFloat();
-
-  // Basic check for invalid conversion
-  if (val == 0.0 && !rawString.startsWith("0")) {
-    Serial.println("Error converting input to float: ");
-    Serial.println(rawString);
-    return 0.0;
-  } else {
-    return val;
-  }
-}
-
-String Screen4D::GetParameterInputValue() {
-  String stringKeyValue = String(keyvalue);
-  for (int f = 0; f < 10; f++) {
-    keyvalue[f] = 0;
-  }
-  counter = 0;
-  enterPressed = false;  //Resets for next time
-  return stringKeyValue;
-}
-
-
 // GIGA screen class:
 
 //constructer
@@ -192,8 +11,6 @@ ScreenGiga::ScreenGiga(float baud)
 }
 
 void ScreenGiga::InitAndConnect(UnitType defaultBootUnit) {
-  memset(keyvalue, 0, sizeof(keyvalue));
-  counter = 0;
   enterPressed = false;
 
   Serial1.begin(baudRate);  // Serial 1 is the giga thin client interface that we send commands over
@@ -240,16 +57,14 @@ void ScreenGiga::InitAndConnect(UnitType defaultBootUnit) {
 
     if (handshakeDone) break;
     delay(100);
+  }
 
-    if (defaultBootUnit == UNIT_MILLIMETERS) {
-      Serial1.println("SETSWITCHTOSTATE:12");
-      Serial.println("Switching to millimeters");
-    }
-    else if (defaultBootUnit == UNIT_INCHES) {
-      Serial1.println("SETSWITCHTOSTATE:11");
-      Serial.println("Switching to inches");
-    }
-
+  if (defaultBootUnit == UNIT_MILLIMETERS) {
+    Serial1.println("SETSWITCHTOSTATE:12");
+    Serial.println("Switching to millimeters");
+  } else if (defaultBootUnit == UNIT_INCHES) {
+    Serial1.println("SETSWITCHTOSTATE:11");
+    Serial.println("Switching to inches");
   }
 
   if (!handshakeDone) {
@@ -262,11 +77,7 @@ void ScreenGiga::InitAndConnect(UnitType defaultBootUnit) {
 
 
 String ScreenGiga::GetParameterInputValue() {
-  String result = String(keyvalue);
-  memset(keyvalue, 0, sizeof(keyvalue));
-  counter = 0;
-  enterPressed = false;  //Reset for the next time.
-  return result;
+  return lastEntered;
 }
 
 float ScreenGiga::GetParameterEnteredAsFloat() {
@@ -303,31 +114,7 @@ void ScreenGiga::ScreenPeriodic() {
 
       if (inputBuffer.length() > 0) {
         // ----- Process message -----
-        if (inputBuffer.startsWith("KEY:")) {
-          String cKey = inputBuffer.substring(4);
-          cKey.trim();
-
-          Serial.print("Message: ");
-          Serial.println(cKey);
-
-          if (isdigit(cKey.charAt(0)) && counter < 9) {
-            keyvalue[counter++] = cKey.charAt(0);
-            keyvalue[counter] = '\0';
-          } else if (cKey == "." && counter < 9 && strchr(keyvalue, '.') == nullptr) {
-            keyvalue[counter++] = '.';
-            keyvalue[counter] = '\0';
-          } else if (cKey == "BACKSPACE") {
-            keyvalue[--counter] = '\0';
-          } else if (cKey == "ENTER") {
-            if (eventCallback) eventCallback(KEYBOARD_VALUE_ENTER);
-            keyvalue[0] = '\0';
-            counter = 0;
-          } else if (cKey == "CONNECTED") {
-            isConnected = true;
-          }
-          Serial.print("Current text string:");
-          Serial.println(String(keyvalue));
-        } else if (inputBuffer.startsWith("BUTTON:")) {
+        if (inputBuffer.startsWith("BUTTON:")) {
           String btnStr = inputBuffer.substring(7);
           btnStr.trim();
 
@@ -360,6 +147,12 @@ void ScreenGiga::ScreenPeriodic() {
               eventCallback(btnEvent);
             }
           }
+        } else if (inputBuffer.startsWith("ENTER:")) {
+          inputBuffer = inputBuffer.substring(6);
+          lastEntered = inputBuffer;
+          if (eventCallback) {
+            eventCallback(KEYBOARD_VALUE_ENTER);
+          }
         }
       }
 
@@ -370,6 +163,8 @@ void ScreenGiga::ScreenPeriodic() {
     }
   }
 }
+
+
 
 void ScreenGiga::RegisterEventCallback(ScreenEventCallback callback) {
   eventCallback = callback;

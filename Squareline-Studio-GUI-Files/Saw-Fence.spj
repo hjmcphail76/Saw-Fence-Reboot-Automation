@@ -2248,8 +2248,8 @@
                 "flags": 17,
                 "strtype": "OBJECT/Position",
                 "intarray": [
-                  -176,
-                  -145
+                  -149,
+                  -146
                 ],
                 "InheritedType": 7
               },
@@ -2414,8 +2414,8 @@
                 "flags": 17,
                 "strtype": "OBJECT/Position",
                 "intarray": [
-                  -143,
-                  -155
+                  -116,
+                  -149
                 ],
                 "InheritedType": 7
               },
@@ -4858,9 +4858,9 @@
                             "nid": 10410,
                             "strtype": "_style/Text_Color",
                             "intarray": [
-                              0,
-                              0,
-                              0,
+                              128,
+                              128,
+                              128,
                               255
                             ],
                             "InheritedType": 7
@@ -4914,76 +4914,31 @@
                   },
                   {
                     "part": "lv.PART_TEXTAREA.PLACEHOLDER",
-                    "childs": [],
+                    "childs": [
+                      {
+                        "nid": 10000,
+                        "strtype": "_style/StyleState",
+                        "strval": "DEFAULT",
+                        "childs": [
+                          {
+                            "nid": 10410,
+                            "strtype": "_style/Text_Color",
+                            "intarray": [
+                              255,
+                              255,
+                              255,
+                              0
+                            ],
+                            "InheritedType": 7
+                          }
+                        ],
+                        "InheritedType": 1
+                      }
+                    ],
                     "nid": 1110,
                     "strtype": "TEXTAREA/Style_placeholder",
                     "strval": "lv.PART_TEXTAREA.PLACEHOLDER, Text",
                     "InheritedType": 11
-                  },
-                  {
-                    "disabled": false,
-                    "nid": 1000321,
-                    "strtype": "_event/EventHandler",
-                    "strval": "READY",
-                    "childs": [
-                      {
-                        "nid": 1000322,
-                        "strtype": "_event/name",
-                        "strval": "Event4",
-                        "InheritedType": 10
-                      },
-                      {
-                        "nid": 1000323,
-                        "strtype": "_event/condition_C",
-                        "strval": "",
-                        "InheritedType": 10
-                      },
-                      {
-                        "nid": 1000324,
-                        "strtype": "_event/condition_P",
-                        "strval": "",
-                        "InheritedType": 10
-                      },
-                      {
-                        "nid": 1000339,
-                        "strtype": "_event/action",
-                        "strval": "KEYBOARD SET TARGET",
-                        "childs": [
-                          {
-                            "nid": 1000340,
-                            "strtype": "KEYBOARD SET TARGET/Name",
-                            "strval": "KEYBOARD SET TARGET",
-                            "InheritedType": 10
-                          },
-                          {
-                            "nid": 1000341,
-                            "strtype": "KEYBOARD SET TARGET/Call",
-                            "strval": "KeyboardSetTarget( <{Keyboard}>,  <{TextArea}>)",
-                            "InheritedType": 10
-                          },
-                          {
-                            "nid": 1000342,
-                            "strtype": "KEYBOARD SET TARGET/CallC",
-                            "strval": "_ui_keyboard_set_target(<{Keyboard}>,  <{TextArea}>);",
-                            "InheritedType": 10
-                          },
-                          {
-                            "nid": 1000343,
-                            "strtype": "KEYBOARD SET TARGET/Keyboard",
-                            "strval": "-",
-                            "InheritedType": 9
-                          },
-                          {
-                            "nid": 1000344,
-                            "strtype": "KEYBOARD SET TARGET/TextArea",
-                            "strval": "-",
-                            "InheritedType": 9
-                          }
-                        ],
-                        "InheritedType": 10
-                      }
-                    ],
-                    "InheritedType": 4
                   }
                 ],
                 "saved_objtypeKey": "TEXTAREA"
@@ -6879,7 +6834,7 @@
     "uiExportFolderPath": "C:\\Users\\Admin\\OneDrive\\Documents\\Arduino\\libraries\\ui\\src",
     "projectExportFolderPath": "C:\\Users\\Admin\\OneDrive\\Documents\\Arduino\\Saw-Fence-Reboot-Automation\\Squareline-Studio-GUI-Files",
     "custom_variable_prefix": "ui",
-    "backup_cnt": 61,
+    "backup_cnt": 63,
     "autosave_cnt": 0,
     "group_color_cnt": 0,
     "lvgl_version": "8.3.11",
