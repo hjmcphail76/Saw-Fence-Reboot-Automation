@@ -66,11 +66,11 @@ void setup() {
     // I hate to name it this, but unit1 repersents the unit of either pulley diameter, screw pitch, or gear pitch diameter
 
     currentMechanismPtr = new BeltMechanism(config.motorPulsesPerRevolution,
-      config.motorShaftAccel,
-      config.motorShaftVel,
-      config.mechanismParams.pulleyDiameter,
-      config.mechanismParams.gearboxReduction,
-      config.mechanismParams.unit1);
+                                            config.motorShaftAccel,
+                                            config.motorShaftVel,
+                                            config.mechanismParams.pulleyDiameter,
+                                            config.mechanismParams.gearboxReduction,
+                                            config.mechanismParams.unit1);
 
   } else if (config.mechanismType == "lead_screw") {
     currentMechanismPtr = new LeadscrewMechanism(
@@ -80,14 +80,13 @@ void setup() {
       config.mechanismParams.screwPitch,
       config.mechanismParams.gearboxReduction,
       config.mechanismParams.unit1);
-  }
-  else if (config.mechanismType == "rack_pinion"){
+  } else if (config.mechanismType == "rack_pinion") {
     currentMechanismPtr = new RackAndPinionMechanism(config.motorPulsesPerRevolution,
-      config.motorShaftAccel,
-      config.motorShaftVel,
-      config.mechanismParams.pinionDiameter,
-      config.mechanismParams.gearboxReduction,
-      config.mechanismParams.unit1);
+                                                     config.motorShaftAccel,
+                                                     config.motorShaftVel,
+                                                     config.mechanismParams.pinionDiameter,
+                                                     config.mechanismParams.gearboxReduction,
+                                                     config.mechanismParams.unit1);
   }
 
   screenPtr = new ScreenGiga(screenBaudRate);
@@ -122,11 +121,10 @@ void ButtonHandler(SCREEN_OBJECT obj) {
       if (motorPtr->hasHomed) {
         float position = convertUnits(currentMainMeasurement, currentUnit, UNIT_INCHES);
         // Serial.println("Position in inches: "+ String(position)); debugging
-        if (position < convertUnits(maxTravelMeasurement, maxTravelUnit, UNIT_INCHES)){
+        if (position < convertUnits(maxTravelMeasurement, maxTravelUnit, UNIT_INCHES)) {
           Serial.println("Max travel: " + String(maxTravelMeasurement) + " " + getUnitString(currentUnit) + getUnitString(config.mechanismParams.maxTravelUnit));
           motorPtr->MoveAbsolutePosition(static_cast<int32_t>(position * currentMechanismPtr->CalculateStepsPerUnit()));
-        }
-        else{
+        } else {
           screenPtr->SetScreen(OUTSIDE_RANGE_ERROR_SCREEN);
           delay(displayMsTime);
           screenPtr->SetScreen(MAIN_CONTROL_SCREEN);
@@ -208,17 +206,20 @@ void SetMeasurementUIDisplay() {
   screenPtr->SetScreen(MAIN_CONTROL_SCREEN);
   String paramValue = screenPtr->GetParameterInputValue();
 
-  if (paramValue.length() < 1){
+  if (paramValue.length() < 1) {
     paramValue = "0.00";
   }
+
+
+  //leading 0s trimming
+  while (paramValue.length() > 1 && paramValue.charAt(0) == '0' && paramValue.charAt(1) != '.') {
+    paramValue.remove(0, 1);
+  }
+
 
   String combinedString = paramValue + getUnitString(currentUnit);
 
   float val = paramValue.toFloat();
-
-  if (paramValue.length() == 0 || isnan(val)) {
-    return;
-  }
 
   float hypotheticalMovementPosition = convertUnits(val, currentUnit, UNIT_INCHES);
 
