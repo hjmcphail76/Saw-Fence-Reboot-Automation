@@ -1,6 +1,12 @@
 #include "Utils.h"
 #include <Arduino.h>
 
+float roundTo(float v, int decimals) {
+  float m = pow(10, decimals);
+  return roundf(v * m) / m;
+}
+
+
 float convertToInches(float value, UnitType unit) {
   if (unit == UNIT_MILLIMETERS) {
     return value * MM_TO_INCH_FACTOR;

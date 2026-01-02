@@ -27,7 +27,6 @@ struct SystemConfig {
   int screenBaud = 9600;
   int motorPulsesPerRevolution = 1000;
   UnitType defaultUnit = UnitType::UNIT_UNKNOWN;
-  String screenType = "giga_shield"; // "4d_systems" or "giga_shield"
 
   int motorShaftVel = 1000;
 

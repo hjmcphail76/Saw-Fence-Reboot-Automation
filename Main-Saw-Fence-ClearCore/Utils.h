@@ -10,7 +10,7 @@ enum UnitType {
   UNIT_UNKNOWN
 };
 
-// void initSDCard();
+float roundTo(float v, int decimals);
 float convertToInches(float value, UnitType unit);
 float convertFromInches(float valueInInches, UnitType targetUnit);
 float convertUnits(float value, UnitType from, UnitType to);

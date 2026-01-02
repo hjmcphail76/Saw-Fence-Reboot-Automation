@@ -2248,8 +2248,8 @@
                 "flags": 17,
                 "strtype": "OBJECT/Position",
                 "intarray": [
-                  -149,
-                  -146
+                  27,
+                  -163
                 ],
                 "InheritedType": 7
               },
@@ -2266,7 +2266,7 @@
               {
                 "nid": 70,
                 "strtype": "OBJECT/Align",
-                "strval": "CENTER",
+                "strval": "LEFT_MID",
                 "InheritedType": 3
               },
               {
@@ -2414,7 +2414,7 @@
                 "flags": 17,
                 "strtype": "OBJECT/Position",
                 "intarray": [
-                  -116,
+                  -113,
                   -149
                 ],
                 "InheritedType": 7
@@ -3558,7 +3558,7 @@
                 "flags": 17,
                 "strtype": "OBJECT/Position",
                 "intarray": [
-                  203,
+                  199,
                   -32
                 ],
                 "InheritedType": 7
@@ -4506,7 +4506,7 @@
                 "strtype": "OBJECT/Position",
                 "intarray": [
                   14,
-                  40
+                  50
                 ],
                 "InheritedType": 7
               },
@@ -4516,7 +4516,7 @@
                 "strtype": "OBJECT/Size",
                 "intarray": [
                   539,
-                  400
+                  364
                 ],
                 "InheritedType": 7
               },
@@ -4718,8 +4718,8 @@
                     "flags": 17,
                     "strtype": "OBJECT/Position",
                     "intarray": [
-                      12,
-                      0
+                      -5,
+                      -1
                     ],
                     "InheritedType": 7
                   },
@@ -4728,7 +4728,7 @@
                     "flags": 17,
                     "strtype": "OBJECT/Size",
                     "intarray": [
-                      244,
+                      475,
                       70
                     ],
                     "InheritedType": 7
@@ -4800,26 +4800,24 @@
                   },
                   {
                     "nid": 320,
-                    "flags": 1048576,
                     "strtype": "OBJECT/States",
                     "InheritedType": 1
                   },
                   {
                     "nid": 1010,
-                    "flags": 1048576,
                     "strtype": "TEXTAREA/TextArea",
                     "InheritedType": 1
                   },
                   {
                     "nid": 1020,
                     "strtype": "TEXTAREA/Text",
-                    "strval": "0",
+                    "strval": "",
                     "InheritedType": 10
                   },
                   {
                     "nid": 1030,
                     "strtype": "TEXTAREA/Placeholder",
-                    "strval": "0",
+                    "strval": "",
                     "InheritedType": 10
                   },
                   {
@@ -4843,7 +4841,7 @@
                   {
                     "nid": 1070,
                     "strtype": "TEXTAREA/Max_text_length",
-                    "integer": 98989898,
+                    "integer": 15,
                     "InheritedType": 6
                   },
                   {
@@ -4981,8 +4979,8 @@
                 "flags": 17,
                 "strtype": "OBJECT/Position",
                 "intarray": [
-                  12,
-                  -201
+                  22,
+                  -202
                 ],
                 "InheritedType": 7
               },
@@ -4991,7 +4989,7 @@
                 "flags": 17,
                 "strtype": "OBJECT/Size",
                 "intarray": [
-                  317,
+                  528,
                   63
                 ],
                 "InheritedType": 7
@@ -6834,7 +6832,7 @@
     "uiExportFolderPath": "C:\\Users\\Admin\\OneDrive\\Documents\\Arduino\\libraries\\ui\\src",
     "projectExportFolderPath": "C:\\Users\\Admin\\OneDrive\\Documents\\Arduino\\Saw-Fence-Reboot-Automation\\Squareline-Studio-GUI-Files",
     "custom_variable_prefix": "ui",
-    "backup_cnt": 63,
+    "backup_cnt": 68,
     "autosave_cnt": 0,
     "group_color_cnt": 0,
     "lvgl_version": "8.3.11",

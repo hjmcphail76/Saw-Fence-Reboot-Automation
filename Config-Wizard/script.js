@@ -23,7 +23,6 @@ document.getElementById("config-form").addEventListener("submit", function (e) {
         motorShaftVelocity: (formData.get("motorShaftVel")) || 1000,
         motorShaftAcceleration: (formData.get("motorShaftAccel")) || 10000,
         defaultUnit: formData.get("defaultUnit"),
-        screenType: formData.get("screenType"),
         mechanism: formData.get("mechanism"),
         mechanismParameters: {}
     };

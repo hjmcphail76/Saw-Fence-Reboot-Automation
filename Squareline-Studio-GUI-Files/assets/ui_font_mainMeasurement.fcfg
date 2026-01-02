@@ -4,7 +4,7 @@
   "bin_path": "/assets\\ui_font_mainMeasurement.bin",
   "c_path": "/assets\\ui_font_mainMeasurement.c",
   "cfg_path": "/assets\\ui_font_mainMeasurement.fcfg",
-  "size": 125,
+  "size": 100,
   "bpp": 1,
   "letters": 0,
   "ranges": [

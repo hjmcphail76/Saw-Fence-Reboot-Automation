@@ -41,14 +41,6 @@
             </label>
 
             <label>
-                Screen Setup:
-                <select name="screenType">
-                    <option value="4D_systems">4D Systems Screen</option>
-                    <option value="giga_shield">Giga Shield</option>
-                </select>
-            </label>
-
-            <label>
                 Motor Shaft Velocity (RPM):
                 <input type="text" name="motorShaftVel" value="1000" />
             </label>
@@ -186,7 +178,6 @@
                 motorShaftVelocity: formData.get("motorShaftVel") || "1000",
                 motorShaftAcceleration: formData.get("motorShaftAccel") || "10000",
                 defaultUnit: formData.get("defaultUnit"),
-                screenType: formData.get("screenType"),
                 mechanism: formData.get("mechanism"),
                 mechanismParameters: {}
             };

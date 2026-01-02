@@ -48,7 +48,6 @@ void writeSettings(SystemConfig writeConfig) {
   doc["motorShaftVelocity"] = String(writeConfig.motorShaftVel);
   doc["motorShaftAcceleration"] = String(writeConfig.motorShaftAccel);
   doc["defaultUnit"] = String(getUnitWordStringFromUnit(writeConfig.defaultUnit));
-  doc["screenType"] = String(writeConfig.screenType);
   doc["mechanism"] = String(writeConfig.mechanismType);
 
   // Add mechanismParameters
@@ -113,7 +112,6 @@ SystemConfig readSettings() {
   config.screenBaud = String(doc["screenBaud"] | "9600").toInt();
   config.motorPulsesPerRevolution = String(doc["motorPulsesPerRevolution"] | "1000").toInt();
   config.defaultUnit = getUnitFromString(String(doc["defaultUnit"] | "Undefined"));
-  config.screenType = String(doc["screenType"] | "giga_shield");
   config.mechanismType = String(doc["mechanism"] | "belt");
   config.motorShaftVel = String(doc["motorShaftVelocity"] | "1000").toInt();
   config.motorShaftAccel = String(doc["motorShaftAcceleration"] | "10000").toInt();
@@ -146,7 +144,6 @@ SystemConfig readSettings() {
   Serial.println("Screen Baud: " + String(config.screenBaud));
   Serial.println("Motor Pulses/Rev: " + String(config.motorPulsesPerRevolution));
   Serial.println("Unit: " + String(getUnitString(config.defaultUnit)));
-  Serial.println("Screen Type: " + config.screenType);
   Serial.println("Mechanism: " + config.mechanismType);
   Serial.println("Motor Shaft Velocity: " + String(config.motorShaftVel));
   Serial.println("Motor Shaft Acceleration: " + String(config.motorShaftAccel));

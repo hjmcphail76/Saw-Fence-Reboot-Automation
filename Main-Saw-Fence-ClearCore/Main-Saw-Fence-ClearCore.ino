@@ -170,15 +170,17 @@ void ButtonHandler(SCREEN_OBJECT obj) {
       break;
     case MILLIMETERS_UNIT_BUTTON:
       currentUnit = UNIT_MILLIMETERS;
-      currentMainMeasurement = 0.0f;
-      screenPtr->SetStringLabel(MAIN_MEASUREMENT_LABEL, String(currentMainMeasurement) + getUnitString(currentUnit));
+
+      currentMainMeasurement = convertUnits(currentMainMeasurement, UNIT_INCHES, UNIT_MILLIMETERS); //Converts to string to "round" to 2 decimal points
+      screenPtr->SetStringLabel(MAIN_MEASUREMENT_LABEL, String(roundTo(currentMainMeasurement,2)) + getUnitString(currentUnit));
+
       config.defaultUnit = currentUnit;
       writeSettings(config);
       break;
     case INCHES_UNIT_BUTTON:
       currentUnit = UNIT_INCHES;
-      currentMainMeasurement = 0.0f;
-      screenPtr->SetStringLabel(MAIN_MEASUREMENT_LABEL, String(currentMainMeasurement) + getUnitString(currentUnit));
+      currentMainMeasurement = convertUnits(currentMainMeasurement, UNIT_MILLIMETERS, UNIT_INCHES); //Converts to string to "round" to 2 decimal points
+      screenPtr->SetStringLabel(MAIN_MEASUREMENT_LABEL, String(roundTo(currentMainMeasurement,2)) + getUnitString(currentUnit));
       config.defaultUnit = currentUnit;
       writeSettings(config);
       break;
@@ -209,13 +211,6 @@ void SetMeasurementUIDisplay() {
   if (paramValue.length() < 1) {
     paramValue = "0.00";
   }
-
-
-  //leading 0s trimming
-  while (paramValue.length() > 1 && paramValue.charAt(0) == '0' && paramValue.charAt(1) != '.') {
-    paramValue.remove(0, 1);
-  }
-
 
   String combinedString = paramValue + getUnitString(currentUnit);
 

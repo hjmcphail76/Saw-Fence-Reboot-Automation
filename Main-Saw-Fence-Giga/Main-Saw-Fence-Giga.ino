@@ -10,6 +10,7 @@ Arduino_GigaDisplayTouch Touch;
 bool isConnected = false;
 lv_obj_t* active_text_area = nullptr;
 static String currentText = "";
+bool hasDecimalPoint = false;
 
 /* --- Main button handler --- */
 static void ButtonEventHandler(lv_event_t* e) {
@@ -46,41 +47,37 @@ static void ButtonEventHandler(lv_event_t* e) {
 static void TextAreaEventHandler(lv_event_t* e) {
   lv_event_code_t code = lv_event_get_code(e);
   currentText = String(lv_textarea_get_text(ui_PARAMETER_INPUT_TEXT_AREA));
+  Serial.println(currentText);
 
-  //if (code == LV_EVENT_INSERT) {
-    // const char* txt = (const char*)lv_event_get_param(e);
-    // String txtString = String(txt);
-    if (currentText.indexOf("ENTER") != -1) {
-      currentText.remove(currentText.length() - 5); //length of 'enter'
-      Serial.println("Enter has been pressed...");
-      //Serial.println(txtString);
-      Serial2.println("ENTER:" + currentText);
-      Serial.println("ENTER:" + currentText);
+
+  if (currentText.indexOf('.') != -1) {
+    hasDecimalPoint = true;
+  } else {
+    hasDecimalPoint = false;
+  }
+
+  if (code == LV_EVENT_INSERT) {
+    void* param = lv_event_get_param(e);
+    const char* inserted = static_cast<const char*>(param);
+
+    if (inserted && inserted[0] == '.' && hasDecimalPoint) {
+      // Already has a decimal point → reject this insert
+      lv_textarea_del_char(ui_PARAMETER_INPUT_TEXT_AREA);
       return;
     }
-  //}
-  // } else if (code == LV_EVENT_VALUE_CHANGED) {
-  //   Serial.print("newtxt: ");
-  //   Serial.println(currentText);
+  }
 
-  //   Serial.print("lasttxt: ");
-  //   Serial.println(currentText);
-  //   if (currentText.length() < lastText.length()) {
-  //     Serial.println("Backspace detected!");
-  //     Serial2.println("KEY:BACKSPACE");
-  //     return;
-  //   }
-
-  //   if (currentText.indexOf("ENTER") != -1) {
-  //     Serial.println("Enter has been pressed...");
-  //     Serial2.println("KEY:ENTER");
-  //     lastText = "";
-  //     return;
-  //   }
-
-  //   lastText = currentText;
-  //}
+  if (currentText.indexOf("ENTER") != -1) {
+    currentText.remove(currentText.length() - 5);  // length of 'ENTER'
+    Serial.println("Enter has been pressed...");
+    Serial2.println("ENTER:" + currentText);
+    Serial.println("ENTER:" + currentText);
+    hasDecimalPoint = false;
+    return;
+  }
 }
+
+
 
 
 /* --- Numeric keyboard setup --- */
